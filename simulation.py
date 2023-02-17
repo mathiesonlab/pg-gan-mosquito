@@ -257,7 +257,7 @@ misinferred (i.e. if the observed frequency is i out of n chromosomes, the true 
 allele frequency is n−i). In order to limit the number of free parameters, we fixed the
 value of this parameter to 0.1%."
 '''
-def dadi_joint(params, sample_sizes, seed, reco):
+def dadi_joint(params, sample_sizes, seed, reco): # TODO use seed!
     """Two population mosquito model from 2017 paper"""
     assert len(sample_sizes) == 2
 
@@ -296,6 +296,75 @@ def dadi_joint(params, sample_sizes, seed, reco):
     # simulate ancestry and mutations over that ancestry
     ts = msprime.sim_ancestry(
         samples = {'POP1':sample_sizes[0], 'POP2':sample_sizes[1]},
+        demography=demography,
+        sequence_length=global_vars.L,
+        recombination_rate=reco,
+        ploidy=1) # keep it in haplotypes
+
+    # TODO might want to keep the JC mutation model for multi-allelic sites
+    mts = msprime.sim_mutations(ts, rate=params.mut.value, model="binary")
+
+    return mts
+
+def dadi_3pop(params, sample_sizes, seed, reco): # TODO use seed!
+    """
+    Simple 3 population split model with exponential growth in the recent past
+    for all 3 populations. No migration currently. Populations 1 and 2 should
+    be most closely related. NOTE: not tested!
+    """
+    assert len(sample_sizes) == 3
+
+    gen_per_year = 11
+
+    # described past -> present
+    NI = params.NI.value # the initial ancestral population size
+    TG = params.TG.value*gen_per_year # the time of when the ancestral population begins to change in size
+    NF = params.NF.value # the final ancestral population size, immediately prior to the split
+
+    T3 = params.T3.value*gen_per_year # the time of the split of the ancestral of 1&2 with 3
+    N12 = params.N12.value # size of the ancestral population of 1 and 2
+    T12 = params.T12.value*gen_per_year # the time of the split of pops 1 and 2
+
+    NI1 = params.NI1.value # the initial sizes of populations 1, 2, 3
+    NI2 = params.NI2.value
+    NI3 = params.NI3.value
+    NF1 = params.NF1.value # the final sizes of these three populations
+    NF2 = params.NF2.value
+    NF3 = params.NF3.value
+
+    # compute growth rates from the start/end sizes and times
+    # negative since backward in time
+    g1 = -(1/T12) * math.log(NI1/NF1)
+    g2 = -(1/T12) * math.log(NI2/NF2)
+    g3 = -(1/T3)  * math.log(NI3/NF3)
+    g  = -(1/(TG-T3)) * math.log(NI/NF) # ancestral
+
+    demography = msprime.Demography()
+    demography.add_population(name="POP1", initial_size=NF1)
+    demography.add_population(name="POP2", initial_size=NF2)
+    demography.add_population(name="POP3", initial_size=NF3)
+    demography.add_population(name="ANC12", initial_size=N12, initially_active=False)
+    demography.add_population(name="ANC", initial_size=NF, initially_active=False)
+
+    # initial 3 pops
+    demography.add_population_parameters_change(time=0, growth_rate=g1, population="POP1")
+    demography.add_population_parameters_change(time=0, growth_rate=g2, population="POP2")
+    demography.add_population_parameters_change(time=0, growth_rate=g3, population="POP3")
+
+    # population splits
+    demography.add_population_split(time=T12, derived=["POP1", "POP2"], ancestral="ANC12")
+    demography.add_population_parameters_change(time=T12, growth_rate=0, population="ANC12")
+    demography.add_population_split(time=T3, derived=["ANC12", "POP3"], ancestral="ANC")
+
+    # ancestral pop
+    demography.add_population_parameters_change(time=T3, growth_rate=g, population="ANC")
+    demography.add_population_parameters_change(time=TG, growth_rate=0, population="ANC")
+
+    #print(demography.debug())
+
+    # simulate ancestry and mutations over that ancestry
+    ts = msprime.sim_ancestry(
+        samples = {'POP1':sample_sizes[0], 'POP2':sample_sizes[1], 'POP3':sample_sizes[2]},
         demography=demography,
         sequence_length=global_vars.L,
         recombination_rate=reco,
