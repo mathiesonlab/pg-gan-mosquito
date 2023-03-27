@@ -408,3 +408,22 @@ def ooa3(params, sample_sizes, seed, reco):
     ts = engine.simulate(model, contig, samples, seed=seed)
 
     return ts
+
+
+if __name__ == '__main__':
+    ## testing to generate simulated genotype data for dadi joint model with the addition of recombination map
+
+    #initiating params
+    DADI_PARAMS = [420646, 89506, 9440437, 2245, 18328570, 42062652, 42064645, 42064198]
+    sample_size = [5,5]
+    rate_map_3L_path = '/data/SBBS-FumagalliLab/mosquito_gan/data/recomb_map/Ag_3L_fine.map'
+    rate_map_3R_path = '/data/SBBS-FumagalliLab/mosquito_gan/data/recomb_map/Ag_3R_fine.map'
+
+    #make ratemap object
+    rate_map_3L = msprime.RateMap.read_hapmap(rate_map_3L_path)
+    rate_map_3R = msprime.RateMap.read_hapmap(rate_map_3R_path)
+
+    #simulate 
+    mts_3L = dadi_joint(DADI_PARAMS, sample_size, seed, rate_map_3L)
+    mts_3L = dadi_joint(DADI_PARAMS, sample_size, seed, rate_map_3R)
+
