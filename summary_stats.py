@@ -46,8 +46,15 @@ DADI_PARAMS = [420646, 89506, 9440437, 2245, 18328570, 42062652, 42064645, 42064
 def main():
     input_file = sys.argv[1]
     output_file = sys.argv[2]
+    output_run_plot = sys.argv[3]
+    output_param_plot = sys.argv[4]
+    output_proposal_plot = sys.argv[5]
+
     print("input file", input_file)
     print("output file", output_file)
+    print("training eval", output_run_plot)
+    print("param eval", output_param_plot)
+    print("proposal eval", output_proposal_plot)
 
     if global_vars.OVERWRITE_TRIAL_DATA:
         in_file_data = global_vars.TRIAL_DATA
@@ -55,7 +62,11 @@ def main():
         param_values = [float(value_str) for value_str in value_strs]
         assert len(param_values) == len(in_file_data['params'].split(','))
     else:
-        param_values, in_file_data = ss_helpers.parse_output(input_file)
+        param_values, eval_metrics, \
+            in_file_data, param_limit_dict_all, param_lst_all, proposal_lst_all = ss_helpers.parse_output(input_file, return_acc=True)
+        ss_helpers.plot_parse_output(eval_metrics, param_limit_dict_all, param_lst_all, proposal_lst_all, \
+                            output_run_plot, output_param_plot, output_proposal_plot)
+        
 
     opts, param_values = util.parse_args(in_file_data = in_file_data,
         param_values=param_values)
@@ -68,39 +79,40 @@ def main():
     
     pop_names = opts.data_h5.split("/")[-1].split(".")[0] \
                        if opts.data_h5 is not None else ""
+    
+    #temp for noh5 option
+    pop_names = "GNB-BFA_sim"
     # sets global_vars.SS_LABELS and global_vars.SS_COLORS
     # overwrite this function in globals.py to change
     global_vars.update_ss_labels(pop_names, num_pops=len(generator.sample_sizes))
-
+    #param_values = [435859.1990315874, 98397.63128341836, 6248241.694365332, 6907.604286893473, 26065706.89871702, 17059954.904996518, 39298187.782837555, 26645989.59151735]
     generator.update_params(param_values)
     print("VALUES", param_values)
     print("made it through params")
 
     # use the parameters we inferred!
-    fsc=False
-    if opts.model == 'fsc':
-        print("\nALERT you are running FSC sim!\n")
-        print("FSC PARAMS!", FSC_PARAMS)
-        generator.update_params(FSC_PARAMS) # make sure to check the order!
-        fsc=True
-    elif DADI:
-        print("\nALERT you are running DADI!\n")
-        print("DADI PARAMS!", DADI_NAMES, DADI_PARAMS)
-        generator.param_names = DADI_NAMES
-        generator.update_params(DADI_PARAMS) # make sure to check the order!
+    # fsc=False
+    # if opts.model == 'fsc':
+    #     print("\nALERT you are running FSC sim!\n")
+    #     print("FSC PARAMS!", FSC_PARAMS)
+    #     generator.update_params(FSC_PARAMS) # make sure to check the order!
+    #     fsc=True
+    # elif DADI:
+    #     print("\nALERT you are running DADI!\n")
+    #     print("DADI PARAMS!", DADI_NAMES, DADI_PARAMS)
+    #     generator.param_names = DADI_NAMES
+    #     generator.update_params(DADI_PARAMS) # make sure to check the order!
 
     '''
     NOTE: for summary stats, use neg1=False to keep hap data as 0/1 (not -1/1)
     NOTE: use region_len=True for Tajima's D (i.e. not all regions have same S)
     '''
-
     # real
     real_matrices = iterator.real_batch(batch_size=NUM_TRIAL, neg1=False)
     print("finish real")
     real_matrices_region = iterator.real_batch(batch_size=NUM_TRIAL, neg1=False,
         region_len=True)
     print("finish real region_len")
-
     # sim
     sim_matrices = generator.simulate_batch(batch_size=NUM_TRIAL, neg1=False)
     print("finish sim")
@@ -156,8 +168,12 @@ def main():
     sim_stats_lst = []
     for p in range(num_pop):
         print("real stats for pop", p)
+        #temp solution for fixing difference in coalescent tree length
+        # if "sim" in input_file:
+        #     print("reading sim file")
+        #     real_stats_pop = ss_helpers.stats_all(real_all[p], real_region_all[p], 5000000)
+        # else:
         real_stats_pop = ss_helpers.stats_all(real_all[p], real_region_all[p])
-
         print("sim stats for pop", p)
         sim_stats_pop = ss_helpers.stats_all(sim_all[p], sim_region_all[p])
 

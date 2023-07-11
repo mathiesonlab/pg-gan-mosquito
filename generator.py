@@ -40,6 +40,18 @@ class Generator:
 
     def simulate_batch(self, batch_size=global_vars.BATCH_SIZE, params=[],
         region_len=False, real=False, neg1=True):
+        '''
+        simulate genotype data in allelic format using msprime within simulator class 
+
+        input:
+        params = msprime parameters
+        region_len = ?
+        real = boolean to indicate real or simulated batch
+        neg1 = boolean 
+
+        output:
+        regions: shape = (num_trials, sample_size, SNP, 2)
+        '''
 
         # initialize 4D matrix (two channels for distances)
         if region_len:
@@ -92,6 +104,7 @@ def draw_background_rate_from_prior(prior_rates, prob, rng):
 
 def prep_region(ts, neg1, region_len):
     """Gets simulated data ready"""
+    #returns m*n matrix of genotype
     gt_matrix = ts.genotype_matrix().astype(float)
     snps_total = gt_matrix.shape[0]
 

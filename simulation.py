@@ -272,12 +272,15 @@ def dadi_joint(params, sample_sizes, seed, reco): # TODO use seed!
     NI2 = params.NI2.value
     NF1 = params.NF1.value # the final sizes of these two populations
     NF2 = params.NF2.value
+    #MG = params.MG.value
 
     # compute growth rates from the start/end sizes and times
     # negative since backward in time
     g1 = -(1/TS) * math.log(NI1/NF1)
     g2 = -(1/TS) * math.log(NI2/NF2)
     g  = -(1/(TG-TS)) * math.log(NI/NF) # ancestral
+    #small m
+    #MG = MG / 2 / NF
 
     demography = msprime.Demography()
     demography.add_population(name="POP1", initial_size=NF1)
@@ -287,6 +290,64 @@ def dadi_joint(params, sample_sizes, seed, reco): # TODO use seed!
     # dadi joint model
     demography.add_population_parameters_change(time=0, growth_rate=g1, population="POP1")
     demography.add_population_parameters_change(time=0, growth_rate=g2, population="POP2")
+
+    #demography.add_symmetric_migration_rate_change(time=TS, populations=["POP1","POP2"], rate=MG)
+    
+    demography.add_population_split(time=TS, derived=["POP1", "POP2"], ancestral="ANC")
+    demography.add_population_parameters_change(time=TS, growth_rate=g, population="ANC")
+    demography.add_population_parameters_change(time=TG, growth_rate=0, population="ANC")
+
+    #print(demography.debug())
+
+    # simulate ancestry and mutations over that ancestry
+    ts = msprime.sim_ancestry(
+        samples = {'POP1':sample_sizes[0], 'POP2':sample_sizes[1]},
+        demography=demography,
+        sequence_length=global_vars.L,
+        recombination_rate=reco,
+        ploidy=1) # keep it in haplotypes
+
+    # TODO might want to keep the JC mutation model for multi-allelic sites
+    mts = msprime.sim_mutations(ts, rate=params.mut.value, model="binary")
+
+    return mts
+
+def dadi_joint_mig(params, sample_sizes, seed, reco): # TODO use seed!
+    """Two population mosquito model from 2017 paper"""
+    assert len(sample_sizes) == 2
+
+    gen_per_year = 11
+
+    # described past -> present
+    NI = params.NI.value # the initial ancestral population size
+    TG = params.TG.value*gen_per_year # the time of when the ancestral population begins to change in size
+    NF = params.NF.value # the final ancestral population size, immediately prior to the split
+    TS = params.TS.value*gen_per_year # the time of the split
+    NI1 = params.NI1.value # the initial sizes of population 1 and population 2
+    NI2 = params.NI2.value
+    NF1 = params.NF1.value # the final sizes of these two populations
+    NF2 = params.NF2.value
+    MG = params.MG.value
+
+    # compute growth rates from the start/end sizes and times
+    # negative since backward in time
+    g1 = -(1/TS) * math.log(NI1/NF1)
+    g2 = -(1/TS) * math.log(NI2/NF2)
+    g  = -(1/(TG-TS)) * math.log(NI/NF) # ancestral
+    #small m
+    #MG = MG / 2 / NF
+
+    demography = msprime.Demography()
+    demography.add_population(name="POP1", initial_size=NF1)
+    demography.add_population(name="POP2", initial_size=NF2)
+    demography.add_population(name="ANC", initial_size=NF, initially_active=False)
+
+    # dadi joint model
+    demography.add_population_parameters_change(time=0, growth_rate=g1, population="POP1")
+    demography.add_population_parameters_change(time=0, growth_rate=g2, population="POP2")
+
+    demography.add_symmetric_migration_rate_change(time=TS, populations=["POP1","POP2"], rate=MG)
+    
     demography.add_population_split(time=TS, derived=["POP1", "POP2"], ancestral="ANC")
     demography.add_population_parameters_change(time=TS, growth_rate=g, population="ANC")
     demography.add_population_parameters_change(time=TG, growth_rate=0, population="ANC")
@@ -360,7 +421,7 @@ def dadi_3pop(params, sample_sizes, seed, reco): # TODO use seed!
     demography.add_population_parameters_change(time=T3, growth_rate=g, population="ANC")
     demography.add_population_parameters_change(time=TG, growth_rate=0, population="ANC")
 
-    #print(demography.debug())
+    print(demography.debug())
 
     # simulate ancestry and mutations over that ancestry
     ts = msprime.sim_ancestry(
@@ -410,20 +471,5 @@ def ooa3(params, sample_sizes, seed, reco):
     return ts
 
 
-if __name__ == '__main__':
-    ## testing to generate simulated genotype data for dadi joint model with the addition of recombination map
 
-    #initiating params
-    DADI_PARAMS = [420646, 89506, 9440437, 2245, 18328570, 42062652, 42064645, 42064198]
-    sample_size = [5,5]
-    rate_map_3L_path = '/data/SBBS-FumagalliLab/mosquito_gan/data/recomb_map/Ag_3L_fine.map'
-    rate_map_3R_path = '/data/SBBS-FumagalliLab/mosquito_gan/data/recomb_map/Ag_3R_fine.map'
-
-    #make ratemap object
-    rate_map_3L = msprime.RateMap.read_hapmap(rate_map_3L_path)
-    rate_map_3R = msprime.RateMap.read_hapmap(rate_map_3R_path)
-
-    #simulate 
-    mts_3L = dadi_joint(DADI_PARAMS, sample_size, seed, rate_map_3L)
-    mts_3L = dadi_joint(DADI_PARAMS, sample_size, seed, rate_map_3R)
 

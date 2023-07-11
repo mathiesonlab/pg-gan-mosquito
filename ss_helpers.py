@@ -11,6 +11,7 @@ import libsequence
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
+import pandas as pd
 
 # our imports
 import global_vars
@@ -49,17 +50,27 @@ def parse_output(filename, return_acc=False):
 
     # list of lists, one for each param
     param_lst_all = []
+    proposal_lst_all = []
+    # list of list, store [truth, min, max] for each param
+    param_search_space_lst = []
 
     # evaluation metrics
-    disc_loss_lst = []
-    real_acc_lst = []
-    fake_acc_lst = []
+    #dis_loss,gen_loss,real_acc,fake_acc for rows, iter for columns
+    eval_metrics = np.full((4,300),np.nan)
+
 
     num_param = None
+    param_names = None
+    training = False
 
     trial_data = {}
 
     for line in f:
+
+        if line.startswith("ITER"):
+            training = True
+            iter = int(line.split(" ")[-1])
+            #initiate dis_loss incase first iteration is not accepted
 
         if line.startswith("{"):
             tokens = line.split()
@@ -70,6 +81,7 @@ def parse_output(filename, return_acc=False):
             num_param = len(param_names)
             for i in range(num_param):
                 param_lst_all.append([])
+                proposal_lst_all.append([])
 
             trial_data['model'] = clean_param_tkn(tokens[1])
             trial_data['params'] = param_str
@@ -78,31 +90,115 @@ def parse_output(filename, return_acc=False):
             trial_data['reco_folder'] = clean_param_tkn(tokens[9])
             trial_data['seed'] = clean_param_tkn(tokens[15])
             trial_data['sample_sizes'] = clean_param_tkn(tokens[17])
-            
-        elif "Epoch 100" in line:
+        
+        elif param_names != None and line.startswith(tuple(param_names)):
+            Name, TRUTH, MIN, MAX = line.split("\t")
+            param_search_space_lst.append((Name, float(TRUTH), float(MIN), float(MAX)))
+        
+        elif training and "Epoch 100" in line:
             tokens = line.split()
             disc_loss = float(tokens[3][:-1])
             real_acc = float(tokens[6][:-1])/100
             fake_acc = float(tokens[9])/100
-            disc_loss_lst.append(disc_loss)
-            real_acc_lst.append(real_acc)
-            fake_acc_lst.append(fake_acc)
 
-        if "T, p_accept" in line:
+            eval_metrics[0, iter] = disc_loss
+            eval_metrics[2, iter] = real_acc
+            eval_metrics[3, iter] = fake_acc
+
+        elif "T, p_accept" in line:
             tokens = line.split()
             # parse current params and add to each list
             mini_lst = parse_mini_lst(tokens[-1-num_param:-1])
+            #add generater loss to eval_metrics
+            eval_metrics[1, iter] = float(tokens[-1])
             add_to_lst(param_lst_all, mini_lst)
 
+        elif "proposal" in line:
+            tokens = line.split()
+            # parse current params and add to each list
+            mini_lst = parse_mini_lst(tokens[2:-1])
+            add_to_lst(proposal_lst_all, mini_lst)
     f.close()
 
     # Use -1 instead of iter for the last iteration
     final_params = [param_lst_all[i][-1] for i in range(num_param)]
     if return_acc:
-        return final_params, disc_loss_lst, real_acc_lst, fake_acc_lst, \
-            trial_data
+        return final_params, eval_metrics, \
+            trial_data, param_search_space_lst, param_lst_all, proposal_lst_all
     else:
         return final_params, trial_data
+    
+def plot_parse_output(eval_metrics, param_search_space_lst, param_lst_all, proposal_lst_all, \
+                        output_filepath, output_filepath_2, output_filepath_3):
+    
+    eval_metrics = forward_fill(eval_metrics)
+
+    disc_loss_lst, gen_loss_lst, real_acc_lst, fake_acc_lst = eval_metrics[0, :], eval_metrics[1, :], eval_metrics[2, :], eval_metrics[3, :]
+    fig, ax = plt.subplots(2, 1, figsize=(20, 30))
+    ax[0].plot(range(len(gen_loss_lst)), gen_loss_lst, 'r', label = "generator loss")
+    ax[0].plot(range(len(disc_loss_lst)), disc_loss_lst, 'b', label = "discriminator loss")
+    ax[1].axhline(y=0.5, color='g', linestyle='--')
+    ax[1].plot(range(len(real_acc_lst)), real_acc_lst, 'r', label = "discriminator real_acc")
+    ax[1].plot(range(len(fake_acc_lst)), fake_acc_lst, 'b', label = "discriminator fake_acc")
+
+    ax[0].legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    ax[1].legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    plt.savefig(output_filepath, bbox_inches='tight')
+
+    fig, ax = plt.subplots(len(param_lst_all), 1, figsize=(20, 30))
+    for index, (param, param_search_space) in enumerate(zip(param_lst_all, param_search_space_lst)):
+        ax[index].plot(range(len(param)), param, label = param_search_space[0])
+        ax[index].axhline(y=param_search_space[1], color='g', linestyle='-', linewidth='0.2')
+        ax[index].set(xlabel="iters", ylabel=param_search_space[0])
+        ax[index].axhline(y=param_search_space[2], color='r', linestyle='-')
+        ax[index].axhline(y=param_search_space[3], color='r', linestyle='-')
+        ax[index].set_ylim([param_search_space[2] * 0.8, param_search_space[3] * 1.2])
+        ax[index].legend(["ITER {}  {} = {:.1f}".format(len(param),param_search_space[0], param[-1]), "Truth {} = {}".format(param_search_space[0], param_search_space[-3])])
+    plt.savefig(output_filepath_2, dpi=350)
+
+    fig, ax = plt.subplots(len(proposal_lst_all), 1, figsize=(20, 30))
+    for index, (param, param_search_space) in enumerate(zip(proposal_lst_all, param_search_space_lst)):
+        ax[index].plot(range(len(param)), param, label = param_search_space[0], linewidth='0.5')
+        ax[index].set(xlabel="proposals", ylabel=param_search_space[0])
+        ax[index].axhline(y=param_search_space[1], color='g', linestyle='-', linewidth='0.2')
+        ax[index].axhline(y=param_search_space[2], color='r', linestyle='-')
+        ax[index].axhline(y=param_search_space[3], color='r', linestyle='-')
+        ax[index].set_ylim([param_search_space[2] * 0.8, param_search_space[3] * 1.2])
+
+    plt.savefig(output_filepath_3, dpi=350)
+
+def forward_fill(arr):
+    '''
+        forward-fill NaN values in numpy array
+    '''
+    mask = np.isnan(arr)
+    idx = np.where(~mask,np.arange(mask.shape[1]),0)
+    np.maximum.accumulate(idx,axis=1, out=idx)
+    out = arr[np.arange(idx.shape[0])[:,None], idx]
+    return out
+
+def find_most_confused_iter(real_acc_lst, fake_acc_lst):
+    min_acc = float("inf")
+    min_acc_iter = None
+    for iter in range(0,300):
+        avg_acc = abs(real_acc_lst[iter] -50) + abs(fake_acc_lst[iter] -50)
+        if min_acc < avg_acc:
+            min_acc = avg_acc
+            min_acc_iter = iter
+    return min_acc, min_acc_iter
+
+        
+        
+    
+        
+
+
+
+
+
+
+
+
 
 ################################################################################
 # COMPUTE STATS
@@ -233,7 +329,7 @@ def plot_generic(ax, name, real, sim, real_color, sim_color, pop="",
     # LD
     elif name == "distance between SNPs":
         nbin = NUM_LD
-        max_dist = 5000 # TODO make flexible! (5k for mosquito, 20k for human)
+        max_dist = 500 # TODO make flexible! (5k for mosquito, 20k for human)
         dist_bins = np.linspace(0,max_dist,nbin)
         real_mean = [np.mean(rs) for rs in real]
         sim_mean = [np.mean(ss) for ss in sim]
@@ -243,7 +339,7 @@ def plot_generic(ax, name, real, sim, real_color, sim_color, pop="",
         # plotting
         ax.errorbar(dist_bins, real_mean, yerr=real_stddev, color=real_color,
             label=pop)
-        ax.errorbar([x+150 for x in dist_bins], sim_mean, yerr=sim_stddev,
+        ax.errorbar([x for x in dist_bins], sim_mean, yerr=sim_stddev,
             color=sim_color, label=sim_label)
         ax.set_ylabel(r'LD ($r^2$)')
 
@@ -256,7 +352,7 @@ def plot_generic(ax, name, real, sim, real_color, sim_color, pop="",
 
     # inter-SNP distances
     if name == "inter-SNP distances":
-        ax.set_xlim(-50,1250)
+        ax.set_xlim(-50,100)
     ax.set(xlabel=name)
 
     # legend
@@ -275,7 +371,7 @@ def plot_generic(ax, name, real, sim, real_color, sim_color, pop="",
 # COLLECT STATISTICS
 ################################################################################
 
-def stats_all(matrices, matrices_region):
+def stats_all(matrices, matrices_region, L = global_vars.L):
     """Set up and compute stats"""
 
     # sfs
@@ -319,10 +415,10 @@ def stats_all(matrices, matrices_region):
             pop_sfs[s].append(sfs[s])
 
         # inter-snp
-        pop_dist.extend([x*global_vars.L for x in intersnp])
+        pop_dist.extend([x*L for x in intersnp])
 
         # LD
-        ld = compute_ld(vm, global_vars.L)
+        ld = compute_ld(vm, L)
         for l in range(len(ld)):
             pop_ld[l].append(ld[l])
 
@@ -330,6 +426,7 @@ def stats_all(matrices, matrices_region):
         stats = compute_stats(vm, vm_region)
         for s in range(len(stats)):
             pop_stats[s].append(stats[s])
+
 
     return [pop_sfs, pop_dist, pop_ld] + pop_stats
 

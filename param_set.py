@@ -24,7 +24,7 @@ class Parameter:
         self.min = min
         self.max = max
         self.name = name
-        self.proposal_width = (self.max - self.min)/15 # heuristic
+        self.proposal_width = (self.max - self.min)/10 # heuristic
 
     def __str__(self):
         s = '\t'.join(["NAME", "VALUE", "MIN", "MAX"]) + '\n'
@@ -114,17 +114,48 @@ class ParamSet:
 
         # mosquito dadi joint models: GNS_vs_BFS (1st line)
         elif simulator == simulation.dadi_joint:
-            d = 1000
-            self.NI = Parameter(420646, 420646-d, 420646+d, "NI")
-            self.TG = Parameter(89506, 89506-d, 89506+d, "TG")
-            self.NF = Parameter(9440437, 9440437-d, 9440437+d, "NF")
-            self.TS = Parameter(2245, 2245-d, 2245+d, "TS")
-            self.NI1 = Parameter(18328570, 18328570-d, 18328570+d, "NI1")
-            self.NI2 = Parameter(42062652, 42062652-d, 42062652+d, "NI2")
-            self.NF1 = Parameter(42064645, 42064645-d, 42064645+d, "NF1")
-            self.NF2 = Parameter(42064198, 42064198-d, 42064198+d, "NF2")
+            upper_range = 4
+            lower_range = 0.25
+            upper_range_t = 4
+            lower_range_t = 0.25
+            self.NI = Parameter(420646 , 420646 * lower_range , 420646 * upper_range, "NI")
+            self.TG = Parameter(89506 , 89506 * lower_range_t , 89506 * upper_range_t, "TG")
+            self.NF = Parameter(9440437 ,9440437 * lower_range ,9440437 * upper_range, "NF")
+            self.TS = Parameter(2245 , 2245 * lower_range_t , 2245 * upper_range_t, "TS")
+            self.NI1 = Parameter(18328570 , 18328570 * lower_range , 18328570 * upper_range, "NI1")
+            self.NI2 = Parameter(42062652 , 42062652 * lower_range , 42062652 * upper_range, "NI2")
+            self.NF1 = Parameter(42064645 , 42064645 * lower_range , 42064645 * upper_range, "NF1")
+            self.NF2 = Parameter(42064198 , 42064198 * lower_range , 42064198 * upper_range, "NF2")
+            #MG = 2Nim, where Ni = ancestral pop size, 
+            # and m = migration rate per gamete per generation
+            #self.MG = Parameter(40, 20, 60, "MG")
 
-            self.reco = Parameter(8.4e-09, 1e-9, 1e-8, "reco") # stdpopsim
+            # stdpopsim
+            #self.reco = Parameter(8.4e-09, 1e-9, 1e-8, "reco")
+            self.reco = Parameter(1.45e-8, 1e-9, 1e-8, "reco") 
+            # 3.5e-9 based on 2017 paper (from drosophila)
+            self.mut = Parameter(3.5e-9, 1e-9, 1e-8, "mut")
+
+        elif simulator == simulation.dadi_joint_mig:
+            upper_range = 4
+            lower_range = 0.25
+            upper_range_t = 4
+            lower_range_t = 0.25
+            self.NI = Parameter(420646 , 420646 * lower_range , 420646 * upper_range, "NI")
+            self.TG = Parameter(89506 , 89506 * lower_range_t , 89506 * upper_range_t, "TG")
+            self.NF = Parameter(9440437 ,9440437 * lower_range ,9440437 * upper_range, "NF")
+            self.TS = Parameter(2245 , 2245 * lower_range_t , 2245 * upper_range_t, "TS")
+            self.NI1 = Parameter(18328570 , 18328570 * lower_range , 18328570 * upper_range, "NI1")
+            self.NI2 = Parameter(42062652 , 42062652 * lower_range , 42062652 * upper_range, "NI2")
+            self.NF1 = Parameter(42064645 , 42064645 * lower_range , 42064645 * upper_range, "NF1")
+            self.NF2 = Parameter(42064198 , 42064198 * lower_range , 42064198 * upper_range, "NF2")
+            #MG = 2Nim, where Ni = ancestral pop size, 
+            # and m = migration rate per gamete per generation
+            self.MG = Parameter(40, 20, 60, "MG")
+
+            # stdpopsim
+            #self.reco = Parameter(8.4e-09, 1e-9, 1e-8, "reco")
+            self.reco = Parameter(1.45e-8, 1e-9, 1e-8, "reco") 
             # 3.5e-9 based on 2017 paper (from drosophila)
             self.mut = Parameter(3.5e-9, 1e-9, 1e-8, "mut")
 
