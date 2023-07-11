@@ -23,7 +23,7 @@ class OnePopModel(Model):
         self.pool = MaxPooling2D(pool_size = (1,2), strides = (1,2))
 
         self.flatten = Flatten()
-        self.dropout = Dropout(rate=0.5)
+        self.dropout = Dropout(rate=0.4)
 
         self.fc1 = Dense(128, activation='relu')
         self.fc2 = Dense(128, activation='relu')
@@ -76,7 +76,7 @@ class TwoPopModel(Model):
 
         self.flatten = Flatten()
         self.merge = Concatenate()
-        self.dropout = Dropout(rate=0.5)
+        self.dropout = Dropout(rate=0.35)
 
         self.fc1 = Dense(128, activation='relu')
         self.fc2 = Dense(128, activation='relu')
