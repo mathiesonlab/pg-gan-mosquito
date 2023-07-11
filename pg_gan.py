@@ -10,6 +10,7 @@ import numpy as np
 import sys
 import tensorflow as tf
 import scipy.stats
+import os
 
 # our imports
 import discriminator
@@ -32,6 +33,7 @@ print("L", global_vars.L)
 print("NUM_CLASSES", NUM_CLASSES)
 print("NUM_CHANNELS", NUM_CHANNELS)
 
+
 def main():
     """Parse args and run simulated annealing"""
 
@@ -46,6 +48,8 @@ def main():
     generator, iterator, parameters, sample_sizes = util.process_opts(opts)
     #disc = discriminator.MultiPopModel(sample_sizes)
     disc = get_discriminator(sample_sizes)
+    print("pretrain dropout", disc.dropout.rate)
+
 
     # grid search
     if opts.grid:
@@ -56,29 +60,46 @@ def main():
     # simulated annealing
     else:
         posterior, loss_lst = simulated_annealing(generator, disc,
-            iterator, parameters, opts.seed, toy=opts.toy)
+           iterator, parameters, opts.seed, toy=opts.toy, load_pm = False,
+           save_pm = True)
 
     print(posterior)
     print(loss_lst)
+
 
 ################################################################################
 # SIMULATED ANNEALING
 ################################################################################
 
 def simulated_annealing(generator, disc, iterator, parameters, seed,
-    toy=False):
+    toy=False, save_pm = False, load_pm = False):
     """Main function that drives GAN updates"""
 
     # main object for pg-gan
     pg_gan = PG_GAN(generator, disc, iterator, parameters, seed)
+    print("pretraining learning rate", pg_gan.disc_optimizer.learning_rate)
+
 
     # find starting point through pre-training (update generator in method)
-    if not toy:
+    if load_pm:
+        print("loading pretrained model")
+        pg_gan.discriminator = tf.keras.models.load_model("./pretrained_model/GNB-BFA_gamb_sim_mig/pm")
+        s_current = np.load('./pretrained_model/BFA_gamb_sim_mig/s_current.npy').tolist()
+        pg_gan.generator.update_params(s_current)
+    elif not toy:
         s_current = pg_gan.disc_pretraining(800)
     else:
         pg_gan.disc_pretraining(1) # for testing purposes
         s_current = [param.start() for param in pg_gan.parameters]
         pg_gan.generator.update_params(s_current)
+
+    if save_pm:
+        directory_path = "./pretrained_model/GNB-BFA_gamb_sim_mig/"
+        if not os.path.exists(directory_path):
+            os.makedirs(directory_path)
+        pg_gan.discriminator.save("./pretrained_model/GNB-BFA_gamb_sim_mig/pm")
+        np.save('./pretrained_model/BFA_gamb_sim_mig/s_current', s_current, allow_pickle=True)
+
 
     loss_curr = pg_gan.generator_loss(s_current)
     print("params, loss", s_current, loss_curr)
@@ -93,6 +114,16 @@ def simulated_annealing(generator, disc, iterator, parameters, seed,
     # for toy example
     if toy:
         num_iter = 2
+
+    dropout = 0.5
+    lr = 1e-3
+    print("starting training")
+    print("updating dropout", disc.dropout.rate, dropout)
+    disc.dropout.rate = dropout
+    print("updating learning rate", pg_gan.disc_optimizer.learning_rate, lr)
+    pg_gan.disc_optimizer.learning_rate = lr
+
+    sys.stdout.flush()
 
     # main pg-gan loop
     for i in range(num_iter):
@@ -145,11 +176,14 @@ def simulated_annealing(generator, disc, iterator, parameters, seed,
         posterior.append(s_current)
         loss_lst.append(loss_curr)
 
+        sys.stdout.flush()
+
     return posterior, loss_lst
 
 def temperature(i, num_iter):
     """Temperature controls the width of the proposal and acceptance prob."""
     return 1 - i/num_iter # start at 1, end at 0
+
 
 # not used right now
 """
@@ -180,6 +214,15 @@ def grid_search(model_type, samples, demo_file, simulator, iterator, parameters,
 """
 
 ################################################################################
+# MODEL SELECTION
+################################################################################
+def demographic_model_selection(opts):
+    #binary thus far
+    generator, iterator, parameters, sample_sizes = util.process_opts(opts)
+
+
+
+################################################################################
 # TRAINING
 ################################################################################
 
@@ -200,38 +243,43 @@ class PG_GAN:
         self.discriminator.summary()
 
         self.cross_entropy =tf.keras.losses.BinaryCrossentropy(from_logits=True)
-        self.disc_optimizer = tf.keras.optimizers.Adam()
+        self.disc_optimizer = tf.keras.optimizers.Adam(learning_rate=5e-3)
 
     def disc_pretraining(self, num_batches):
         """Pre-train so discriminator has a chance to learn before generator"""
         s_best = []
         max_acc = 0
         k = 0 if num_batches > 1 else 9 # limit iterations for toy/testing
-
+        print("start pretraining", flush = True)
         # try with several random sets at first
         while max_acc < 0.9 and k < 10:
             s_trial = [param.start() for param in self.parameters]
             print("trial", k+1, s_trial)
             self.generator.update_params(s_trial)
-            real_acc, fake_acc = self.train_sa(num_batches)
-            avg_acc = (real_acc + fake_acc)/2
-            if avg_acc > max_acc:
-                max_acc = avg_acc
-                s_best = s_trial
-            k += 1
-
+            try:
+                real_acc, fake_acc = self.train_sa(num_batches)
+                avg_acc = (real_acc + fake_acc)/2
+                if avg_acc > max_acc:
+                    max_acc = avg_acc
+                    s_best = s_trial
+                k += 1
+                print("avg_acc", avg_acc)
+                print("max_acc", max_acc)
+            except:
+                print("trial", k+1, "unaccepted")
+            sys.stdout.flush()
+        if num_batches > 1 and max_acc < 0.9:
+            sys.exit('pre-training uncesessful')
         # now start!
         self.generator.update_params(s_best)
         return s_best
-
+    
     def train_sa(self, num_batches):
         """Train using fake_values for the simulated data"""
 
         for epoch in range(num_batches):
-
             real_regions = self.iterator.real_batch(neg1 = True)
             real_acc, fake_acc, disc_loss = self.train_step(real_regions)
-
             if (epoch+1) % 100 == 0:
                 template = 'Epoch {}, Loss: {}, Real Acc: {}, Fake Acc: {}'
                 print(template.format(epoch + 1,
@@ -293,15 +341,18 @@ class PG_GAN:
 # EXTRA UTILITIES
 ################################################################################
 
-def get_discriminator(sample_sizes):
+def get_discriminator(sample_sizes, pretrained_model = None):
     num_pops = len(sample_sizes)
     if num_pops == 1:
         return discriminator.OnePopModel(sample_sizes[0])
     if num_pops == 2:
         return discriminator.TwoPopModel(sample_sizes[0], sample_sizes[1])
     # else
-    return discriminator.ThreePopModel(sample_sizes[0], sample_sizes[1],
+    if num_pops == 2:
+        return discriminator.ThreePopModel(sample_sizes[0], sample_sizes[1],
         sample_sizes[2])
+    if pretrained_model:
+        return tf.keras.models.load_model(pretrained_model)
 
 if __name__ == "__main__":
     main()
