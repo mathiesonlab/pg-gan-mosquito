@@ -1,7 +1,7 @@
 """
-Application entry point for PG-GAN.
-Author: Sara Mathieson, Zhanpeng Wang, Jiaping Wang, Rebecca Riley
-Date 9/27/22
+Adaptation of PG-GAN for GAN training on mosquito haplotypic data.
+Author: Sara Mathieson, Zhanpeng Wang, Jiaping Wang, Rebecca Riley, Jacky Siu Pui Chung
+Date 06/09/23
 """
 
 # python imports
@@ -12,6 +12,7 @@ import tensorflow as tf
 import scipy.stats
 import os
 
+
 # our imports
 import discriminator
 import global_vars
@@ -20,7 +21,7 @@ from real_data_random import Region
 
 # globals for simulated annealing
 NUM_ITER = 300
-NUM_BATCH = 100
+NUM_BATCH = 50 #hueristic, number of times the discriminator train on proposal
 print("NUM_ITER", NUM_ITER)
 print("BATCH_SIZE", global_vars.BATCH_SIZE)
 print("NUM_BATCH", NUM_BATCH)
@@ -48,7 +49,6 @@ def main():
     generator, iterator, parameters, sample_sizes = util.process_opts(opts)
     #disc = discriminator.MultiPopModel(sample_sizes)
     disc = get_discriminator(sample_sizes)
-    print("pretrain dropout", disc.dropout.rate)
 
 
     # grid search
@@ -61,7 +61,7 @@ def main():
     else:
         posterior, loss_lst = simulated_annealing(generator, disc,
            iterator, parameters, opts.seed, toy=opts.toy, load_pm = False,
-           save_pm = True)
+           save_pm = False)
 
     print(posterior)
     print(loss_lst)
@@ -81,33 +81,33 @@ def simulated_annealing(generator, disc, iterator, parameters, seed,
 
 
     # find starting point through pre-training (update generator in method)
+    
+    #if utilise saved pretrained model for faster training process
     if load_pm:
         print("loading pretrained model")
-        pg_gan.discriminator = tf.keras.models.load_model("./pretrained_model/GNB-BFA_gamb_sim_mig/pm")
-        s_current = np.load('./pretrained_model/BFA_gamb_sim_mig/s_current.npy').tolist()
+        pg_gan.discriminator = tf.keras.models.load_model("./pretrained_model/GNB-BFA_gamb_sim/pm")
+        s_current = np.load('./pretrained_model/GNB-BFA_gamb_sim/s_current.npy').tolist()
         pg_gan.generator.update_params(s_current)
     elif not toy:
+        print("starting pretraining")
         s_current = pg_gan.disc_pretraining(800)
     else:
         pg_gan.disc_pretraining(1) # for testing purposes
         s_current = [param.start() for param in pg_gan.parameters]
         pg_gan.generator.update_params(s_current)
-
+    #option to save the pretrained discriminator
     if save_pm:
-        directory_path = "./pretrained_model/GNB-BFA_gamb_sim_mig/"
+        directory_path = "./pretrained_model/GNB-BFA_gamb_nsg/dadi_joint/"
         if not os.path.exists(directory_path):
             os.makedirs(directory_path)
-        pg_gan.discriminator.save("./pretrained_model/GNB-BFA_gamb_sim_mig/pm")
-        np.save('./pretrained_model/BFA_gamb_sim_mig/s_current', s_current, allow_pickle=True)
-
+        pg_gan.discriminator.save("./pretrained_model/GNB-BFA_gamb_nsg/dadi_joint/pm")
+        np.save('./pretrained_model/GNB-BFA_gamb_nsg/s_current', s_current, allow_pickle=True)
 
     loss_curr = pg_gan.generator_loss(s_current)
     print("params, loss", s_current, loss_curr)
 
     posterior = [s_current]
     loss_lst = [loss_curr]
-    real_acc_lst = []
-    fake_acc_lst = []
 
     # simulated-annealing iterations
     num_iter = NUM_ITER
@@ -115,14 +115,15 @@ def simulated_annealing(generator, disc, iterator, parameters, seed,
     if toy:
         num_iter = 2
 
-    dropout = 0.5
-    lr = 1e-3
+    #Heuristic measures to change the discriminator training capacity to match generator convergence
+    dropout = 0.8
+    training_lr = 25e-6
     print("starting training")
     print("updating dropout", disc.dropout.rate, dropout)
     disc.dropout.rate = dropout
-    print("updating learning rate", pg_gan.disc_optimizer.learning_rate, lr)
-    pg_gan.disc_optimizer.learning_rate = lr
-
+    print("updating learning rate", pg_gan.disc_optimizer.learning_rate, training_lr)
+    pg_gan.disc_optimizer = tf.keras.optimizers.AdamW(learning_rate=training_lr)
+    print(pg_gan.disc_optimizer)    
     sys.stdout.flush()
 
     # main pg-gan loop
@@ -141,6 +142,8 @@ def simulated_annealing(generator, disc, iterator, parameters, seed,
                 # can update all the parameters at once, or choose one at a time
                 #s_proposal = [parameters[k].proposal(s_current[k], T) for k in
                 #    range(len(parameters))]
+                #TODO: test functionality of utilising repeat block to mitigate incorrect demographic model param
+                #https://stackoverflow.com/questions/15232465/how-to-repeat-try-except-block
                 s_proposal = [v for v in s_current] # copy
                 s_proposal[k] = parameters[k].proposal(s_current[k], T)
                 loss_proposal = pg_gan.generator_loss(s_proposal)
@@ -213,14 +216,6 @@ def grid_search(model_type, samples, demo_file, simulator, iterator, parameters,
     return all_values, all_likelihood
 """
 
-################################################################################
-# MODEL SELECTION
-################################################################################
-def demographic_model_selection(opts):
-    #binary thus far
-    generator, iterator, parameters, sample_sizes = util.process_opts(opts)
-
-
 
 ################################################################################
 # TRAINING
@@ -243,16 +238,20 @@ class PG_GAN:
         self.discriminator.summary()
 
         self.cross_entropy =tf.keras.losses.BinaryCrossentropy(from_logits=True)
-        self.disc_optimizer = tf.keras.optimizers.Adam(learning_rate=5e-3)
+        self.disc_optimizer = tf.keras.optimizers.Adam(learning_rate=1e-3)
 
     def disc_pretraining(self, num_batches):
         """Pre-train so discriminator has a chance to learn before generator"""
         s_best = []
         max_acc = 0
+        avg_acc = 0
         k = 0 if num_batches > 1 else 9 # limit iterations for toy/testing
         print("start pretraining", flush = True)
         # try with several random sets at first
-        while max_acc < 0.9 and k < 10:
+        #change to pretraining loop requirement to develop good generalized understanding of data
+        while  avg_acc < 0.8 or max_acc < 0.9 or k < 5:
+            if k == 10:
+                break
             s_trial = [param.start() for param in self.parameters]
             print("trial", k+1, s_trial)
             self.generator.update_params(s_trial)
@@ -268,7 +267,7 @@ class PG_GAN:
             except:
                 print("trial", k+1, "unaccepted")
             sys.stdout.flush()
-        if num_batches > 1 and max_acc < 0.9:
+        if num_batches > 1 and max_acc < 0.85:
             sys.exit('pre-training uncesessful')
         # now start!
         self.generator.update_params(s_best)
@@ -280,7 +279,7 @@ class PG_GAN:
         for epoch in range(num_batches):
             real_regions = self.iterator.real_batch(neg1 = True)
             real_acc, fake_acc, disc_loss = self.train_step(real_regions)
-            if (epoch+1) % 100 == 0:
+            if (epoch+1) % 50 == 0:
                 template = 'Epoch {}, Loss: {}, Real Acc: {}, Fake Acc: {}'
                 print(template.format(epoch + 1,
                                 disc_loss,
@@ -337,6 +336,9 @@ class PG_GAN:
 
         return real_acc, fake_acc, disc_loss
 
+
+
+
 ################################################################################
 # EXTRA UTILITIES
 ################################################################################
@@ -351,6 +353,7 @@ def get_discriminator(sample_sizes, pretrained_model = None):
     if num_pops == 2:
         return discriminator.ThreePopModel(sample_sizes[0], sample_sizes[1],
         sample_sizes[2])
+    #load pretrained_model's discriminator structure
     if pretrained_model:
         return tf.keras.models.load_model(pretrained_model)
 

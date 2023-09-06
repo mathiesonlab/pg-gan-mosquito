@@ -24,7 +24,8 @@ class Parameter:
         self.min = min
         self.max = max
         self.name = name
-        self.proposal_width = (self.max - self.min)/10 # heuristic
+        #has effect on the speed of discriminator become confused and reach stable competing phase
+        self.proposal_width = (self.max - self.min)/15 # heuristic
 
     def __str__(self):
         s = '\t'.join(["NAME", "VALUE", "MIN", "MAX"]) + '\n'
@@ -115,13 +116,13 @@ class ParamSet:
         # mosquito dadi joint models: GNS_vs_BFS (1st line)
         elif simulator == simulation.dadi_joint:
             upper_range = 4
-            lower_range = 0.25
-            upper_range_t = 4
-            lower_range_t = 0.25
-            self.NI = Parameter(420646 , 420646 * lower_range , 420646 * upper_range, "NI")
-            self.TG = Parameter(89506 , 89506 * lower_range_t , 89506 * upper_range_t, "TG")
+            lower_range = 0.1
+            self.NI = Parameter(420646 , 5000 , 1000000, "NI")
+            self.TG = Parameter(89506 , 10000, 150000, "TG")
             self.NF = Parameter(9440437 ,9440437 * lower_range ,9440437 * upper_range, "NF")
-            self.TS = Parameter(2245 , 2245 * lower_range_t , 2245 * upper_range_t, "TS")
+            self.TS = Parameter(2245 , 500 , 10000, "TS")
+            #strong evidence of recent population expansion in sub, thus NI upper range < NF lower range
+            #https://academic.oup.com/mbe/article/18/7/1353/992401
             self.NI1 = Parameter(18328570 , 18328570 * lower_range , 18328570 * upper_range, "NI1")
             self.NI2 = Parameter(42062652 , 42062652 * lower_range , 42062652 * upper_range, "NI2")
             self.NF1 = Parameter(42064645 , 42064645 * lower_range , 42064645 * upper_range, "NF1")
@@ -138,20 +139,24 @@ class ParamSet:
 
         elif simulator == simulation.dadi_joint_mig:
             upper_range = 4
-            lower_range = 0.25
-            upper_range_t = 4
-            lower_range_t = 0.25
-            self.NI = Parameter(420646 , 420646 * lower_range , 420646 * upper_range, "NI")
-            self.TG = Parameter(89506 , 89506 * lower_range_t , 89506 * upper_range_t, "TG")
-            self.NF = Parameter(9440437 ,9440437 * lower_range ,9440437 * upper_range, "NF")
-            self.TS = Parameter(2245 , 2245 * lower_range_t , 2245 * upper_range_t, "TS")
-            self.NI1 = Parameter(18328570 , 18328570 * lower_range , 18328570 * upper_range, "NI1")
-            self.NI2 = Parameter(42062652 , 42062652 * lower_range , 42062652 * upper_range, "NI2")
-            self.NF1 = Parameter(42064645 , 42064645 * lower_range , 42064645 * upper_range, "NF1")
-            self.NF2 = Parameter(42064198 , 42064198 * lower_range , 42064198 * upper_range, "NF2")
-            #MG = 2Nim, where Ni = ancestral pop size, 
-            # and m = migration rate per gamete per generation
-            self.MG = Parameter(40, 20, 60, "MG")
+            lower_range = 0.1
+            self.NI = Parameter(415254 , 415254 * lower_range , 415254 * upper_range, "NI")
+            self.TG = Parameter(93341 , 20000 , 150000, "TG")
+            self.NF = Parameter(8292759 ,8292759 * lower_range ,8292759 * upper_range, "NF")
+            self.TS = Parameter(11637 , 500 , 20000, "TS")
+            #strong evidence of recent population expansion, thus NI upper range < NF lower range
+            #https://academic.oup.com/mbe/article/18/7/1353/992401
+            #agrarian revolution in sub-Saharan Africa approximately 10,000–4,000 years ago could be linked to population expansion of A.Gambiae
+            self.NI1 = Parameter(2635696 , 2635696 * lower_range , 2635696 * upper_range, "NI1")
+            self.NI2 = Parameter(2748423 , 2748423 * lower_range , 2748423 * upper_range, "NI2")
+            self.NF1 = Parameter(11101754 , 11101754 * lower_range , 11101754 * upper_range, "NF1")
+            self.NF2 = Parameter(11439976 , 11439976 * lower_range , 11439976 * upper_range, "NF2")
+            #2Nim = 20, where Ni = ancestrial pop size at TS (NF), m = migration rate per gamete per generation
+            #m = [3.61× 10-6 , 1.2× 10-6, 6.02 × 10-6] per gamete per year (actual value inputted in demographic model)
+            #1 migrant  per generation is the max
+            #4NM = 1
+            #wider migration range
+            self.MG = Parameter(60, 20, 100, "MG")
 
             # stdpopsim
             #self.reco = Parameter(8.4e-09, 1e-9, 1e-8, "reco")
@@ -225,7 +230,7 @@ class ParamSet:
 
     def update(self, names, values):
         """Based on generator proposal, update desired param values"""
-        assert len(names) == len(values)
+        assert len(names) == len(values), (names, values)
 
         for j in range(len(names)):
             param = names[j]

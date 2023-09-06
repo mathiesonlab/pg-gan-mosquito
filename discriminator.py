@@ -10,6 +10,8 @@ import tensorflow as tf
 from tensorflow.keras.layers import Dense, Flatten, Conv1D, Conv2D, \
     MaxPooling2D, AveragePooling1D, Dropout, Concatenate
 from tensorflow.keras import Model
+from scipy.special import rel_entr
+
 
 class OnePopModel(Model):
     """Single population model - based on defiNETti software."""
@@ -23,7 +25,7 @@ class OnePopModel(Model):
         self.pool = MaxPooling2D(pool_size = (1,2), strides = (1,2))
 
         self.flatten = Flatten()
-        self.dropout = Dropout(rate=0.4)
+        self.dropout = Dropout(rate=0.5)
 
         self.fc1 = Dense(128, activation='relu')
         self.fc2 = Dense(128, activation='relu')
@@ -71,14 +73,16 @@ class TwoPopModel(Model):
 
         # it is (1,5) for permutation invariance (shape is n X SNPs)
         self.conv1 = Conv2D(32, (1, 5), activation='relu')
-        self.conv2 = Conv2D(64, (1, 5), activation='relu')
+        self.conv2 = Conv2D(64, (1, 5), activation='relu') 
         self.pool = MaxPooling2D(pool_size = (1,2), strides = (1,2))
 
         self.flatten = Flatten()
         self.merge = Concatenate()
-        self.dropout = Dropout(rate=0.35)
+        self.dropout = Dropout(rate=0.5)
 
-        self.fc1 = Dense(128, activation='relu')
+        #fc1 was increased to 160 to increase model capacity, so that discriminator can learn during pretraining based on dp = 0.5
+        #similar effect is by reducing the dp during pretraining
+        self.fc1 = Dense(160, activation='relu')
         self.fc2 = Dense(128, activation='relu')
         self.dense3 = Dense(1) # 2, activation='softmax') # two classes
 
@@ -122,7 +126,7 @@ class TwoPopModel(Model):
         m = self.fc1(m)
         m = self.dropout(m, training=training)
         m = self.fc2(m)
-        m = self.dropout(m, training=training)
+        m = self.dropout(m, training=training)        
         return self.dense3(m)
 
     def build_graph(self, gt_shape):
