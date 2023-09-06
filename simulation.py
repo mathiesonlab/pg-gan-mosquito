@@ -1,7 +1,7 @@
 """
 Simulate data for training or testing using msprime.
-Author: Sara Matheison, Zhanpeng Wang, Jiaping Wang, Rebecca Riley
-Date: 9/27/22
+Author: Sara Matheison, Zhanpeng Wang, Jiaping Wang, Rebecca Riley, Jacky Siu Pui Chung
+Date: 06/09/2023
 """
 
 # python imports
@@ -290,8 +290,6 @@ def dadi_joint(params, sample_sizes, seed, reco): # TODO use seed!
     # dadi joint model
     demography.add_population_parameters_change(time=0, growth_rate=g1, population="POP1")
     demography.add_population_parameters_change(time=0, growth_rate=g2, population="POP2")
-
-    #demography.add_symmetric_migration_rate_change(time=TS, populations=["POP1","POP2"], rate=MG)
     
     demography.add_population_split(time=TS, derived=["POP1", "POP2"], ancestral="ANC")
     demography.add_population_parameters_change(time=TS, growth_rate=g, population="ANC")
@@ -335,18 +333,18 @@ def dadi_joint_mig(params, sample_sizes, seed, reco): # TODO use seed!
     g2 = -(1/TS) * math.log(NI2/NF2)
     g  = -(1/(TG-TS)) * math.log(NI/NF) # ancestral
     #small m
-    #MG = MG / 2 / NF
+    MG = MG / 2 / NF
 
     demography = msprime.Demography()
     demography.add_population(name="POP1", initial_size=NF1)
     demography.add_population(name="POP2", initial_size=NF2)
     demography.add_population(name="ANC", initial_size=NF, initially_active=False)
 
-    # dadi joint model
+    # dadi joint mig model
     demography.add_population_parameters_change(time=0, growth_rate=g1, population="POP1")
     demography.add_population_parameters_change(time=0, growth_rate=g2, population="POP2")
 
-    demography.add_symmetric_migration_rate_change(time=TS, populations=["POP1","POP2"], rate=MG)
+    demography.set_symmetric_migration_rate(populations=["POP1","POP2"], rate=MG)
     
     demography.add_population_split(time=TS, derived=["POP1", "POP2"], ancestral="ANC")
     demography.add_population_parameters_change(time=TS, growth_rate=g, population="ANC")
