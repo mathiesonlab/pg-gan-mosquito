@@ -12,6 +12,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 import pandas as pd
+from scipy.special import rel_entr, softmax
+from scipy.stats import wasserstein_distance
+
 
 # our imports
 import global_vars
@@ -29,7 +32,7 @@ def parse_mini_lst(mini_lst):
         mini_lst]
 
 def add_to_lst(total_lst, mini_lst):
-    assert len(total_lst) == len(mini_lst)
+    assert len(total_lst) == len(mini_lst), (mini_lst)
     for i in range(len(total_lst)):
         total_lst[i].append(mini_lst[i])
 
@@ -55,7 +58,9 @@ def parse_output(filename, return_acc=False):
     param_search_space_lst = []
 
     # evaluation metrics
+    #heuristic size
     #dis_loss,gen_loss,real_acc,fake_acc for rows, iter for columns
+    #iter = 300
     eval_metrics = np.full((4,300),np.nan)
 
 
@@ -64,9 +69,9 @@ def parse_output(filename, return_acc=False):
     training = False
 
     trial_data = {}
-
+    line_no = 0
     for line in f:
-
+        line_no += 1
         if line.startswith("ITER"):
             training = True
             iter = int(line.split(" ")[-1])
@@ -92,10 +97,10 @@ def parse_output(filename, return_acc=False):
             trial_data['sample_sizes'] = clean_param_tkn(tokens[17])
         
         elif param_names != None and line.startswith(tuple(param_names)):
-            Name, TRUTH, MIN, MAX = line.split("\t")
+            Name, TRUTH, MIN, MAX = line.strip().split("\t")
             param_search_space_lst.append((Name, float(TRUTH), float(MIN), float(MAX)))
         
-        elif training and "Epoch 100" in line:
+        elif training and "Epoch" in line:
             tokens = line.split()
             disc_loss = float(tokens[3][:-1])
             real_acc = float(tokens[6][:-1])/100
@@ -122,13 +127,15 @@ def parse_output(filename, return_acc=False):
 
     # Use -1 instead of iter for the last iteration
     final_params = [param_lst_all[i][-1] for i in range(num_param)]
+    
+    final_discriminator_acc = (real_acc + fake_acc) / 2
     if return_acc:
         return final_params, eval_metrics, \
-            trial_data, param_search_space_lst, param_lst_all, proposal_lst_all
+            trial_data, param_search_space_lst, param_lst_all, proposal_lst_all, final_discriminator_acc
     else:
         return final_params, trial_data
     
-def plot_parse_output(eval_metrics, param_search_space_lst, param_lst_all, proposal_lst_all, \
+def plot_parse_output(eval_metrics, param_search_space_lst, param_lst_all, proposal_lst_all, final_discriminator_acc, \
                         output_filepath, output_filepath_2, output_filepath_3):
     
     eval_metrics = forward_fill(eval_metrics)
@@ -140,6 +147,9 @@ def plot_parse_output(eval_metrics, param_search_space_lst, param_lst_all, propo
     ax[1].axhline(y=0.5, color='g', linestyle='--')
     ax[1].plot(range(len(real_acc_lst)), real_acc_lst, 'r', label = "discriminator real_acc")
     ax[1].plot(range(len(fake_acc_lst)), fake_acc_lst, 'b', label = "discriminator fake_acc")
+    ax[1].plot(range(len(real_acc_lst)), [(x+y)/2 for x,y in zip(*[real_acc_lst, fake_acc_lst])], 'g', label = "discriminator avg_acc")
+    ax[1].title.set_text("ITER {}  disc_avg_acc = {:.2f}".format(len(real_acc_lst), final_discriminator_acc))
+    
 
     ax[0].legend(loc='center left', bbox_to_anchor=(1, 0.5))
     ax[1].legend(loc='center left', bbox_to_anchor=(1, 0.5))
@@ -152,18 +162,19 @@ def plot_parse_output(eval_metrics, param_search_space_lst, param_lst_all, propo
         ax[index].set(xlabel="iters", ylabel=param_search_space[0])
         ax[index].axhline(y=param_search_space[2], color='r', linestyle='-')
         ax[index].axhline(y=param_search_space[3], color='r', linestyle='-')
-        ax[index].set_ylim([param_search_space[2] * 0.8, param_search_space[3] * 1.2])
-        ax[index].legend(["ITER {}  {} = {:.1f}".format(len(param),param_search_space[0], param[-1]), "Truth {} = {}".format(param_search_space[0], param_search_space[-3])])
+        ax[index].set_ylim([param_search_space[2] * 0.7, param_search_space[3] * 1.2])
+        ax[index].legend(["ITER {}  {} = {:.1f}".format(len(param),param_search_space[0], param[-1]), "Baseline {} = {}".format(param_search_space[0], param_search_space[-3])])
+
     plt.savefig(output_filepath_2, dpi=350)
 
     fig, ax = plt.subplots(len(proposal_lst_all), 1, figsize=(20, 30))
     for index, (param, param_search_space) in enumerate(zip(proposal_lst_all, param_search_space_lst)):
         ax[index].plot(range(len(param)), param, label = param_search_space[0], linewidth='0.5')
         ax[index].set(xlabel="proposals", ylabel=param_search_space[0])
-        ax[index].axhline(y=param_search_space[1], color='g', linestyle='-', linewidth='0.2')
+        ax[index].axhline(y=param_search_space[1], color='g', linestyle='-')
         ax[index].axhline(y=param_search_space[2], color='r', linestyle='-')
         ax[index].axhline(y=param_search_space[3], color='r', linestyle='-')
-        ax[index].set_ylim([param_search_space[2] * 0.8, param_search_space[3] * 1.2])
+        ax[index].set_ylim([param_search_space[2] * 0.7, param_search_space[3] * 1.2])
 
     plt.savefig(output_filepath_3, dpi=350)
 
@@ -177,15 +188,22 @@ def forward_fill(arr):
     out = arr[np.arange(idx.shape[0])[:,None], idx]
     return out
 
-def find_most_confused_iter(real_acc_lst, fake_acc_lst):
-    min_acc = float("inf")
+def find_most_confused_state(eval_metrics):
+    min_acc = 5000
     min_acc_iter = None
-    for iter in range(0,300):
-        avg_acc = abs(real_acc_lst[iter] -50) + abs(fake_acc_lst[iter] -50)
-        if min_acc < avg_acc:
+    avg_acc_reg_lst = []
+    real_acc_lst, fake_acc_lst = eval_metrics[2, :], eval_metrics[3, :]
+    num_iter = len(real_acc_lst)
+    for iter, (real_acc, fake_acc) in enumerate(zip(real_acc_lst, fake_acc_lst)):
+        if real_acc and fake_acc == np.nan:
+            continue
+        avg_acc = abs(real_acc - 0.5) + abs(fake_acc - 0.5)
+        T = 1 - iter / num_iter
+        avg_acc = avg_acc / T
+        if min_acc > avg_acc:
             min_acc = avg_acc
             min_acc_iter = iter
-    return min_acc, min_acc_iter
+    return min_acc_iter
 
         
         
@@ -310,21 +328,21 @@ def compute_fst(raw):
 def plot_generic(ax, name, real, sim, real_color, sim_color, pop="",
     sim_label="", single=False):
     """Plot a generic statistic."""
-
     # SFS
     if name == "minor allele count (SFS)":
         # average over regions
         num_sfs = len(real)
         real_sfs = [sum(rs)/num_sfs for rs in real]
         sim_sfs = [sum(ss)/num_sfs for ss in sim]
-
-        # plotting (0.3 for offset)
-        ax.bar([x-0.3 for x in range(num_sfs)], real_sfs, label=pop, width=0.4,
+                
+        
+        ax.bar([x -0.3 for x in range(num_sfs)], real_sfs, label=pop, width=0.4,
             color=real_color)
         ax.bar(range(num_sfs), sim_sfs, label=sim_label, width=0.4,
             color=sim_color)
         ax.set_xlim(-1,len(real_sfs))
         ax.set_ylabel("frequency per region")
+        #ax.text(0, 0, diff)
 
     # LD
     elif name == "distance between SNPs":
@@ -349,6 +367,94 @@ def plot_generic(ax, name, real, sim, real_color, sim_color, pop="",
             stat="density", edgecolor=None)
         sns.histplot(sim, ax=ax, color=sim_color, label=sim_label, kde=True,
             stat="density", edgecolor=None)
+
+    # inter-SNP distances
+    if name == "inter-SNP distances":
+        ax.set_xlim(-25,100)
+    ax.set(xlabel=name)
+
+    # legend
+    if single or name == "Hudson's Fst":
+        ax.legend()
+    else:
+        if len(pop) > 3:
+            x_spacing = 0.83
+        else:
+            x_spacing = 0.85
+
+        ax.text(x_spacing, 0.85, pop, horizontalalignment='center',
+            transform=ax.transAxes, fontsize=18)
+        
+def plot_generic_with_baseline(ax, name, real, sim, baseline, real_color, sim_color, baseline_color, pop="",
+    sim_label="", baseline_label="", single=False):
+    """Plot a generic statistic."""
+    
+    round_val = 6
+
+    # SFS
+    if name == "minor allele count (SFS)":
+        # average over regions
+        num_sfs = len(real)
+        real_sfs = [sum(rs)/num_sfs for rs in real]
+        sim_sfs = [sum(ss)/num_sfs for ss in sim]
+        baseline_sfs = [sum(bs)/num_sfs for bs in baseline]
+        
+        sim_diff = calc_distribution_dist(real_sfs, sim_sfs)
+        baseline_diff = calc_distribution_dist(real_sfs, baseline_sfs)
+        text = "sim_wass_dist:" + str(round(sim_diff, round_val)) + "\n" + "baseline_wass_dist:" + str(round(baseline_diff, round_val))
+
+        
+        
+        ax.bar([x -0.3 for x in range(num_sfs)], real_sfs, label=pop, width=0.3,
+            color=real_color)
+        ax.bar(range(num_sfs), sim_sfs, label=sim_label, width=0.3,
+            color=sim_color)
+        ax.bar([x +0.3 for x in range(num_sfs)], baseline_sfs, label=baseline_label, width=0.3,
+            color=baseline_color)
+        ax.set_xlim(-1,len(real_sfs))
+        ax.set_ylabel("frequency per region")
+        ax.text(.01, .99, text, fontsize=8, ha='left', va='top', transform=ax.transAxes)
+
+    # LD
+    elif name == "distance between SNPs":
+        nbin = NUM_LD
+        max_dist = 500 # TODO make flexible! (5k for mosquito, 20k for human)
+        dist_bins = np.linspace(0,max_dist,nbin)
+        real_mean = [np.mean(rs) for rs in real]
+        sim_mean = [np.mean(ss) for ss in sim]
+        real_stddev = [np.std(rs) for rs in real]
+        sim_stddev = [np.std(ss) for ss in sim]
+        baseline_mean = [np.mean(bs) for bs in baseline]
+        baseline_stddev = [np.std(bs) for bs in baseline]
+
+        sim_diff = calc_distribution_dist(real_mean, sim_mean)
+        baseline_diff = calc_distribution_dist(real_mean, baseline_mean)
+        text = "sim_wass_dist:" + str(round(sim_diff, round_val)) + "\n" + "baseline_wass_dist:" + str(round(baseline_diff, round_val))
+      
+        
+        # plotting
+        ax.errorbar(dist_bins, real_mean, yerr=real_stddev, color=real_color,
+            label=pop)
+        ax.errorbar([x for x in dist_bins], sim_mean, yerr=sim_stddev,
+            color=sim_color, label=sim_label)
+        ax.errorbar([x for x in dist_bins], baseline_mean, yerr=baseline_stddev,
+            color=baseline_color, label=baseline_label)
+        ax.set_ylabel(r'LD ($r^2$)')
+        ax.text(.01, .99, text, fontsize=8, ha='left', va='top', transform=ax.transAxes)
+
+    # all other stats
+    else:
+        sns.kdeplot(real, ax=ax, color=real_color, label=pop,
+            common_norm=False)
+        sns.kdeplot(sim, ax=ax, color=sim_color, label=sim_label, 
+            common_norm=False)
+        sns.kdeplot(baseline, ax=ax, color=baseline_color, label=baseline_label, 
+            common_norm=False)
+        sim_diff = calc_distribution_dist(real, sim)
+        baseline_diff = calc_distribution_dist(real, baseline)
+        text = "sim_wass_dist:" + str(round(sim_diff, round_val)) + "\n" + "baseline_wass_dist:" + str(round(baseline_diff, round_val))
+        ax.text(.01, .99, text, fontsize=8, ha='left', va='top', transform=ax.transAxes)
+
 
     # inter-SNP distances
     if name == "inter-SNP distances":
@@ -443,3 +549,20 @@ def fst_all(matrices):
         real_fst.append(fst)
 
     return real_fst
+
+def calc_distribution_dist(dist_p, dist_q):
+    """Calculate wasserstein distance distribution P and distribution Q
+
+    Args:
+        dist_p (list of float): distribution P
+        dist_q (list of float): distribution P
+
+    Returns:
+        float: wasserstein distance between distribution P and distribution Q
+    """
+    return wasserstein_distance(dist_p, dist_q)
+
+    
+    
+
+    
