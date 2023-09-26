@@ -21,7 +21,7 @@ from real_data_random import Region
 
 # globals for simulated annealing
 NUM_ITER = 300
-NUM_BATCH = 50 #hueristic, number of times the discriminator train on proposal
+NUM_BATCH = 50 #hueristic, number of times the discriminator train on proposal (tuned)
 print("NUM_ITER", NUM_ITER)
 print("BATCH_SIZE", global_vars.BATCH_SIZE)
 print("NUM_BATCH", NUM_BATCH)
@@ -47,7 +47,6 @@ def main():
         tf.random.set_seed(opts.seed)
 
     generator, iterator, parameters, sample_sizes = util.process_opts(opts)
-    #disc = discriminator.MultiPopModel(sample_sizes)
     disc = get_discriminator(sample_sizes)
 
 
@@ -59,9 +58,9 @@ def main():
         #    iterator, parameters, opts.seed)
     # simulated annealing
     else:
+        #load_pm and save_pm option are not implemented, 
         posterior, loss_lst = simulated_annealing(generator, disc,
-           iterator, parameters, opts.seed, toy=opts.toy, load_pm = False,
-           save_pm = False)
+           iterator, parameters, opts.seed, toy=opts.toy)
 
     print(posterior)
     print(loss_lst)
@@ -81,27 +80,14 @@ def simulated_annealing(generator, disc, iterator, parameters, seed,
 
 
     # find starting point through pre-training (update generator in method)
-    
     #if utilise saved pretrained model for faster training process
-    if load_pm:
-        print("loading pretrained model")
-        pg_gan.discriminator = tf.keras.models.load_model("./pretrained_model/GNB-BFA_gamb_sim/pm")
-        s_current = np.load('./pretrained_model/GNB-BFA_gamb_sim/s_current.npy').tolist()
-        pg_gan.generator.update_params(s_current)
-    elif not toy:
+    if not toy:
         print("starting pretraining")
         s_current = pg_gan.disc_pretraining(800)
     else:
         pg_gan.disc_pretraining(1) # for testing purposes
         s_current = [param.start() for param in pg_gan.parameters]
         pg_gan.generator.update_params(s_current)
-    #option to save the pretrained discriminator
-    if save_pm:
-        directory_path = "./pretrained_model/GNB-BFA_gamb_nsg/dadi_joint/"
-        if not os.path.exists(directory_path):
-            os.makedirs(directory_path)
-        pg_gan.discriminator.save("./pretrained_model/GNB-BFA_gamb_nsg/dadi_joint/pm")
-        np.save('./pretrained_model/GNB-BFA_gamb_nsg/s_current', s_current, allow_pickle=True)
 
     loss_curr = pg_gan.generator_loss(s_current)
     print("params, loss", s_current, loss_curr)
@@ -115,7 +101,7 @@ def simulated_annealing(generator, disc, iterator, parameters, seed,
     if toy:
         num_iter = 2
 
-    #Heuristic measures to change the discriminator training capacity to match generator convergence
+    #Heuristic measures to change the discriminator training capacity to match generator convergence for pg_gan_mosquito
     dropout = 0.8
     training_lr = 25e-6
     print("starting training")
@@ -343,7 +329,7 @@ class PG_GAN:
 # EXTRA UTILITIES
 ################################################################################
 
-def get_discriminator(sample_sizes, pretrained_model = None):
+def get_discriminator(sample_sizes):
     num_pops = len(sample_sizes)
     if num_pops == 1:
         return discriminator.OnePopModel(sample_sizes[0])
@@ -353,9 +339,6 @@ def get_discriminator(sample_sizes, pretrained_model = None):
     if num_pops == 2:
         return discriminator.ThreePopModel(sample_sizes[0], sample_sizes[1],
         sample_sizes[2])
-    #load pretrained_model's discriminator structure
-    if pretrained_model:
-        return tf.keras.models.load_model(pretrained_model)
 
 if __name__ == "__main__":
     main()
