@@ -73,14 +73,14 @@ class TwoPopModel(Model):
 
         # it is (1,5) for permutation invariance (shape is n X SNPs)
         self.conv1 = Conv2D(32, (1, 5), activation='relu')
-        self.conv2 = Conv2D(64, (1, 5), activation='relu') 
+        self.conv2 = Conv2D(64, (1, 5), activation='relu')
         self.pool = MaxPooling2D(pool_size = (1,2), strides = (1,2))
 
         self.flatten = Flatten()
         self.merge = Concatenate()
         self.dropout = Dropout(rate=0.5)
 
-        #fc1 was increased to 160 to increase model capacity, so that discriminator can learn during pretraining based on dp = 0.5
+        #fc1 was increased to 160 to increase model capacity, so that discriminator can learn during pretraining based on dp = 0.5 (tuned)
         #similar effect is by reducing the dp during pretraining
         self.fc1 = Dense(160, activation='relu')
         self.fc2 = Dense(128, activation='relu')
@@ -107,6 +107,7 @@ class TwoPopModel(Model):
         x_pop2 = self.conv2(x_pop2)
         x_pop1 = self.pool(x_pop1) # pool
         x_pop2 = self.pool(x_pop2) # pool
+        
 
         # 1 is the dimension of the individuals
         # can try max or sum as the permutation-invariant function
@@ -126,7 +127,7 @@ class TwoPopModel(Model):
         m = self.fc1(m)
         m = self.dropout(m, training=training)
         m = self.fc2(m)
-        m = self.dropout(m, training=training)        
+        m = self.dropout(m, training=training)            
         return self.dense3(m)
 
     def build_graph(self, gt_shape):
