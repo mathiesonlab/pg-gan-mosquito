@@ -41,7 +41,7 @@ DADI = True
 
 DADI_NAMES = ["NI", "TG", "NF", "TS", "NI1", "NI2", "NF1", "NF2"]
 DADI_PARAMS = [420646, 89506, 9440437, 2245, 18328570, 42062652, 42064645, 42064198]
-
+DADI_MIG_PARAMS = [415254, 93341, 8292759, 11637, 2635696, 2748423, 11101754, 11439976, 60]
 
 def main():
     input_file = sys.argv[1]
@@ -63,14 +63,17 @@ def main():
         assert len(param_values) == len(in_file_data['params'].split(','))
     else:
         param_values, eval_metrics, \
-            in_file_data, param_limit_dict_all, param_lst_all, proposal_lst_all = ss_helpers.parse_output(input_file, return_acc=True)
-        ss_helpers.plot_parse_output(eval_metrics, param_limit_dict_all, param_lst_all, proposal_lst_all, \
+            in_file_data, param_limit_dict_all, param_lst_all, proposal_lst_all, final_discriminator_acc = ss_helpers.parse_output(input_file, return_acc=True)
+        print("end of iter", param_values)
+        ss_helpers.plot_parse_output(eval_metrics, param_limit_dict_all, param_lst_all, proposal_lst_all, final_discriminator_acc, \
                             output_run_plot, output_param_plot, output_proposal_plot)
+
+    
+
         
 
     opts, param_values = util.parse_args(in_file_data = in_file_data,
         param_values=param_values)
-
     generator, iterator, parameters, sample_sizes = util.process_opts(opts,
         summary_stats=True)
 
@@ -81,12 +84,14 @@ def main():
                        if opts.data_h5 is not None else ""
     
     #temp for noh5 option
-    pop_names = "GNB-BFA_sim"
+    pop_names = "GNB-BFA"
     # sets global_vars.SS_LABELS and global_vars.SS_COLORS
     # overwrite this function in globals.py to change
     global_vars.update_ss_labels(pop_names, num_pops=len(generator.sample_sizes))
-    #param_values = [435859.1990315874, 98397.63128341836, 6248241.694365332, 6907.604286893473, 26065706.89871702, 17059954.904996518, 39298187.782837555, 26645989.59151735]
     generator.update_params(param_values)
+    #generator.update_params(DADI_MIG_PARAMS)
+
+
     print("VALUES", param_values)
     print("made it through params")
 
@@ -200,7 +205,7 @@ def main():
         sim_fst_lst.append(sim_fst)
 
     print("got through fst")
-
+    
     # finall plotting call
     plot_stats_all(nrows, ncols, size, real_stats_lst, sim_stats_lst,
         real_fst_lst, sim_fst_lst, output_file)

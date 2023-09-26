@@ -151,7 +151,7 @@ class ParamSet:
             self.NI2 = Parameter(2748423 , 2748423 * lower_range , 2748423 * upper_range, "NI2")
             self.NF1 = Parameter(11101754 , 11101754 * lower_range , 11101754 * upper_range, "NF1")
             self.NF2 = Parameter(11439976 , 11439976 * lower_range , 11439976 * upper_range, "NF2")
-            #2Nim = 20, where Ni = ancestrial pop size at TS (NF), m = migration rate per gamete per generation
+            #2Nim = [20, 60, 100], where Ni = ancestrial pop size at TS (NF), m = migration rate per gamete per generation
             #m = [3.61× 10-6 , 1.2× 10-6, 6.02 × 10-6] per gamete per year (actual value inputted in demographic model)
             #1 migrant  per generation is the max
             #4NM = 1

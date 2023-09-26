@@ -1,6 +1,6 @@
 '''For collecting global values'''
 # section A: general -----------------------------------------------------------
-NUM_SNPS = 48       # number of seg sites, should be divisible by 4
+NUM_SNPS = 72       # number of seg sites, should be divisible by 4
 L = 5000            # heuristic to get enough SNPs for simulations (50kb for human, 5kb for mosquito)
 BATCH_SIZE = 50
 
@@ -63,6 +63,8 @@ def update_ss_labels(pop_names, num_pops=1):
         SS_LABELS.append("simulation")
         SS_COLORS.append("gray")
         return
+    
+        
 
     SS_LABELS.extend(pop_names.split("_"))
     SS_LABELS.append("simulation")

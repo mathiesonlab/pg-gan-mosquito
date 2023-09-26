@@ -24,7 +24,7 @@ def parse_params(param_input, simulator):
         if p.name in param_strs:
             parameters.append(p)
 
-    assert len(parameters) == len(param_strs)
+    assert len(parameters) == len(param_strs), (parameters, param_strs)
     for p in parameters:
         print(p)
 
@@ -281,7 +281,7 @@ def parse_sample_sizes(n_string):
 
 def process_opts(opts, summary_stats = False):
     sample_sizes = parse_sample_sizes(opts.sample_sizes)
-
+    
     real = False
     # if real data provided
     if opts.data_h5 is not None: # h5 is None option at end of func
