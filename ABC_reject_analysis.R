@@ -6,6 +6,7 @@
 # insights from convolutional neural network-based demographic modeling.”
 
 
+if (!require("abc")) install.packages("abc",repos = "http://cran.us.r-project.org")
 # Load the ABC library.
 library(abc)
 
