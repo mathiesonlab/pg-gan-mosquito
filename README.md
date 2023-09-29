@@ -9,4 +9,4 @@ The created environments can be found in the environments folder. tf_env_require
 There are currently two demographic models implemented in pg_gan_mosquito, which models the potential demographic model between the GNB-BFA_gamb populations. The parameter spaces for respective demographic parameters are based off dadi models from [Genetic diversity of the African malaria vector Anopheles gambiae](https://www.nature.com/articles/nature24995#MOESM1). (see https://github.com/mathiesonlab/pg-gan for information about adding your own model). Use the -m flag to specify the model (required parameter).
 
 ## Schematic diagram for demographic inference and model selection
-![pg_gan_mosquito schematic diagram]([https://your-copied-image-address](https://github.com/mathiesonlab/pg-gan-mosquito/blob/main/supp/pg_gan_mosquito_schem.png)https://github.com/mathiesonlab/pg-gan-mosquito/blob/main/supp/pg_gan_mosquito_schem.png)
+![pg_gan_mosquito schematic diagram](https://github.com/mathiesonlab/pg-gan-mosquito/blob/main/supp/pg_gan_mosquito_schem.png)
