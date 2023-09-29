@@ -10,8 +10,11 @@ There are currently two demographic models implemented in pg_gan_mosquito, which
 
 ## Schematic diagram for demographic inference and model selection
 See below for the workflow of implementing demographic inference and model selection using pg_gan_mosquito. Example commands are shown below to perform the deep learning portion of the pipeline
-'''
+
+```
 python3 pg_gan.py -m ${DEMO} -p ${PARAM} -n {SAMPLE_SIZE} -d ${H5} > ${OUTPUT}
 python3 demographic_selection_oop.py -d ${H5} -b ${INPUT_DIR} -s -t > ${OUTPUT}
-'''
+```
+
+
 ![pg_gan_mosquito schematic diagram](https://github.com/mathiesonlab/pg-gan-mosquito/blob/main/supp/pg_gan_mosquito_schem.png)
