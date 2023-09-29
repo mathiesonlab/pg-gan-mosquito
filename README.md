@@ -19,7 +19,7 @@ source ~/${PATH}/tfenv_2.13/bin/activate
 ```
 python3 pg_gan.py -m ${DEMO} -p ${PARAM} -n {SAMPLE_SIZE} -d ${H5} > ${OUTPUT}
 ```
-3. Demographic model selection on real data {H5}, between derived posteriors stored in input_posteriors.txt, which contains path to the respective posterior outfiles. The model selection outfile is written in {OUTPUT}.
+3. Demographic model selection on real data {H5}, between derived posteriors stored in input_posteriors.txt, which contains path to the respective posterior outfiles. The model selection outfile is written in {OUTPUT}. Downstream 
 ```
 python3 demographic_selection_oop.py -d ${H5} -b ${INPUT_DIR} > ${OUTPUT}
 ```
@@ -36,6 +36,9 @@ python summary_stats_multi.py ${INPUT} ${OUTPUT} ${DEMO}
 ```
 
 ![summary_stats_multi.py example](https://github.com/mathiesonlab/pg-gan-mosquito/blob/main/supp/ss_multi_readme.png)
+
+## ABC rejection analysis
+With the classification model's softmax probabilities, these are used as parameter values for ABC rejection analysis. The output of the 
 
 ## General notes
 ```pg-gan_mosquito``` is under active development. Please reach out to Sara Mathieson (smathieson [at] haverford [dot] edu) with any questions.
