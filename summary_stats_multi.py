@@ -115,7 +115,8 @@ def main():
         neg1=False, region_len=True)
     print("finish sim region_len")
     
-    #code to be replaced to load different demographic parameters, or create new generator to load different demographic model
+    #TODO: code to be replaced to load different demographic parameters baseline from the input outfile, 
+    # and create new generator to compare different demographic model
     if demo == "dadi_joint":  
         generator.update_params(DADI_PARAMS)
     elif demo == "dadi_joint_mig":

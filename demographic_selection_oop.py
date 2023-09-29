@@ -182,6 +182,7 @@ class MODEL_SELECTION:
         self.posteriors = posteriors
         self.disc = None
         self.generators = []
+        #real data generator
         self.iterator = None
         self.loss_fn= tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
         self.optimizer=tf.keras.optimizers.Adam(learning_rate=1e-6)
