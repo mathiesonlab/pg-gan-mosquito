@@ -11,8 +11,6 @@ There are currently two demographic models implemented in pg_gan_mosquito, which
 ## Schematic diagram for demographic inference and model selection
 Below attached the workflow of implementing demographic inference and model selection using pg_gan_mosquito. Example commands are shown below to perform the deep learning portion of the pipeline.
 
-![pg_gan_mosquito schematic diagram](https://github.com/mathiesonlab/pg-gan-mosquito/blob/main/supp/pg_gan_mosquito_schem.png)
-
 1. Activate environment
 ```
 source ~/${PATH}/tfenv_2.13/bin/activate
@@ -26,6 +24,9 @@ python3 pg_gan.py -m ${DEMO} -p ${PARAM} -n {SAMPLE_SIZE} -d ${H5} > ${OUTPUT}
 python3 demographic_selection_oop.py -d ${H5} -b ${INPUT_DIR} > ${OUTPUT}
 ```
 
+![pg_gan_mosquito schematic diagram](https://github.com/mathiesonlab/pg-gan-mosquito/blob/main/supp/pg_gan_mosquito_schem.png)
+
+
 ## Visualising summary statistics
 In additional to the creating summary statistics plot developed in pg_gan, ```summary_stats_multi.py``` is developed to compare the summary statistics plot of the real, derived posterior and the baseline parameter in a quantitative manner captured by wasserstein distance. For example, to produce the figures format below, run the following commands:
 
@@ -33,6 +34,8 @@ In additional to the creating summary statistics plot developed in pg_gan, ```su
 python3 pg_gan.py -m ${DEMO} -p ${PARAM} -n {SAMPLE_SIZE} -d ${H5} > ${OUTPUT}
 python summary_stats_multi.py ${INPUT} ${OUTPUT} ${DEMO}
 ```
+
+![summary_stats_multi.py example](https://github.com/mathiesonlab/pg-gan-mosquito/blob/main/supp/ss_multi_readme.png)https://github.com/mathiesonlab/pg-gan-mosquito/blob/main/supp/ss_multi_readme.png)
 
 
 
