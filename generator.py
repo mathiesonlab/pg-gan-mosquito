@@ -121,12 +121,12 @@ def prep_region(ts, neg1, region_len):
 if __name__ == "__main__":
 
     batch_size = 50
-    params = param_set.ParamSet()
+    params = param_set.ParamSet(simulation.dadi_joint_mig)
 
     # quick test
-    print("sim exp")
-    generator = Generator(simulation.simulate_exp, ["N1", "T1"], [20],
+    print("sim dadi_joint_mig")
+    generator = Generator(simulation.dadi_joint_mig, ["NI"], [20,20],
                           global_vars.DEFAULT_SEED)
-    generator.update_params([params.N1.value, params.T1.value])
+    generator.update_params([params.NI.value])
     mini_batch = generator.simulate_batch(batch_size=batch_size)
     print("x", mini_batch.shape)
