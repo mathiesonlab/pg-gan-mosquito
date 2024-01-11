@@ -258,7 +258,7 @@ if __name__ == "__main__":
 
     # test file
     filename = sys.argv[1]
-    bed_file = sys.argv[2]
+    bed_file = sys.argv[2] if len(sys.argv) > 2 else None
     iterator = RealDataRandomIterator(filename, global_vars.DEFAULT_SEED,
         bed_file)
 
