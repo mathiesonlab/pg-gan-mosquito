@@ -5,7 +5,9 @@ L = 5000            # heuristic to get enough SNPs for simulations (50kb for hum
 BATCH_SIZE = 50
 
 DEFAULT_SEED = 1833
-DEFAULT_SAMPLE_SIZE = 198
+# DEFAULT_SAMPLE_SIZE = 198
+DEFAULT_SAMPLE_SIZE = 153
+
 
 FRAC_TEST = 0.1 # depricated
 
@@ -26,7 +28,8 @@ COLOR_DICT = {"YRI": "darkorange","CEU": "blue","CHB": "green", "MXL": "red",
 BFA = tuple([x/255 for x in [130, 170, 204]])
 GNB = tuple([x/255 for x in [194, 210, 231]])
 UG  = tuple([x/255 for x in [181, 211, 170]])
-
+CM = tuple([x/255 for x in [241, 241, 241]])
+GA = tuple([x/255 for x in [163, 163, 163]])
 SS_LABELS = []
 SS_COLORS = []
 '''
@@ -41,14 +44,18 @@ def update_ss_labels(pop_names, num_pops=1):
         pop_names = 'msprime'
 
     # 3 pop mosquito
-    if "UG" in pop_names:
+    if ("GNB" in pop_names) and ("BFA" in pop_names) and ("UG" in pop_names):
         SS_LABELS.extend(["BFA","GNB","UG"])
         SS_COLORS.extend([BFA, GNB, UG])
 
     # 2 pop mosquito
-    elif "GNB" in pop_names:
+    elif ("GNB" in pop_names) and ("BFA" in pop_names):
         SS_LABELS.extend(["GNB", "BFA"])
         SS_COLORS.extend([GNB, BFA])
+
+    elif ("CM" in pop_names) and ("UG" in pop_names):
+        SS_LABELS.extend(["CM", "UG"])
+        SS_COLORS.extend([CM, UG])
 
     # 1 pop mosquito
     elif "gamb" in pop_names:

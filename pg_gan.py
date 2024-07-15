@@ -11,6 +11,8 @@ import sys
 import tensorflow as tf
 import scipy.stats
 import os
+import multiprocessing
+from itertools import product
 
 
 # our imports
@@ -20,7 +22,7 @@ import util
 from real_data_random import Region
 
 # globals for simulated annealing
-NUM_ITER = 300
+NUM_ITER = 150
 NUM_BATCH = 50 #hueristic, number of times the discriminator train on proposal (tuned)
 print("NUM_ITER", NUM_ITER)
 print("BATCH_SIZE", global_vars.BATCH_SIZE)
@@ -49,43 +51,51 @@ def main():
     generator, iterator, parameters, sample_sizes = util.process_opts(opts)
     disc = get_discriminator(sample_sizes)
 
-
-    # grid search
+    # # grid search
     if opts.grid:
-        print("Grid search not supported right now")
-        sys.exit()
-        #posterior, loss_lst = grid_search(disc, samples, simulator,
-        #    iterator, parameters, opts.seed)
-    # simulated annealing
+        print("grid search for hyperparameters")
+        sys.exit("grid search not implemented")
+
     else:
         #load_pm and save_pm option are not implemented, 
-        posterior, loss_lst = simulated_annealing(generator, disc,
-           iterator, parameters, opts.seed, toy=opts.toy)
+        posterior, loss_lst = simulated_annealing(
+        generator, disc, iterator, parameters, opts.seed,
+        toy=opts.toy, pt_lr=opts.pt_lr, pt_dropout=opts.pt_dropout,
+        load_pm=opts.load_pm, save_pm=opts.save_pm,
+        pre_trained_dir=opts.pre_trained_dir
+    )
 
     print(posterior)
     print(loss_lst)
+
+
 
 
 ################################################################################
 # SIMULATED ANNEALING
 ################################################################################
 
-def simulated_annealing(generator, disc, iterator, parameters, seed,
-    toy=False, save_pm = False, load_pm = False):
+def simulated_annealing(generator, disc, iterator, parameters, seed, toy=False, save_pm=False, load_pm=False, pt_lr=0.001, pt_dropout=0.25, pre_trained_dir=None):
+
     """Main function that drives GAN updates"""
 
     # main object for pg-gan
     pg_gan = PG_GAN(generator, disc, iterator, parameters, seed)
-    print("pretraining learning rate", pg_gan.disc_optimizer.learning_rate)
-
-
+    if load_pm:
+        print("loading pretrained model")
+        pg_gan.discriminator.load_weights(f"{pre_trained_dir}discriminator")
+        s_current = list(np.loadtxt(f"{pre_trained_dir}/s_current.out", delimiter=","))
     # find starting point through pre-training (update generator in method)
     #if utilise saved pretrained model for faster training process
-    if not toy:
+    elif not toy:
         print("starting pretraining")
-        s_current = pg_gan.disc_pretraining(800)
+        s_current = pg_gan.disc_pretraining(600, pt_lr, pt_dropout)
+        if save_pm:
+            print("saving pretrained model")
+            pg_gan.discriminator.save_weights(f"{pre_trained_dir}discriminator")
+            np.savetxt(f"{pre_trained_dir}/s_current.out", np.asarray(s_current), delimiter=",")
     else:
-        pg_gan.disc_pretraining(1) # for testing purposes
+        pg_gan.disc_pretraining(1, pt_lr, pt_dropout)
         s_current = [param.start() for param in pg_gan.parameters]
         pg_gan.generator.update_params(s_current)
 
@@ -100,8 +110,8 @@ def simulated_annealing(generator, disc, iterator, parameters, seed,
     # for toy example
     if toy:
         num_iter = 2
-
     #Heuristic measures to change the discriminator training capacity to match generator convergence for pg_gan_mosquito
+    # these values seemed to be consistent across different populations for the simulated annealing process
     dropout = 0.8
     training_lr = 25e-6
     print("starting training")
@@ -109,27 +119,19 @@ def simulated_annealing(generator, disc, iterator, parameters, seed,
     disc.dropout.rate = dropout
     print("updating learning rate", pg_gan.disc_optimizer.learning_rate, training_lr)
     pg_gan.disc_optimizer = tf.keras.optimizers.AdamW(learning_rate=training_lr)
-    print(pg_gan.disc_optimizer)    
+    print(pg_gan.disc_optimizer)
     sys.stdout.flush()
-
     # main pg-gan loop
     for i in range(num_iter):
         print("\nITER", i)
         print("time", datetime.datetime.now().time())
-        T = temperature(i, num_iter) # reduce width of proposal over time
-
+        T = temperature(i, num_iter) 
+        # reduce width of proposal over time
         # propose 10 updates per param and pick the best one
         s_best = None
         loss_best = float('inf')
-        for k in range(len(parameters)): # trying all params!
-            #k = random.choice(range(len(parameters))) # random param
+        for k in range(len(parameters)):
             for j in range(10): # trying 10
-
-                # can update all the parameters at once, or choose one at a time
-                #s_proposal = [parameters[k].proposal(s_current[k], T) for k in
-                #    range(len(parameters))]
-                #TODO: test functionality of utilising repeat block to mitigate incorrect demographic model param
-                #https://stackoverflow.com/questions/15232465/how-to-repeat-try-except-block
                 s_proposal = [v for v in s_current] # copy
                 s_proposal[k] = parameters[k].proposal(s_current[k], T)
                 loss_proposal = pg_gan.generator_loss(s_proposal)
@@ -202,6 +204,69 @@ def grid_search(model_type, samples, demo_file, simulator, iterator, parameters,
     return all_values, all_likelihood
 """
 
+################################################################################
+# GRID SEARCH
+################################################################################
+
+
+def hyperparam_grid_search(generator, disc, iterator, parameters, seed, toy=False, grid = None, output_dir = None):
+    """
+    Perform a grid search to optimize hyperparameters using multiprocessing.
+    
+    hyperparameters:
+        - learning rate: the rate at which the model learns from the data
+        - dropout: the rate at which the model forgets data
+        - architecture size: the size of the model architecture
+
+        adjust the hyperparameters if
+        - the discriminator is not learning from the data
+            e.g. 
+            - increase the learning rate
+            - decrease the dropout rate
+            -increase the architecture size
+            --expand the param_set ranges to include more diversity
+        
+        - the model is overfitting the data
+            - decrease the learning rate
+            - increase the dropout rate
+            - decrease the architecture size
+    """
+
+    print("Grid search for pretraining and model architecture hyperparameters")
+    
+    # Generate all combinations of parameters
+    
+    configs = list(product(*grid.values()))
+    print("Number of configurations:", len(configs))
+    
+    # Get the number of cores
+    num_cores = multiprocessing.cpu_count()
+    print("Number of cores:", num_cores)
+
+    # Check if the number of configurations matches the number of cores
+    assert num_cores == len(configs), "Number of configurations must match number of cores"
+
+    def run_config(config):
+
+        learning_rate, dropout, architecture_size = config
+        opts = {'learning_rate': learning_rate, 'dropout': dropout}
+
+        # Create a unique directory for each configuration
+        output_dir = os.path.join(output_dir, f"lr_{learning_rate}_dropout_{dropout}_size_{architecture_size}")
+        os.makedirs(output_dir, exist_ok=True)
+
+        # Redirect output to a file
+        output_path = os.path.join(output_dir, "output.out")
+        with open(output_path, 'w') as f:
+            print(f"Starting pretraining/training with PT.LR: {learning_rate}, PT.Dropout: {dropout}, Size: {architecture_size}", file=f)
+        
+        simulated_annealing(generator, disc, iterator, parameters, seed, toy=False, save_pm = False, load_pm = True, lr = 0.001, dropout = 0.25)
+
+        print(f"Config run with LR: {learning_rate}, Dropout: {dropout}, Size: {architecture_size}")
+
+    # Use multiprocessing to run each configuration
+    with multiprocessing.Pool(min(num_cores, len(configs))) as pool:
+        pool.map(run_config, configs)
 
 ################################################################################
 # TRAINING
@@ -224,10 +289,15 @@ class PG_GAN:
         self.discriminator.summary()
 
         self.cross_entropy =tf.keras.losses.BinaryCrossentropy(from_logits=True)
-        self.disc_optimizer = tf.keras.optimizers.Adam(learning_rate=1e-3)
+        self.disc_optimizer = tf.keras.optimizers.Adam(learning_rate=5e-3)
 
-    def disc_pretraining(self, num_batches):
+    def disc_pretraining(self, num_batches, lr, dropout):
         """Pre-train so discriminator has a chance to learn before generator"""
+        self.disc_optimizer.learning_rate = lr
+        self.discriminator.dropout.rate = dropout
+
+        print("pretraining learning rate", self.disc_optimizer.learning_rate)
+        print("pretraining dropout", self.discriminator.dropout.rate)
         s_best = []
         max_acc = 0
         avg_acc = 0
