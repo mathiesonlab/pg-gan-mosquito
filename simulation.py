@@ -360,8 +360,9 @@ def dadi_joint_mig(params, sample_sizes, seed, reco): # TODO use seed!
         recombination_rate=reco,
         ploidy=1) # keep it in haplotypes
 
-    # TODO might want to keep the JC mutation model for multi-allelic sites
-    mts = msprime.sim_mutations(ts, rate=params.mut.value, model="binary")
+    # TODO testing JC mutation model for multi-allelic sites
+    #mts = msprime.sim_mutations(ts, rate=params.mut.value, model="binary")
+    mts = msprime.sim_mutations(ts, rate=params.mut.value, model="JC69")
 
     return mts
 

@@ -124,19 +124,33 @@ class RealDataRandomIterator:
 
         raw = callset['calldata/GT']
         print("raw", raw.shape)
+
+        # does the right thing for unphased data
         newshape = (raw.shape[0], -1)
         self.haps_all = np.reshape(raw, newshape)
+
+        # check counts
+        #print("less than 0", np.count_nonzero(self.haps_all[self.haps_all<0]))
+        #print("greater than 1", np.count_nonzero(self.haps_all[self.haps_all>1]))
+        #input('enter')
+
+        self.haps_all[self.haps_all<0] = 0 # -1 is missing, replacing w/ 0 for now but need a better way! TODO
         self.pos_all = callset['variants/POS']
+
         # same length as pos_all, noting chrom for each variant (sorted)
         self.chrom_all = callset['variants/CHROM']
         print("after haps", self.haps_all.shape)
         self.num_samples = self.haps_all.shape[1]
+        #if not phased:
+        #    assert self.num_samples % 2 == 0
+        #    self.num_samples = self.num_samples//2
 
         '''print(self.pos_all.shape)
         print(self.pos_all.chunks)
         print(self.chrom_all.shape)
         print(self.chrom_all.chunks)'''
         self.num_snps = len(self.pos_all) # total for all chroms
+        #self.phased = phased
 
         # mask
         self.mask_dict = read_mask(bed_file) if bed_file is not None else None
@@ -154,35 +168,96 @@ class RealDataRandomIterator:
         Based on the given start_idx and the region_len, find the end index
         """
         ln = 0
-        chrom = global_vars.parse_chrom(self.chrom_all[start_idx])
+        chr = self.chrom_all[start_idx]
         i = start_idx
         curr_pos = self.pos_all[start_idx]
         while ln < global_vars.L:
 
             if len(self.pos_all) <= i+1:
-                print("not enough on chrom", chrom)
+                chr_str = chr.decode("utf-8") if isinstance(chr, bytes) else chr
+                print("not enough on chrom", chr_str)
                 return -1 # not enough on last chrom
 
             next_pos = self.pos_all[i+1]
-            if global_vars.parse_chrom(self.chrom_all[i+1]) == chrom:
+            if self.chrom_all[i+1] == chr:
                 diff = next_pos - curr_pos
                 ln += diff
             else:
-                print("not enough on chrom", chrom)
+                chr_str = chr.decode("utf-8") if isinstance(chr, bytes) else chr
+                print("not enough on chrom", chr_str)
                 return -1 # not enough on this chrom
             i += 1
             curr_pos = next_pos
 
         return i # exclusive
 
-    def real_region(self, neg1, region_len):
-        # inclusive
-        start_idx = self.rng.integers(0, self.num_snps - global_vars.NUM_SNPS)
+    def find_endpoints(self, mid_idx, region_L):
+        """
+        Based on the given mid_idx and the region_L, find the start/end
+        """
+        chr = self.chrom_all[mid_idx]
+
+        ln_after = 0
+        end_idx = mid_idx
+        curr_pos = self.pos_all[mid_idx]
+        while ln_after < region_L/2:
+
+            if len(self.pos_all) <= end_idx+1:
+                chr_str = chr.decode("utf-8") if isinstance(chr, bytes) else chr
+                print("not enough on chrom", chr_str)
+                return -1, -1 # not enough on last chrom
+
+            next_pos = self.pos_all[end_idx+1]
+            if self.chrom_all[end_idx+1] == chr:
+                diff = next_pos - curr_pos
+                ln_after += diff
+            else:
+                chr_str = chr.decode("utf-8") if isinstance(chr, bytes) else chr
+                print("not enough on chrom", chr_str)
+                return -1, -1 # not enough on this chrom
+            end_idx += 1
+            curr_pos = next_pos
+
+        ln_before = 0
+        start_idx = mid_idx
+        curr_pos = self.pos_all[mid_idx]
+        while ln_before < region_L/2:
+
+            if start_idx-1 < 0:
+                chr_str = chr.decode("utf-8") if isinstance(chr, bytes) else chr
+                print("not enough on chrom", chr_str)
+                return -1, -1 # not enough on last chrom
+
+            next_pos = self.pos_all[start_idx-1]
+            if self.chrom_all[start_idx-1] == chr:
+                diff = curr_pos - next_pos
+                ln_before += diff
+            else:
+                chr_str = chr.decode("utf-8") if isinstance(chr, bytes) else chr
+                print("not enough on chrom", chr_str)
+                return -1, -1 # not enough on this chrom
+            start_idx -= 1
+            curr_pos = next_pos
+
+        return start_idx, end_idx # exclusive
+
+    def real_region(self, neg1, region_len, start_idx=None, mid_idx=None,
+        region_L=None):
+        # use region_len = True and mid_idx/region_L together for logit_tajD!
+
+        if start_idx is None and mid_idx is None:
+            # inclusive
+            start_idx = self.rng.integers(self.num_snps - global_vars.NUM_SNPS)
 
         if region_len:
-            end_idx = self.find_end(start_idx)
-            if end_idx == -1:
-                return self.real_region(neg1, region_len) # try again
+            start_idx, end_idx = self.find_endpoints(mid_idx, region_L)
+            #end_idx = self.find_end(start_idx)
+            if end_idx == -1 or start_idx == -1:
+                if start_idx is None:
+                    return self.real_region(neg1, region_len) # try again
+                else:
+                    #print('start or end bad')
+                    return None # no recursion if walking through the genome
         else:
             end_idx = start_idx + global_vars.NUM_SNPS # exclusive
 
@@ -192,8 +267,13 @@ class RealDataRandomIterator:
 
         if start_chrom != end_chrom:
             #print("bad chrom", start_chrom, end_chrom)
-            return self.real_region(neg1, region_len) # try again
+            if start_idx is None:
+                return self.real_region(neg1, region_len) # try again
+            else:
+                #print('start end mismatch')
+                return None # no recursion if walking through the genome
 
+        #print("start mid end", start_idx, mid_idx, end_idx)
         hap_data = self.haps_all[start_idx:end_idx, :]
         start_base = self.pos_all[start_idx]
         end_base = self.pos_all[end_idx]
@@ -209,12 +289,20 @@ class RealDataRandomIterator:
             dist_vec = [0] + [(positions[j+1] - positions[j])/global_vars.L
                 for j in range(len(positions)-1)]
 
+            # check neg1
+            #unique, counts = np.unique(hap_data, return_counts=True)
+            #print("hap_data", dict(zip(unique, counts)))
+
             after = util.process_gt_dist(hap_data, dist_vec,
                 region_len=region_len, real=True, neg1=neg1)
             return after
 
         # try again if not in accessible region
-        return self.real_region(neg1, region_len)
+        if start_idx is None:
+            return self.real_region(neg1, region_len) # try again
+        else:
+            #print('not accessible')
+            return None # no recursion if walking through the genome
 
     def real_batch(self, batch_size = global_vars.BATCH_SIZE, neg1=True,
         region_len=False):
@@ -258,20 +346,20 @@ if __name__ == "__main__":
 
     # test file
     filename = sys.argv[1]
-    bed_file = sys.argv[2] if len(sys.argv) > 2 else None
-    iterator = RealDataRandomIterator(filename, global_vars.DEFAULT_SEED,
-        bed_file)
+    #bed_file = sys.argv[2]
+    iterator = RealDataRandomIterator(filename, global_vars.DEFAULT_SEED) 
+        #bed_file)#, phased=False)
 
-    start_time = datetime.datetime.now()
-    for i in range(100):
-        region = iterator.real_region(False, False)
+    #start_time = datetime.datetime.now()
+    #for i in range(10):
+    batch = iterator.real_batch()
+    print(batch.shape)
 
-    end_time = datetime.datetime.now()
-    elapsed = end_time - start_time
-    print("time s:ms", elapsed.seconds,":",elapsed.microseconds)
+    #end_time = datetime.datetime.now()
+    #elapsed = end_time - start_time
+    #print("time s:ms", elapsed.seconds,":",elapsed.microseconds)
 
     # test find_end
-    for i in range(10):
-        start_idx = iterator.rng.integers(0, iterator.num_snps - \
-            global_vars.NUM_SNPS)
-        iterator.find_end(start_idx)
+    #for i in range(10):
+    #    start_idx = iterator.rng.integers(iterator.num_snps-global_vars.NUM_SNPS)
+    #    iterator.find_end(start_idx)
