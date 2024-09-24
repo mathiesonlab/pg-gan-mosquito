@@ -38,36 +38,42 @@ print("NUM_CHANNELS", NUM_CHANNELS)
 
 
 def main():
-    """Parse args and run simulated annealing"""
+    """Parse args and run pretraining, simulated annealing, or full training"""
 
     opts = util.parse_args()
     print(opts)
 
     # set up seeds
-    if opts.seed != None:
+    if opts.seed is not None:
         np.random.seed(opts.seed)
         tf.random.set_seed(opts.seed)
 
     generator, iterator, parameters, sample_sizes = util.process_opts(opts)
     disc = get_discriminator(sample_sizes)
 
-    # # grid search
-    if opts.grid:
-        print("grid search for hyperparameters")
-        sys.exit("grid search not implemented")
-
-    else:
-        #load_pm and save_pm option are not implemented, 
+    if opts.phase == 'pt':
+        s_current = pretraining(
+            generator, disc, iterator, parameters, opts.seed,
+            lr=opts.pt_lr, dropout=opts.pt_dropout, toy=opts.toy,
+            pre_trained_dir=opts.pre_trained_dir, save_pm=opts.save_pm
+        )
+        print(s_current)
+    elif opts.phase == 'sa':
         posterior, loss_lst = simulated_annealing(
-        generator, disc, iterator, parameters, opts.seed,
-        toy=opts.toy, pt_lr=opts.pt_lr, pt_dropout=opts.pt_dropout,
-        load_pm=opts.load_pm, save_pm=opts.save_pm,
-        pre_trained_dir=opts.pre_trained_dir
-    )
-
-    print(posterior)
-    print(loss_lst)
-
+            generator, disc, iterator, parameters, opts.seed,
+            toy=opts.toy, lr=opts.sa_lr, dropout=opts.sa_dropout, pre_trained_dir=opts.pre_trained_dir
+        )
+        print(posterior)
+        print(loss_lst)
+    elif opts.phase == 'full_training':  # Adding the full_training phase
+        posterior, loss_lst = full_training(
+            generator, disc, iterator, parameters, opts.seed, toy=opts.toy,
+            pt_lr=opts.pt_lr,pt_dropout=opts.pt_dropout, lr = opts.sa_lr, dropout = opts.sa_dropout
+        )
+        print(posterior)
+        print(loss_lst)
+    else:
+        sys.exit("Invalid phase argument: " + str(opts.phase) + " Choose 'pt', 'sa', or 'full_training'.")
 
 
 
@@ -75,25 +81,115 @@ def main():
 # SIMULATED ANNEALING
 ################################################################################
 
-def simulated_annealing(generator, disc, iterator, parameters, seed, toy=False, save_pm=False, load_pm=False, pt_lr=0.001, pt_dropout=0.25, pre_trained_dir=None):
+def pretraining(generator, disc, iterator, parameters, seed, lr=0.001, dropout=0.25, toy=False, pre_trained_dir=None, save_pm=False):
+    """Function that handles the pretraining stage"""
+
+    pg_gan = PG_GAN(generator, disc, iterator, parameters, seed)
+    print("starting pretraining")
+    
+    if toy:
+        s_current = pg_gan.disc_pretraining(1, lr, dropout)
+    else:
+        s_current = pg_gan.disc_pretraining(600, lr, dropout)
+    
+    if save_pm:
+        print("saving pretrained model")
+        pg_gan.discriminator.save_weights(f"{pre_trained_dir}discriminator")
+        np.savetxt(f"{pre_trained_dir}/s_current.out", np.asarray(s_current), delimiter=",")
+    
+    return s_current
+
+def simulated_annealing(generator, disc, iterator, parameters, seed, toy=False, lr=25e-6, dropout=0.8, pre_trained_dir=None):
+    """Main function that drives GAN updates"""
+
+    pg_gan = PG_GAN(generator, disc, iterator, parameters, seed)
+
+    # Mandatory loading of the pre-trained model
+    print("loading pretrained model from ", pre_trained_dir)
+    pg_gan.discriminator.load_weights(f"{pre_trained_dir}discriminator")
+    s_current = list(np.loadtxt(f"{pre_trained_dir}/s_current.out", delimiter=","))
+    
+    loss_curr = pg_gan.generator_loss(s_current)
+    print("params, loss", s_current, loss_curr)
+
+    posterior = [s_current]
+    loss_lst = [loss_curr]
+
+    # simulated-annealing iterations
+    num_iter = NUM_ITER
+    # for toy example
+    if toy:
+        num_iter = 2
+
+    print("starting training")
+    disc.dropout.rate = dropout
+    pg_gan.disc_optimizer = tf.keras.optimizers.AdamW(learning_rate=lr)
+    print("dropout = ", disc.dropout.rate)
+    print("learning rate = ", pg_gan.disc_optimizer.learning_rate)
+    print(pg_gan.disc_optimizer)
+    sys.stdout.flush()
+    # main pg-gang loop
+    for i in range(num_iter):
+        print("\nITER", i)
+        print("time", datetime.datetime.now().time())
+        T = temperature(i, num_iter) 
+        # reduce width of proposal over time
+        # propose 10 updates per param and pick the best one
+        s_best = None
+        loss_best = float('inf')
+        for k in range(len(parameters)):
+            for j in range(10): # trying 10
+                s_proposal = [v for v in s_current] # copy
+                s_proposal[k] = parameters[k].proposal(s_current[k], T)
+                loss_proposal = pg_gan.generator_loss(s_proposal)
+
+                print(j, "proposal", s_proposal, loss_proposal)
+                if loss_proposal < loss_best: # minimizing loss
+                    loss_best = loss_proposal
+                    s_best = s_proposal
+
+        # decide whether to accept or not (reduce accepting bad state later on)
+        if loss_best <= loss_curr: # unsure about this equal here
+            p_accept = 1
+        else:
+            p_accept = (loss_curr / loss_best) * T
+        rand = np.random.rand()
+        accept = rand < p_accept
+
+        # if accept, retrain
+        if accept:
+            print("ACCEPTED")
+            s_current = s_best
+            generator.update_params(s_current)
+            # train only if accept
+            real_acc, fake_acc = pg_gan.train_sa(NUM_BATCH)
+            loss_curr = loss_best
+
+        # don't retrain
+        else:
+            print("NOT ACCEPTED")
+
+        print("T, p_accept, rand, s_current, loss_curr", end=" ")
+        print(T, p_accept, rand, s_current, loss_curr)
+        posterior.append(s_current)
+        loss_lst.append(loss_curr)
+
+        sys.stdout.flush()
+
+    return posterior, loss_lst
+
+
+def full_training(generator, disc, iterator, parameters, seed, toy=False, pt_lr=0.001, pt_dropout=0.25, lr = 25e-6, dropout = 0.8):
 
     """Main function that drives GAN updates"""
 
     # main object for pg-gan
     pg_gan = PG_GAN(generator, disc, iterator, parameters, seed)
-    if load_pm:
-        print("loading pretrained model")
-        pg_gan.discriminator.load_weights(f"{pre_trained_dir}discriminator")
-        s_current = list(np.loadtxt(f"{pre_trained_dir}/s_current.out", delimiter=","))
     # find starting point through pre-training (update generator in method)
     #if utilise saved pretrained model for faster training process
-    elif not toy:
+    if not toy:
         print("starting pretraining")
         s_current = pg_gan.disc_pretraining(600, pt_lr, pt_dropout)
-        if save_pm:
-            print("saving pretrained model")
-            pg_gan.discriminator.save_weights(f"{pre_trained_dir}discriminator")
-            np.savetxt(f"{pre_trained_dir}/s_current.out", np.asarray(s_current), delimiter=",")
     else:
         pg_gan.disc_pretraining(1, pt_lr, pt_dropout)
         s_current = [param.start() for param in pg_gan.parameters]
@@ -112,13 +208,11 @@ def simulated_annealing(generator, disc, iterator, parameters, seed, toy=False, 
         num_iter = 2
     #Heuristic measures to change the discriminator training capacity to match generator convergence for pg_gan_mosquito
     # these values seemed to be consistent across different populations for the simulated annealing process
-    dropout = 0.8
-    training_lr = 25e-6
     print("starting training")
     print("updating dropout", disc.dropout.rate, dropout)
     disc.dropout.rate = dropout
-    print("updating learning rate", pg_gan.disc_optimizer.learning_rate, training_lr)
-    pg_gan.disc_optimizer = tf.keras.optimizers.AdamW(learning_rate=training_lr)
+    print("updating learning rate", pg_gan.disc_optimizer.learning_rate, lr)
+    pg_gan.disc_optimizer = tf.keras.optimizers.AdamW(learning_rate=lr)
     print(pg_gan.disc_optimizer)
     sys.stdout.flush()
     # main pg-gan loop
@@ -209,64 +303,64 @@ def grid_search(model_type, samples, demo_file, simulator, iterator, parameters,
 ################################################################################
 
 
-def hyperparam_grid_search(generator, disc, iterator, parameters, seed, toy=False, grid = None, output_dir = None):
-    """
-    Perform a grid search to optimize hyperparameters using multiprocessing.
+# def hyperparam_grid_search(generator, disc, iterator, parameters, seed, toy=False, grid = None, output_dir = None):
+#     """
+#     Perform a grid search to optimize hyperparameters using multiprocessing.
     
-    hyperparameters:
-        - learning rate: the rate at which the model learns from the data
-        - dropout: the rate at which the model forgets data
-        - architecture size: the size of the model architecture
+#     hyperparameters:
+#         - learning rate: the rate at which the model learns from the data
+#         - dropout: the rate at which the model forgets data
+#         - architecture size: the size of the model architecture
 
-        adjust the hyperparameters if
-        - the discriminator is not learning from the data
-            e.g. 
-            - increase the learning rate
-            - decrease the dropout rate
-            -increase the architecture size
-            --expand the param_set ranges to include more diversity
+#         adjust the hyperparameters if
+#         - the discriminator is not learning from the data
+#             e.g. 
+#             - increase the learning rate
+#             - decrease the dropout rate
+#             -increase the architecture size
+#             --expand the param_set ranges to include more diversity
         
-        - the model is overfitting the data
-            - decrease the learning rate
-            - increase the dropout rate
-            - decrease the architecture size
-    """
+#         - the model is overfitting the data
+#             - decrease the learning rate
+#             - increase the dropout rate
+#             - decrease the architecture size
+#     """
 
-    print("Grid search for pretraining and model architecture hyperparameters")
+#     print("Grid search for pretraining and model architecture hyperparameters")
     
-    # Generate all combinations of parameters
+#     # Generate all combinations of parameters
     
-    configs = list(product(*grid.values()))
-    print("Number of configurations:", len(configs))
+#     configs = list(product(*grid.values()))
+#     print("Number of configurations:", len(configs))
     
-    # Get the number of cores
-    num_cores = multiprocessing.cpu_count()
-    print("Number of cores:", num_cores)
+#     # Get the number of cores
+#     num_cores = multiprocessing.cpu_count()
+#     print("Number of cores:", num_cores)
 
-    # Check if the number of configurations matches the number of cores
-    assert num_cores == len(configs), "Number of configurations must match number of cores"
+#     # Check if the number of configurations matches the number of cores
+#     assert num_cores == len(configs), "Number of configurations must match number of cores"
 
-    def run_config(config):
+#     def run_config(config):
 
-        learning_rate, dropout, architecture_size = config
-        opts = {'learning_rate': learning_rate, 'dropout': dropout}
+#         learning_rate, dropout, architecture_size = config
+#         opts = {'learning_rate': learning_rate, 'dropout': dropout}
 
-        # Create a unique directory for each configuration
-        output_dir = os.path.join(output_dir, f"lr_{learning_rate}_dropout_{dropout}_size_{architecture_size}")
-        os.makedirs(output_dir, exist_ok=True)
+#         # Create a unique directory for each configuration
+#         output_dir = os.path.join(output_dir, f"lr_{learning_rate}_dropout_{dropout}_size_{architecture_size}")
+#         os.makedirs(output_dir, exist_ok=True)
 
-        # Redirect output to a file
-        output_path = os.path.join(output_dir, "output.out")
-        with open(output_path, 'w') as f:
-            print(f"Starting pretraining/training with PT.LR: {learning_rate}, PT.Dropout: {dropout}, Size: {architecture_size}", file=f)
+#         # Redirect output to a file
+#         output_path = os.path.join(output_dir, "output.out")
+#         with open(output_path, 'w') as f:
+#             print(f"Starting pretraining/training with PT.LR: {learning_rate}, PT.Dropout: {dropout}, Size: {architecture_size}", file=f)
         
-        simulated_annealing(generator, disc, iterator, parameters, seed, toy=False, save_pm = False, load_pm = True, lr = 0.001, dropout = 0.25)
+#         simulated_annealing(generator, disc, iterator, parameters, seed, toy=False, save_pm = False, load_pm = True, lr = 0.001, dropout = 0.25)
 
-        print(f"Config run with LR: {learning_rate}, Dropout: {dropout}, Size: {architecture_size}")
+#         print(f"Config run with LR: {learning_rate}, Dropout: {dropout}, Size: {architecture_size}")
 
-    # Use multiprocessing to run each configuration
-    with multiprocessing.Pool(min(num_cores, len(configs))) as pool:
-        pool.map(run_config, configs)
+#     # Use multiprocessing to run each configuration
+#     with multiprocessing.Pool(min(num_cores, len(configs))) as pool:
+#         pool.map(run_config, configs)
 
 ################################################################################
 # TRAINING
