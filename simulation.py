@@ -295,7 +295,7 @@ def dadi_joint(params, sample_sizes, seed, reco): # TODO use seed!
     demography.add_population_parameters_change(time=TS, growth_rate=g, population="ANC")
     demography.add_population_parameters_change(time=TG, growth_rate=0, population="ANC")
 
-    #print(demography.debug())
+    # print(demography.debug())
 
     # simulate ancestry and mutations over that ancestry
     ts = msprime.sim_ancestry(
@@ -352,6 +352,10 @@ def dadi_joint_mig(params, sample_sizes, seed, reco): # TODO use seed!
 
     #print(demography.debug())
 
+    # If TG < TS, the model will throw an error even after sorting.
+    if TS > TG:
+        raise ValueError("Events must be time-sorted: TG must be greater than TS.", TS, TG)
+
     # simulate ancestry and mutations over that ancestry
     ts = msprime.sim_ancestry(
         samples = {'POP1':sample_sizes[0], 'POP2':sample_sizes[1]},
@@ -361,8 +365,8 @@ def dadi_joint_mig(params, sample_sizes, seed, reco): # TODO use seed!
         ploidy=1) # keep it in haplotypes
 
     # TODO testing JC mutation model for multi-allelic sites
-    #mts = msprime.sim_mutations(ts, rate=params.mut.value, model="binary")
-    mts = msprime.sim_mutations(ts, rate=params.mut.value, model="JC69")
+    mts = msprime.sim_mutations(ts, rate=params.mut.value, model="binary")
+    # mts = msprime.sim_mutations(ts, rate=params.mut.value, model="JC69")
 
     return mts
 

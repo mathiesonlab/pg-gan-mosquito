@@ -127,28 +127,47 @@ def filter_nonseg(region):
     filter = np.logical_and(keep0, keep1)
     return filter
 
-def parse_args(in_file_data = None, param_values = None):
+def parse_args(in_file_data=None, param_values=None):
     """Parse command line arguments."""
-    parser = optparse.OptionParser(description='PG-GAN entry point')
 
-    parser.add_option('-m', '--model', type='string',help='exp, im, ooa2, ooa3')
-    parser.add_option('-p', '--params', type='string',
-        help='comma separated parameter list')
-    parser.add_option('-d', '--data_h5', type='string', help='real data file')
-    parser.add_option('-b', '--bed', type='string', help='bed file (mask)')
-    parser.add_option('-r', '--reco_folder', type='string',
-        help='recombination maps')
-    parser.add_option('-g', action="store_true", dest="grid",help='grid search')
-    parser.add_option('-t', action="store_true", dest="toy", help='toy example')
-    parser.add_option('-s', '--seed', type='int', default=1833,
-        help='seed for RNG')
-    parser.add_option('-n', '--sample_sizes', type='string',
-        help='comma separated sample sizes for each population, in haps')
-    parser.add_option('-v', '--param_values', type='string',
-        help='comma separated values corresponding to params')
+    if in_file_data is not None:
+        parser = optparse.OptionParser(description='PG-GAN entry point')
 
-    (opts, args) = parser.parse_args()
+        parser.add_option('-m', '--model', type='string', help='exp, im, ooa2, ooa3')
+        parser.add_option('-p', '--params', type='string', help='comma separated parameter list')
+        parser.add_option('-d', '--data_h5', type='string', help='real data file')
+        parser.add_option('-b', '--bed', type='string', help='bed file (mask)')
+        parser.add_option('-r', '--reco_folder', type='string', help='recombination maps')
+        parser.add_option('-g', action="store_true", dest="grid", help='grid search')
+        parser.add_option('-t', action="store_true", dest="toy", help='toy example')
+        parser.add_option('-s', '--seed', type='int', default=1833, help='seed for RNG')
+        parser.add_option('-n', '--sample_sizes', type='string', help='comma separated sample sizes for each population, in haps')
+        parser.add_option('-v', '--param_values', type='string', help='comma separated values corresponding to params')
+        
 
+    else:
+        parser = optparse.OptionParser(description='PG-GAN entry point')
+
+        parser.add_option('-m', '--model', type='string', help='exp, im, ooa2, ooa3')
+        parser.add_option('-p', '--params', type='string', help='comma separated parameter list')
+        parser.add_option('-d', '--data_h5', type='string', help='real data file')
+        parser.add_option('-b', '--bed', type='string', help='bed file (mask)')
+        parser.add_option('-r', '--reco_folder', type='string', help='recombination maps')
+        parser.add_option('-g', action="store_true", dest="grid", help='grid search')
+        parser.add_option('-t', action="store_true", dest="toy", help='toy example')
+        parser.add_option('-s', '--seed', type='int', default=1833, help='seed for RNG')
+        parser.add_option('-n', '--sample_sizes', type='string', help='comma separated sample sizes for each population, in haps')
+        parser.add_option('-v', '--param_values', type='string', help='comma separated values corresponding to params')
+        parser.add_option('--pt_lr', type='float', default=0.0001, help='learning rate for pretraining')
+        parser.add_option('--pt_dropout', type='float', default=0.5, help='dropout rate for pretraining')
+        parser.add_option('--sa_lr', type='float', default=25e-6, help='learning rate for simulated annealing')
+        parser.add_option('--sa_dropout', type='float', default=0.8, help='dropout rate for simulated annealing')
+        parser.add_option('--save_pm', action='store_true', help='Save pretrained model')
+        parser.add_option('--pre_trained_dir', type='string', help='Directory for pretrained model')
+        parser.add_option('--phase', type='string', help='Phase to run: pretrain or simulated_annealing')
+
+
+    opts, args = parser.parse_args()
     '''
     The following section overrides params from the input file with the provided
     args.

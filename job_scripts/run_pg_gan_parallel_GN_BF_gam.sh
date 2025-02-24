@@ -4,17 +4,18 @@
 #$ -l h_rt=240:0:0
 #$ -cwd
 #$ -j y
-#$ -t 1-5  # Run X parallel tasks with the same parameters
+#$ -t 1-4
 
 #!/bin/bash
 
-# Set variables for the input data, population, and species
+#!/bin/bash
+
 DATA=nsg
-DEMO=dadi_joint
-POP1=CM
-POP2=UG
-POP1S=594
-POP2S=224
+DEMO=dadi_joint_mig
+POP1=GN
+POP2=BF
+POP1S=88
+POP2S=334
 SPECIES=gam
 INPUT=${POP1}-${POP2}_${SPECIES}_${DATA}.h5
 
@@ -22,7 +23,7 @@ INPUT=${POP1}-${POP2}_${SPECIES}_${DATA}.h5
 TOY=""
 
 # Define phase (pt, sa, or full_training)
-PHASE="full_training"
+PHASE="pt"
 
 # Check if phase is provided
 if [[ -z "$PHASE" ]]; then
@@ -31,10 +32,10 @@ if [[ -z "$PHASE" ]]; then
 fi
 
 # Define arrays of learning rates and dropout rates for pretraining and simulated annealing
-pt_learning_rates=("1e-3", "1e-4")
-pt_dropout_rates=("0.5", "0.25")
-sa_learning_rates=("25e-6" "1e-6")
-sa_dropout_rates=("0.8", "0.6")
+pt_learning_rates=("1e-3" "1e-4")
+pt_dropout_rates=("0.5" "0.25")
+sa_learning_rates=("1e-7" "1e-6")
+sa_dropout_rates=("0.8" "0.6")
 
 # Calculate the total number of combinations for pt and sa phases
 if [ "$PHASE" == "pt" ]; then
@@ -105,7 +106,7 @@ if [ "$PHASE" == "pt" ]; then
 
 elif [ "$PHASE" == "sa" ]; then
     # Set pre-trained directory for simulated annealing
-    pretrained_lr="1e-3"
+    pretrained_lr="5e-4"
     pretrained_dropout="0.5"
     pretrained_dir="./sim_out/${POP1}-${POP2}_${SPECIES}_${DATA}/${DEMO}/pt/${pretrained_lr}/${pretrained_dropout}/"
     pretrained_discriminator="${pretrained_dir}discriminator.data-00000-of-00001"
@@ -119,9 +120,9 @@ elif [ "$PHASE" == "sa" ]; then
 
 elif [ "$PHASE" == "full_training" ]; then
     pt_dropout="0.5"
-    pt_lr="1e-3"
+    pt_lr="5e-4"
     sa_dropout="0.8"
-    sa_lr="1e-6"
+    sa_lr="25e-6"
     echo "python3 pg_gan.py -m ${DEMO} -p ${PARAM} -n ${POP1S},${POP2S} -d ${INPUT} --pt_lr ${pt_lr} --pt_dropout ${pt_dropout} --sa_lr ${sa_lr} --sa_dropout ${sa_dropout} --phase ${PHASE} ${TOY}" >> ${OUTPUT_PREFIX}README
     python3 pg_gan.py -m ${DEMO} -p ${PARAM} -n ${POP1S},${POP2S} -d ${INPUT} --pt_lr ${pt_lr} --pt_dropout ${pt_dropout} --sa_lr ${sa_lr} --sa_dropout ${sa_dropout} --phase ${PHASE} ${TOY} > ${OUTPUT}
 fi

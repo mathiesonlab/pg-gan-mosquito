@@ -6,7 +6,7 @@
 #$ -j y
 
 
-PREFIX=./sim_out/model_compare/GNB-BFA_gamb/6
+PREFIX=./sim_out/model_compare/CM-UG_gam/
 INPUT=${PREFIX}/model_comparison.out
 OUTPUT=${PREFIX}/model_comparison_eval.png
 

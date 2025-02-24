@@ -113,116 +113,93 @@ class ParamSet:
             # 3.5e-9 based on 2017 paper (from drosophila)
             self.mut = Parameter(3.5e-9, 1e-9, 1e-8, "mut")
 
-        # # mosquito dadi joint models: GNS_vs_BFS (1st line)
-        # elif simulator == simulation.dadi_joint:
-        #     upper_range = 4
-        #     lower_range = 0.1
-        #     self.NI = Parameter(420646 , 5000 , 1000000, "NI")
-        #     self.TG = Parameter(89506 , 10000, 150000, "TG")
-        #     self.NF = Parameter(9440437 ,9440437 * lower_range ,9440437 * upper_range, "NF")
-        #     self.TS = Parameter(2245 , 500 , 10000, "TS")
-        #     #strong evidence of recent population expansion in sub, thus NI upper range < NF lower range
-        #     #https://academic.oup.com/mbe/article/18/7/1353/992401
-        #     self.NI1 = Parameter(18328570 , 18328570 * lower_range , 18328570 * upper_range, "NI1")
-        #     self.NI2 = Parameter(42062652 , 42062652 * lower_range , 42062652 * upper_range, "NI2")
-        #     self.NF1 = Parameter(42064645 , 42064645 * lower_range , 42064645 * upper_range, "NF1")
-        #     self.NF2 = Parameter(42064198 , 42064198 * lower_range , 42064198 * upper_range, "NF2")
-        #     #MG = 2Nim, where Ni = ancestral pop size, 
-        #     # and m = migration rate per gamete per generation
-        #     #self.MG = Parameter(40, 20, 60, "MG")
-
-        #     # stdpopsim
-        #     #self.reco = Parameter(8.4e-09, 1e-9, 1e-8, "reco")
-        #     self.reco = Parameter(1.45e-8, 1e-9, 1e-8, "reco") 
-        #     # 3.5e-9 based on 2017 paper (from drosophila)
-        #     self.mut = Parameter(3.5e-9, 1e-9, 1e-8, "mut")
-
-        # mosquito dadi joint models: CM_vs_UG (1st line)
         elif simulator == simulation.dadi_joint:
             upper_range = 8
             lower_range = 0.1
-            self.NI = Parameter(432139 , 5000 , 2000000, "NI")
-            self.TG = Parameter(84723 , 20000, 300000, "TG")
-            self.NF = Parameter(11040070 ,9440437 * lower_range ,9440437 * upper_range, "NF")
-            self.TS = Parameter(3377 , 100 , 20000, "TS")
-            #strong evidence of recent population expansion in sub, thus NI upper range < NF lower range
-            #https://academic.oup.com/mbe/article/18/7/1353/992401
-            self.NI1 = Parameter(38787744 , 18328570 * lower_range , 18328570 * upper_range, "NI1")
-            self.NI2 = Parameter(24729852 , 42062652 * lower_range , 42062652 * upper_range, "NI2")
-            self.NF1 = Parameter(13116347 , 42064645 * lower_range , 42064645 * upper_range, "NF1")
-            self.NF2 = Parameter(3575499 , 42064198 * lower_range , 42064198 * upper_range, "NF2")
-            #MG = 2Nim, where Ni = ancestral pop size, 
-            # and m = migration rate per gamete per generation
+
+            # params = CM_vs_UG_dadi_joint = {
+            #     'NI': 432139,
+            #     'TG': 84723,
+            #     'NF': 11040070,
+            #     'TS': 3377,
+            #     'NI1': 38787744,
+            #     'NI2': 24729852,
+            #     'NF1': 13116347,
+            #     'NF2': 3575499,
+            #     'reco': 1.45e-8,
+            #     'mut': 3.5e-9
+            # }
+
+            params = BFA_vs_GNB_dadi_joint = {
+                'AIC': 33307,
+                'NI': 420722,
+                'TS': 2247,
+                'NI1': 18221645,
+                'NI2': 11907698,
+                'NF1': 42072233,
+                'NF2': 42072201,
+                '2NIm': None,  # 'NA' interpreted as None
+                'TG': 89511,
+                'NF': 9438040
+            }
+            
+
+
+
+            self.NI = Parameter(params['NI'], 5000, 2000000, "NI")
+            self.TG = Parameter(params['TG'], 60000, 140000, "TG")
+            self.NF = Parameter(params['NF'], params['NF'] * lower_range, params['NF'] * upper_range, "NF")
+            self.TS = Parameter(params['TS'], 10000, 50000, "TS")
+            # strong evidence of recent population expansion in sub-Saharan Africa, thus NI upper range < NF lower range
+            # https://academic.oup.com/mbe/article/18/7/1353/992401
+            self.NI1 = Parameter(params['NF1'], params['NF1'] * lower_range, params['NF1'] * upper_range, "NI1")
+            self.NI2 = Parameter(params['NF2'], params['NF2'] * lower_range, params['NF2'] * upper_range, "NI2")
+            self.NF1 = Parameter(params['NF1'], params['NF1'] * lower_range, params['NF1'] * upper_range, "NF1")
+            self.NF2 = Parameter(params['NF2'], params['NF2'] * lower_range, params['NF2'] * upper_range, "NF2")
 
             # stdpopsim
-            #self.reco = Parameter(8.4e-09, 1e-9, 1e-8, "reco")
             self.reco = Parameter(1.45e-8, 1e-9, 1e-8, "reco") 
             # 3.5e-9 based on 2017 paper (from drosophila)
             self.mut = Parameter(3.5e-9, 1e-9, 1e-8, "mut")
 
-        # elif simulator == simulation.dadi_joint_mig:
-        #     upper_range = 4
-        #     lower_range = 0.1
-        #     self.NI = Parameter(415254 , 415254 * lower_range , 415254 * upper_range, "NI")
-        #     self.TG = Parameter(93341 , 20000 , 150000, "TG")
-        #     self.NF = Parameter(8292759 ,8292759 * lower_range ,8292759 * upper_range, "NF")
-        #     self.TS = Parameter(11637 , 500 , 20000, "TS")
-        #     #strong evidence of recent population expansion, thus NI upper range < NF lower range
-        #     #https://academic.oup.com/mbe/article/18/7/1353/992401
-        #     #agrarian revolution in sub-Saharan Africa approximately 10,000–4,000 years ago could be linked to population expansion of A.Gambiae
-        #     self.NI1 = Parameter(2635696 , 2635696 * lower_range , 2635696 * upper_range, "NI1")
-        #     self.NI2 = Parameter(2748423 , 2748423 * lower_range , 2748423 * upper_range, "NI2")
-        #     self.NF1 = Parameter(11101754 , 11101754 * lower_range , 11101754 * upper_range, "NF1")
-        #     self.NF2 = Parameter(11439976 , 11439976 * lower_range , 11439976 * upper_range, "NF2")
-        #     #2Nim = [20, 60, 100], where Ni = ancestrial pop size at TS (NF), m = migration rate per gamete per generation
-        #     #m = [3.61× 10-6 , 1.2× 10-6, 6.02 × 10-6] per gamete per year (actual value inputted in demographic model)
-        #     #1 migrant  per generation is the max
-        #     #4NM = 1
-        #     #wider migration range
-        #     self.MG = Parameter(60, 20, 100, "MG")
-
-        #     # stdpopsim
-        #     self.reco = Parameter(1.45e-8, 1e-9, 1e-8, "reco") 
-        #     # 3.5e-9 based on 2017 paper (from drosophila)
-        #     self.mut = Parameter(3.5e-9, 1e-9, 1e-8, "mut")
-
+        
         # mosquito dadi joint mig models: CM_vs_UG (1st line, line 112)
         elif simulator == simulation.dadi_joint_mig:
             upper_range = 8
             lower_range = 0.1
-            time_upper_range = 2
-            time_lower_range = 0.5
 
             # params = CM_vs_UG_dadi_joint_mig = {
-            #                             'AIC': 205818,
-            #                             'NI': 282184,
-            #                             'TS': 34117,
-            #                             'NI1': 169035,
-            #                             'NI2': 28194588,
-            #                             'NF1': 10251626,
-            #                             'NF2': 2938915,
-            #                             '2NIm': 4.363307495,
-            #                             'TG': 134544,
-            #                             'NF': 9153012
-            #                         }
+            #                                 "Population_pair": "CMS_savanna_vs_UGS",
+            #                                 "migration_or_no?": "sym_mig",
+            #                                 "AIC": 173879,
+            #                                 "NI": 367110,
+            #                                 "TS": 31783,
+            #                                 "NI1": 3098698,
+            #                                 "NI2": 219272,
+            #                                 "NF1": 8594624,
+            #                                 "NF2": 6104686,
+            #                                 "2NIm": 4.51427274,
+            #                                 "TG": 99659,
+            #                                 "NF": 31710315
+            #                             }
             
-            params = GAS_vs_AOM_dadi_joint_mig = {
-                                'AIC': 370177,
-                                'NI': 414042,
-                                'TS': 794,
-                                'NI1': 30255578,
-                                'NI2': 20889426,
-                                'NF1': 7444,
-                                'NF2': 5222,
-                                '2NIm': 5.888860679,
-                                'TG': 74423,
-                                'NF': 30883743
-                            }
+            params = BFA_vs_GNB_dadi_joint_mig = {
+                'AIC': 32780,
+                'NI': 416431,
+                'TS': 4459,
+                'NI1': 6022347,
+                'NI2': 3480335,
+                'NF1': 19519009,
+                'NF2': 41639292,
+                '2NIm': 19.99418964,  # This value is given directly
+                'TG': 91175,
+                'NF': 9086281
+            }
 
             self.NI = Parameter(params['NI'], params['NI'] * lower_range, params['NI'] * upper_range, "NI")
-            self.TG = Parameter(params['TG'], params['TG'] * time_lower_range, params['TG'] * time_upper_range, "TG")
+            self.TG = Parameter(params['TG'], 70000, 140000, "TG")
             self.NF = Parameter(params['NF'], params['NF'] * lower_range, params['NF'] * upper_range, "NF")
-            self.TS = Parameter(params['TS'], params['TS'] * time_lower_range, params['TS'] * time_upper_range, "TS")
+            self.TS = Parameter(params['TS'], 10000, 50000, "TS")
             # strong evidence of recent population expansion, thus NI upper range < NF lower range
             # https://academic.oup.com/mbe/article/18/7/1353/992401
             # agrarian revolution in sub-Saharan Africa approximately 10,000–4,000 years ago could be linked to population expansion of A.Gambiae
@@ -231,17 +208,12 @@ class ParamSet:
             self.NF1 = Parameter(params['NF1'], params['NF1'] * lower_range, params['NF1'] * upper_range, "NF1")
             self.NF2 = Parameter(params['NF2'], params['NF2'] * lower_range, params['NF2'] * upper_range, "NF2")
             # 20 as the upper bound of the dadi model
-            self.MG = Parameter(params['2NIm'], 0, 20, "MG")
+            self.MG = Parameter(params['2NIm'], 0, 60, "MG")
 
             # stdpopsim
             self.reco = Parameter(1.45e-8, 1e-9, 1e-8, "reco") 
             # 3.5e-9 based on 2017 paper (from drosophila)
             self.mut = Parameter(3.5e-9, 1e-9, 1e-8, "mut")
-
-            if params['TG'] * time_lower_range > params['TS'] * time_upper_range:
-                print("Max TS should be less than Min TG")
-                print("Max TS = Min TG - 1")
-                self.TS = Parameter(params['TS'], params['TS'] * time_lower_range, params['TG'] * time_lower_range - 1, "TS")
 
 
         # im

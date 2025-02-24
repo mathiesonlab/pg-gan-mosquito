@@ -18,7 +18,7 @@ import ss_helpers
 import util
 
 # globals
-NUM_TRIAL = 500
+NUM_TRIAL = 200
 # statistic names
 NAMES = [
     "minor allele count (SFS)",
@@ -40,8 +40,15 @@ DADI = True
 #DADI_PARAMS = [384845.04236326, 1891371.2275129908, 11140821.633397933, 60447.09280337712, 22708.95299729848]
 
 DADI_NAMES = ["NI", "TG", "NF", "TS", "NI1", "NI2", "NF1", "NF2"]
-DADI_PARAMS = [420646, 89506, 9440437, 2245, 18328570, 42062652, 42064645, 42064198]
-DADI_MIG_PARAMS = [415254, 93341, 8292759, 11637, 2635696, 2748423, 11101754, 11439976, 60]
+
+# baseline parameters for GNB-BFA_gamb_nsg
+# DADI_PARAMS = [420646, 89506, 9440437, 2245, 18328570, 42062652, 42064645, 42064198]
+# DADI_MIG_PARAMS = [415254, 93341, 8292759, 11637, 2635696, 2748423, 11101754, 11439976, 60]
+
+# baseline parameters for CM-UG_gam_nsg
+DADI_PARAMS = [432139, 84723, 11040070, 3377, 38787744, 24729852, 13116347, 3575499]
+DADI_MIG_PARAMS = [282184, 134544, 9153012, 34117, 169035, 28194588, 10251626, 2938915, 4.363307495]
+
 
 def main():
     input_file = sys.argv[1]
@@ -77,8 +84,8 @@ def main():
     # sets global_vars.SS_LABELS and global_vars.SS_COLORS
     # overwrite this function in globals.py to change
     global_vars.update_ss_labels(pop_names, num_pops=len(generator.sample_sizes))
-    #TEMP!!!
-
+    param_values = [593472.1, 20096.4, 64951692.5, 1832.7, 279568717, 21202531, 79263319, 2056255290]
+    param_values = [583783.8528353142, 20096.41648961899, 66115552.33895082, 2167.5516132997705, 84610222.15209761, 16981864.649424005, 282202142.90886563, 213952213.9980046]
     generator.update_params(param_values)
 
 

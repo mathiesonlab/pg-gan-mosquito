@@ -25,7 +25,7 @@ class OnePopModel(Model):
         self.pool = MaxPooling2D(pool_size = (1,2), strides = (1,2))
 
         self.flatten = Flatten()
-        self.dropout = Dropout(rate=0.5)
+        self.dropout = Dropout(rate=0)
 
         self.fc1 = Dense(128, activation='relu')
         self.fc2 = Dense(128, activation='relu')
@@ -82,7 +82,7 @@ class TwoPopModel(Model):
 
         #fc1 was increased to 160 to increase model capacity, so that discriminator can learn during pretraining based on dp = 0.5 (tuned)
         #similar effect is by reducing the dp during pretraining
-        self.fc1 = Dense(160, activation='relu')
+        self.fc1 = Dense(320, activation='relu')
         self.fc2 = Dense(128, activation='relu')
         self.dense3 = Dense(1) # 2, activation='softmax') # two classes
 
@@ -91,7 +91,7 @@ class TwoPopModel(Model):
 
     def call(self, x, training=None):
         """x is the genotype matrix, dist is the SNP distances"""
-        assert x.shape[1] == self.pop1 + self.pop2
+        assert x.shape[1] == self.pop1 + self.pop2, (x.shape, self.pop1, self.pop2)
 
         # first divide into populations
         x_pop1 = x[:, :self.pop1, :, :]

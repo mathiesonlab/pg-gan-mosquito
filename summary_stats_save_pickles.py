@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 import sys
+import pickle
 
 # our imports
 import global_vars
@@ -18,7 +19,7 @@ import ss_helpers
 import util
 
 # globals
-NUM_TRIAL = 500
+NUM_TRIAL = 100
 # statistic names
 NAMES = [
     "minor allele count (SFS)",
@@ -41,6 +42,7 @@ DADI = True
 
 DADI_NAMES = ["NI", "TG", "NF", "TS", "NI1", "NI2", "NF1", "NF2"]
 DADI_PARAMS = [420646, 89506, 9440437, 2245, 18328570, 42062652, 42064645, 42064198]
+CM_UG_DADI_BASELINE_PARAMS = [432139, 84723, 11040070, 3377, 13116347, 3575499, 13116347, 3575499]
 DADI_MIG_PARAMS = [415254, 93341, 8292759, 11637, 2635696, 2748423, 11101754, 11439976, 60]
 
 def main():
@@ -89,7 +91,7 @@ def main():
     print(pop_names)
     global_vars.update_ss_labels(pop_names, num_pops=len(generator.sample_sizes))
     generator.update_params(param_values)
-    #generator.update_params(DADI_MIG_PARAMS)
+    generator.update_params(CM_UG_DADI_BASELINE_PARAMS)
 
 
     print("VALUES", param_values)
@@ -125,90 +127,116 @@ def main():
         neg1=False, region_len=True)
     print("finish sim region_len")
 
-    '''# go through each region
-    for i in range(len(sim_matrices)):
+    real_matrices_pickle = "./sim_data/CM-UG_gam_nsg/real_matrices.pkl"
+    sim_matrices_pickle = "./sim_data/CM-UG_gam_nsg/sim_baseline_matrices.pkl"
 
-        # fixed SNPs
-        matrix = sim_matrices[i]
-        raw = matrix[:,:,0].transpose()
-
-        # check neg1
-        unique, counts = np.unique(raw, return_counts=True)
-        if len(unique) > 2:
-            print("hap_data", dict(zip(unique, counts)))
-            input('enter')
-
-    input('pause')'''
-
-    num_pop = len(sample_sizes)
-
-    # one pop models
-    if num_pop == 1:
-        nrows, ncols = 3, 2
-        size = (7, 7)
-        first_pop, second_pop = [], []
-
-    # two pop models
-    elif num_pop == 2:
-        nrows, ncols = 4, 4
-        size = (14, 10)
-        first_pop, second_pop = [0], [1]
-
-    # OOA3
-    elif opts.model in ['ooa3']:
-        nrows, ncols = 6, 4
-        size = (14, 14)
-        first_pop, second_pop = [0, 0, 1], [1, 2, 2]
-
-    else:
-        print("unsupported number of pops", num_pop)
-
-    # split into individual pops
-    real_all, real_region_all, sim_all, sim_region_all = \
-        split_matrices(real_matrices, real_matrices_region, sim_matrices,
-        sim_matrices_region, sample_sizes)
-
-    # stats for all populations
-    real_stats_lst = []
-    sim_stats_lst = []
-    for p in range(num_pop):
-        print("real stats for pop", p)
-        #temp solution for fixing difference in coalescent tree length
-        # if "sim" in input_file:
-        #     print("reading sim file")
-        #     real_stats_pop = ss_helpers.stats_all(real_all[p], real_region_all[p], 5000000)
-        # else:
-        real_stats_pop = ss_helpers.stats_all(real_all[p], real_region_all[p])
-        print("sim stats for pop", p)
-        sim_stats_pop = ss_helpers.stats_all(sim_all[p], sim_region_all[p])
-
-        real_stats_lst.append(real_stats_pop)
-        sim_stats_lst.append(sim_stats_pop)
-
-    print("got through main stats")
-
-    # Fst over all pairs
-    real_fst_lst = []
-    sim_fst_lst = []
-    for pi in range(len(first_pop)):
-        a = first_pop[pi]
-        b = second_pop[pi]
-        real_ab = np.concatenate((np.array(real_all[a]), np.array(real_all[b])),
-            axis=1)
-        sim_ab = np.concatenate((np.array(sim_all[a]), np.array(sim_all[b])),
-            axis=1)
-
-        # compute Fst
-        real_fst = ss_helpers.fst_all(real_ab)
-        sim_fst = ss_helpers.fst_all(sim_ab)
-        real_fst_lst.append(real_fst)
-        sim_fst_lst.append(sim_fst)
-
-    print("got through fst")
+    # Save real_matrices_region to a pickle file
+    with open(real_matrices_pickle, 'wb') as f:
+        pickle.dump(real_matrices, f)
+    print(f"real_matrices saved to {real_matrices_pickle}")
     
-    # finall plotting call
-    plot_stats_all(nrows, ncols, size, real_stats_lst, sim_stats_lst,
-        real_fst_lst, sim_fst_lst, output_file)
+    # Save sim_matrices_region to a pickle file
+    with open(sim_matrices_pickle, 'wb') as f:
+        pickle.dump(sim_matrices, f)
+    print(f"sim_matrices saved to {sim_matrices_pickle}")
+
+    real_matrices_region_pickle = "./sim_data/CM-UG_gam_nsg/real_matrices_region.pkl"
+    sim_matrices_region_pickle = "./sim_data/CM-UG_gam_nsg/sim_baseline_matrices_region.pkl"
+
+    # Save real_matrices_region to a pickle file
+    with open(real_matrices_region_pickle, 'wb') as f:
+        pickle.dump(real_matrices_region, f)
+    print(f"real_matrices_region saved to {real_matrices_region_pickle}")
+    
+    # Save sim_matrices_region to a pickle file
+    with open(sim_matrices_region_pickle, 'wb') as f:
+        pickle.dump(sim_matrices_region, f)
+    print(f"sim_matrices_region saved to {sim_matrices_region_pickle}")
+
+    # '''# go through each region
+    # for i in range(len(sim_matrices)):
+
+    #     # fixed SNPs
+    #     matrix = sim_matrices[i]
+    #     raw = matrix[:,:,0].transpose()
+
+    #     # check neg1
+    #     unique, counts = np.unique(raw, return_counts=True)
+    #     if len(unique) > 2:
+    #         print("hap_data", dict(zip(unique, counts)))
+    #         input('enter')
+
+    # input('pause')'''
+
+    # num_pop = len(sample_sizes)
+
+    # # one pop models
+    # if num_pop == 1:
+    #     nrows, ncols = 3, 2
+    #     size = (7, 7)
+    #     first_pop, second_pop = [], []
+
+    # # two pop models
+    # elif num_pop == 2:
+    #     nrows, ncols = 4, 4
+    #     size = (14, 10)
+    #     first_pop, second_pop = [0], [1]
+
+    # # OOA3
+    # elif opts.model in ['ooa3']:
+    #     nrows, ncols = 6, 4
+    #     size = (14, 14)
+    #     first_pop, second_pop = [0, 0, 1], [1, 2, 2]
+
+    # else:
+    #     print("unsupported number of pops", num_pop)
+
+    # # split into individual pops
+    # real_all, real_region_all, sim_all, sim_region_all = \
+    #     split_matrices(real_matrices, real_matrices_region, sim_matrices,
+    #     sim_matrices_region, sample_sizes)
+
+    # # stats for all populations
+    # real_stats_lst = []
+    # sim_stats_lst = []
+    # for p in range(num_pop):
+    #     print("real stats for pop", p)
+    #     #temp solution for fixing difference in coalescent tree length
+    #     # if "sim" in input_file:
+    #     #     print("reading sim file")
+    #     #     real_stats_pop = ss_helpers.stats_all(real_all[p], real_region_all[p], 5000000)
+    #     # else:
+    #     real_stats_pop = ss_helpers.stats_all(real_all[p], real_region_all[p])
+    #     print("sim stats for pop", p)
+    #     sim_stats_pop = ss_helpers.stats_all(sim_all[p], sim_region_all[p])
+
+    #     real_stats_lst.append(real_stats_pop)
+    #     sim_stats_lst.append(sim_stats_pop)
+
+    # print("got through main stats")
+
+    # # Fst over all pairs
+    # real_fst_lst = []
+    # sim_fst_lst = []
+    # for pi in range(len(first_pop)):
+    #     a = first_pop[pi]
+    #     b = second_pop[pi]
+    #     real_ab = np.concatenate((np.array(real_all[a]), np.array(real_all[b])),
+    #         axis=1)
+    #     sim_ab = np.concatenate((np.array(sim_all[a]), np.array(sim_all[b])),
+    #         axis=1)
+
+    #     # compute Fst
+    #     real_fst = ss_helpers.fst_all(real_ab)
+    #     sim_fst = ss_helpers.fst_all(sim_ab)
+    #     real_fst_lst.append(real_fst)
+    #     sim_fst_lst.append(sim_fst)
+
+    # print("got through fst")
+    
+    # # finall plotting call
+    # plot_stats_all(nrows, ncols, size, real_stats_lst, sim_stats_lst,
+    #     real_fst_lst, sim_fst_lst, output_file)
 
 def split_matrices(real_matrices, real_matrices_region, sim_matrices,
     sim_matrices_region, sample_sizes):

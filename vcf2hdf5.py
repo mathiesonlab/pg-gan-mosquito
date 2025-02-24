@@ -9,6 +9,7 @@ import allel
 import optparse
 import sys
 
+
 # example command line
 # python3 vcf2hdf5.py -i YRI.vcf.gz -o YRI.h5
 

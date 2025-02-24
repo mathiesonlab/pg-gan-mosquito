@@ -1,73 +1,38 @@
-"""
-Template job script for grid search of pretrained parameters through parallel tasks.
-"""
-
 #!/bin/bash
 #$ -pe smp 1
 #$ -l h_vmem=30G
-#$ -l h_rt=24:0:0
+#$ -l h_rt=240:0:0
 #$ -cwd
 #$ -j y
-#$ -t 1-6  # Run 5 parallel tasks with the same parameters
-
-#!/bin/bash
+#$ -t 1-5
 
 DATA=nsg
-DEMO=dadi_joint_mig
-POP1=CM
-POP2=UG
-POP1S=594
-POP2S=224
-SPECIES=gam
+DEMO=dadi_joint
+POP1=ANG
+POP2=BFA
+SPECIES=col
 INPUT=${POP1}-${POP2}_${SPECIES}_${DATA}.h5
+OUTPUT_PREFIX=./sim_out/${POP1}-${POP2}_${SPECIES}_${DATA}/${DEMO}/${SGE_TASK_ID}/
+OUTPUT=${OUTPUT_PREFIX}${POP1}-${POP2}_${SPECIES}_${DATA}.out
+CPROF=${OUTPUT_PREFIX}/cprof.txt
 
-# Toy mode
-TOY="-t"
-
-# Define arrays of learning rates and dropout rates
-learning_rates=("5e-2" "1e-3" "5e-4")
-dropout_rates=("0.25" "0.5")
-
-# Calculate the total number of combinations
-total_combinations=$((${#learning_rates[@]} * ${#dropout_rates[@]}))
-
-# Ensure that the number of tasks matches the number of combinations
-if [ $SGE_TASK_ID -gt $total_combinations ]; then
-    echo "Task ID exceeds the number of parameter combinations."
-    exit 1
-fi
-
-# Get the specific learning rate and dropout rate for this task
-index_lr=$((($SGE_TASK_ID - 1) / ${#dropout_rates[@]}))
-index_dropout=$((($SGE_TASK_ID - 1) % ${#dropout_rates[@]}))
-pt_lr=${learning_rates[$index_lr]}
-pt_dropout=${dropout_rates[$index_dropout]}
-
-# Output prefix and ensure the output directory exists
-OUTPUT_PREFIX=./sim_out/${POP1}-${POP2}_${SPECIES}_${DATA}/${DEMO}/${pt_lr}/${pt_dropout}/
-if [ ! -d "${OUTPUT_PREFIX}" ]; then
-    mkdir -p "${OUTPUT_PREFIX}"
-    echo "Directory created: ${OUTPUT_PREFIX}"
-fi
-
-# Load Python virtual environment
-source ./tfenv_2.13/bin/activate
-
-# Define specific output path for this configuration
-OUTPUT=${OUTPUT_PREFIX}output.out
-CPROF=${OUTPUT_PREFIX}cprof.txt
-
-# Parameters based on DEMO
-if [ "${DEMO}" == "dadi_joint" ]; then
+if [ "${DEMO}" == "dadi_joint" ];
+then
    PARAM="NI,TG,NF,TS,NI1,NI2,NF1,NF2"
 else
    PARAM="NI,TG,NF,TS,NI1,NI2,NF1,NF2,MG"
 fi
 
-# Update README with current config
-echo "Configuration: pt_lr=${pt_lr}, pt_dropout=${pt_dropout}, toy mode=${TOY}, run instance ${SGE_TASK_ID}" > ${OUTPUT_PREFIX}README
-qstat | tail -n 1 | awk '{print $1}' >> ${OUTPUT_PREFIX}README
+if [ ! -d "${OUTPUT_PREFIX}" ]; then
+    # The directory does not exist, create it
+    mkdir -p "${OUTPUT_PREFIX}"
+    echo "Directory created: ${OUTPUT_PREFIX}"
+fi
 
-# Run the Python script with current learning rate, dropout, and toy mode
-echo "python3 pg_gan.py -m ${DEMO} -p ${PARAM} -n ${POP1S},${POP2S} -d ${INPUT} --pt_lr ${pt_lr} --pt_dropout ${pt_dropout} --pre_trained_dir ${OUTPUT_PREFIX} --load_pm --save_pm ${TOY} > ${OUTPUT}" >> ${OUTPUT_PREFIX}README
-python3 pg_gan.py -m ${DEMO} -p ${PARAM} -n ${POP1S},${POP2S} -d ${INPUT} --pt_lr ${pt_lr} --pt_dropout ${pt_dropout} --pre_trained_dir ${OUTPUT_PREFIX} --save_pm ${TOY} > ${OUTPUT}
+
+source ./tfenv_2.13/bin/activate
+echo "proposal width = 15, fc2 = 160,pt/lr= 1e-3 25e-6, pt/dp = 0.5 0.8, NUM_BATCH = 50, adamW" > ${OUTPUT_PREFIX}README
+qstat | tail -n 1 | awk '{print $1}' >> ${OUTPUT_PREFIX}README
+python3 -m cProfile -o ${CPROF} pg_gan.py -m ${DEMO} -p ${PARAM} -n 150,156 -d ${INPUT} > ${OUTPUT}
+echo "job completed" >> ${OUTPUT_PREFIX}README
+

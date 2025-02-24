@@ -42,10 +42,16 @@ def main():
     posterior_opts, posteriors= [], []
     for input_file in model_posteriors:
         posterior_param_values, in_file_data = parse_output(input_file, return_acc=False)
+        print("in_file_data")
+        print(in_file_data)
+        print("posterior_param_values")
+        print(posterior_param_values)
         #this line is needed to collect parser object from util.parse_args function
         opts, param_values = util.parse_args(in_file_data = in_file_data, param_values=posterior_param_values)
         posterior_opts.append(opts)
         posteriors.append(posterior_param_values)
+        print("opts")
+        print(opts)
         
        
     demographic_model_selection(posterior_opts, posteriors, work_dir = opts_dict["working_dir"], 
@@ -62,19 +68,17 @@ def demographic_model_selection(opts, posteriors, work_dir, data_h5 = None, load
         cnn network following framework from https://keras.io/guides/writing_a_training_loop_from_scratch/
     '''
     if toy:
-        num_batch = 500
         print("toy run")
         iters = 2
         #override load trained disc and save disc option
-        #load_disc, save_disc = False, False
+        load_disc, save_disc = False, False
         
     else:  
-        iters = 300
+        iters = 100
     
+    num_batch = 500
     mini_batch = 50
         
-    print(opts)
-    print(posteriors)
     model_selection = MODEL_SELECTION(opts, posteriors)
     model_selection.build_generators_disc()
     
@@ -85,7 +89,6 @@ def demographic_model_selection(opts, posteriors, work_dir, data_h5 = None, load
     
     print(model_selection.opts)
     print(model_selection.posteriors)
-    print(len(model_selection.generators))
     print(model_selection.disc)
     print("learning rate", model_selection.optimizer.learning_rate)
     sys.stdout.flush()
@@ -98,7 +101,6 @@ def demographic_model_selection(opts, posteriors, work_dir, data_h5 = None, load
             print("loading trained classification model")
         except FileNotFoundError:
             print("No saved discriminator model found in directory")
-
 
 
     #initiate training loop
@@ -159,8 +161,8 @@ def demographic_model_selection(opts, posteriors, work_dir, data_h5 = None, load
     print("confusion matrix")
     print(eval_confusion_matrix)
     #output posterior's cnn probabilities for downstream ABC analysis
-    np.savetxt(os.path.join(work_dir, 'testSet_Predictions.txt'), y_pred_softmax)
-    np.savetxt(os.path.join(work_dir, 'testSet_labels.txt') , y_pred_labels)
+    # np.savetxt(os.path.join(work_dir, 'testSet_Predictions.txt'), y_pred_softmax)
+    # np.savetxt(os.path.join(work_dir, 'testSet_labels.txt') , y_pred_labels)
     
     if data_h5:
         data_h5_haplotype_alignments = model_selection.iterator.real_batch(neg1 = False, batch_size=1000)
@@ -185,7 +187,7 @@ class MODEL_SELECTION:
         #real data generator
         self.iterator = None
         self.loss_fn= tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
-        self.optimizer=tf.keras.optimizers.Adam(learning_rate=1e-6)
+        self.optimizer=tf.keras.optimizers.Adam(learning_rate=1e-4)
         self.train_acc_metric = tf.keras.metrics.SparseCategoricalAccuracy()
         self.val_acc_metric = tf.keras.metrics.SparseCategoricalAccuracy()
 
