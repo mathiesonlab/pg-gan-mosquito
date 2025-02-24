@@ -26,7 +26,7 @@ TOY=""
 PHASE="pt"
 
 # Check if phase is provided
-if [[ -z "$PHASE" ]]; then
+if [ -z "$PHASE" ]; then
   echo "Phase parameter (pt, sa, or full_training) is required."
   exit 1
 fi
