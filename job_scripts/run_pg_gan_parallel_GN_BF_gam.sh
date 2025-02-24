@@ -17,7 +17,8 @@ POP2=BF
 POP1S=88
 POP2S=334
 SPECIES=gam
-INPUT=${POP1}-${POP2}_${SPECIES}_${DATA}.h5
+PATH=/bigdata/smathieson/pg-gan/mosquito
+INPUT=${PATH}/${POP1}-${POP2}_${SPECIES}_${DATA}.h5
 
 # Toy mode
 TOY=""
