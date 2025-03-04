@@ -11,14 +11,15 @@ conda activate pg_gan_util
 
 DATA=nsg
 DEMO=dadi_joint
-POP1=CM
-POP2=UG
-POP1S=594
-POP2S=224
+POP1=GN # CM
+POP2=BF # UG
+POP1S=88 # 594
+POP2S=334 # 224
 SPECIES=gam
-LR=1e-6
+LR=25e-6 #1e-6
 DROPOUT=0.8
 INPUT=./sim_out/${POP1}-${POP2}_${SPECIES}_${DATA}/${DEMO}/sa/${LR}/${DROPOUT}/output.out
 OUTPUT=./sim_out/${POP1}-${POP2}_${SPECIES}_${DATA}/${DEMO}/sa/${LR}/${DROPOUT}/${POP1}-${POP2}_${SPECIES}_${DATA}_results_multi.png
 
-python summary_stats_multi.py ${INPUT} ${OUTPUT} ${DEMO}
+echo "python summary_stats_multi.py ${INPUT} ${OUTPUT} ${DEMO}"
+#python summary_stats_multi.py ${INPUT} ${OUTPUT} ${DEMO}
