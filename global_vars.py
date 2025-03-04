@@ -25,8 +25,8 @@ COLOR_DICT = {"YRI": "darkorange","CEU": "blue","CHB": "green", "MXL": "red",
               "simulation": "gray", "msprime": "purple"}
 
 # mosquito colors from 2017 paper
-BFA = tuple([x/255 for x in [130, 170, 204]])
-GNB = tuple([x/255 for x in [194, 210, 231]])
+BF = tuple([x/255 for x in [130, 170, 204]]) # removed A from name
+GN = tuple([x/255 for x in [194, 210, 231]]) # removed B from name
 UG  = tuple([x/255 for x in [181, 211, 170]])
 CM = tuple([x/255 for x in [241, 241, 241]])
 GA = tuple([x/255 for x in [163, 163, 163]])
@@ -48,10 +48,10 @@ def update_ss_labels(pop_names, num_pops=1):
         SS_LABELS.extend(["BFA","GNB","UG"])
         SS_COLORS.extend([BFA, GNB, UG])
 
-    # 2 pop mosquito
-    elif ("GNB" in pop_names) and ("BFA" in pop_names):
-        SS_LABELS.extend(["GNB", "BFA"])
-        SS_COLORS.extend([GNB, BFA])
+    # 2 pop mosquito. SM: note removed A and B from names since for phase 3
+    elif ("GN" in pop_names) and ("BF" in pop_names):
+        SS_LABELS.extend(["GN", "BF"])
+        SS_COLORS.extend([GN, BF])
 
     elif ("CM" in pop_names) and ("UG" in pop_names):
         SS_LABELS.extend(["CM", "UG"])
