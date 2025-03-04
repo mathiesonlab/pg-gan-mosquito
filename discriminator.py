@@ -9,7 +9,7 @@ import tensorflow as tf
 
 from tensorflow.keras.layers import Dense, Flatten, Conv1D, Conv2D, \
     MaxPooling2D, AveragePooling1D, Dropout, Concatenate
-from tensorflow.keras import Model
+from tensorflow.keras import Model, Layer
 from scipy.special import rel_entr
 
 class ReduceSum(Layer):
