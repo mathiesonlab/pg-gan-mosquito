@@ -28,8 +28,18 @@ NUM_LD  = 15
 ################################################################################
 
 def parse_mini_lst(mini_lst):
-    return [float(x.replace("[",'').replace("]",'').replace(",",'')) for x in
+    return [float(remove_numpy(x.replace("[",'').replace("]",'').replace(",",''))) for x in
         mini_lst]
+
+def remove_numpy(string):
+    print(string)
+    if "(" in string:
+        crop = string[string.index("(")+1:string.index(")")]
+    else:
+        crop = string
+    print(crop)
+    input('enter')
+    return crop
 
 def add_to_lst(total_lst, mini_lst):
     assert len(total_lst) == len(mini_lst), (mini_lst)
