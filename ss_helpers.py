@@ -32,14 +32,9 @@ def parse_mini_lst(mini_lst):
         mini_lst]
 
 def remove_numpy(string):
-    print(string)
     if "(" in string:
-        crop = string[string.index("(")+1:string.index(")")]
-    else:
-        crop = string
-    print(crop)
-    input('enter')
-    return crop
+        return string[string.index("(")+1:string.index(")")]
+    return string
 
 def add_to_lst(total_lst, mini_lst):
     assert len(total_lst) == len(mini_lst), (mini_lst)
