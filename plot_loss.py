@@ -36,8 +36,18 @@ def parse_args():
     return opts
 
 def parse_mini_lst(mini_lst):
-    return [float(x.replace("[",'').replace("]",'').replace(",",'')) for x in \
+    return [float(fix_numpy(x).replace("[",'').replace("]",'').replace(",",'')) for x in \
         mini_lst]
+
+def fix_numpy(string):
+    """input: 'np.float64(10228.086487068009)', output: '10228.086487068009' """
+    if "(" not in string:
+        return string
+    a = string.index("(")
+    b = string.index(")")
+    print(string, string[a+1:b])
+    input('enter')
+    return string[a+1:b]
 
 def add_to_lst(total_lst, mini_lst):
     assert len(total_lst) == len(mini_lst)
