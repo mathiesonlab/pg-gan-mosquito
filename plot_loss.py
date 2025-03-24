@@ -45,8 +45,6 @@ def fix_numpy(string):
         return string
     a = string.index("(")
     b = string.index(")")
-    print(string, string[a+1:b])
-    input('enter')
     return string[a+1:b]
 
 def add_to_lst(total_lst, mini_lst):
