@@ -12,10 +12,10 @@ from tensorflow.keras.layers import Dense, Flatten, Conv1D, Conv2D, \
 from tensorflow.keras import Model, Layer
 from scipy.special import rel_entr
 
-class ReduceSum(Layer):
+class ReduceMean(Layer):
 
     def call(self, x):
-        return tf.math.reduce_sum(x, axis=1)
+        return tf.math.reduce_mean(x, axis=1)
 
 
 class OnePopModel(Model):
@@ -49,7 +49,7 @@ class OnePopModel(Model):
         # note axis is 1 b/c first axis is batch
         # can try max or sum as the permutation-invariant function
         #x = tf.math.reduce_max(x, axis=1)
-        x = ReduceSum()(x)
+        x = ReduceMean()(x)
 
         x = self.flatten(x)
         x = self.fc1(x)
@@ -121,8 +121,8 @@ class TwoPopModel(Model):
         #x_pop1_sum = tf.math.reduce_sum(x_pop1, axis=1)
         #x_pop2_sum = tf.math.reduce_sum(x_pop2, axis=1)
 
-        x_pop1_sum = ReduceSum()(x_pop1)
-        x_pop2_sum = ReduceSum()(x_pop2)
+        x_pop1_sum = ReduceMean()(x_pop1)
+        x_pop2_sum = ReduceMean()(x_pop2)
 
         # flatten all
         #x_pop1_max = self.flatten(x_pop1_max)
