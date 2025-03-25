@@ -25,7 +25,7 @@ NAMES = [
     "inter-SNP distances",
     "distance between SNPs",
     "Tajima's D",
-    r'pairwise heterozygosity ($\pi$)',
+    "Watterson", #r'pairwise heterozygosity ($\pi$)',
     "number of haplotypes",
     "Hudson's Fst"]
 FST_COLOR = "purple"

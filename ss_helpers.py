@@ -294,10 +294,10 @@ def compute_stats(vm, vm_region):
     stats.append(libsequence.tajd(ac_region))
 
     # pi
-    stats.append(libsequence.thetapi(ac))
+    #stats.append(libsequence.thetapi(ac))
 
     # wattersons
-    #stats.append(libsequence.thetaw(ac))
+    stats.append(libsequence.thetaw(ac))
 
     # num haps
     stats.append(libsequence.number_of_haplotypes(vm))
@@ -509,6 +509,7 @@ def stats_all(matrices, matrices_region, L = global_vars.L):
         intersnp = matrix[:,:,1][0] # all the same
         pos = [sum(intersnp[:i]) for i in range(len(intersnp))]
         assert len(pos) == len(intersnp)
+        print("num SNPs", len(pos))
         vm = libsequence.VariantMatrix(raw, pos)
 
         # fixed region
@@ -518,6 +519,7 @@ def stats_all(matrices, matrices_region, L = global_vars.L):
         pos_region = [sum(intersnp_region[:i]) for i in
             range(len(intersnp_region))]
         assert len(pos_region) == len(intersnp_region)
+        print("num SNPs region", len(pos_region))
         vm_region = libsequence.VariantMatrix(raw_region, pos_region)
 
         # sfs
@@ -538,7 +540,7 @@ def stats_all(matrices, matrices_region, L = global_vars.L):
         for s in range(len(stats)):
             pop_stats[s].append(stats[s])
 
-
+        input('enter')
     return [pop_sfs, pop_dist, pop_ld] + pop_stats
 
 def fst_all(matrices):
