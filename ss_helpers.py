@@ -22,6 +22,7 @@ import global_vars
 # GLOBALS
 NUM_SFS = 10
 NUM_LD  = 15
+MAX_DIST = 100 # 500 for mosquito, 20k for human
 
 ################################################################################
 # PARSE PG-GAN OUTPUT
@@ -260,8 +261,7 @@ def compute_ld(vm, L):
 
     # num bins
     nbin = NUM_LD
-    max_dist = 100 # TODO make flexible! (5k for mosquito, 20k for human)
-    dist_bins = np.linspace(0,max_dist,nbin)
+    dist_bins = np.linspace(0,MAX_DIST,nbin)
     rsquared = [0]*nbin
     counts = [0]*nbin
 
@@ -352,8 +352,7 @@ def plot_generic(ax, name, real, sim, real_color, sim_color, pop="",
     # LD
     elif name == "distance between SNPs":
         nbin = NUM_LD
-        max_dist = 100 # TODO make flexible! (5k for mosquito, 20k for human)
-        dist_bins = np.linspace(0,max_dist,nbin)
+        dist_bins = np.linspace(0,MAX_DIST,nbin)
         real_mean = [np.mean(rs) for rs in real]
         sim_mean = [np.mean(ss) for ss in sim]
         real_stddev = [np.std(rs) for rs in real]
@@ -423,8 +422,7 @@ def plot_generic_with_baseline(ax, name, real, sim, baseline, real_color, sim_co
     # LD
     elif name == "distance between SNPs":
         nbin = NUM_LD
-        max_dist = 100 # TODO make flexible! (5k for mosquito, 20k for human)
-        dist_bins = np.linspace(0,max_dist,nbin)
+        dist_bins = np.linspace(0,MAX_DIST,nbin)
         real_mean = [np.mean(rs) for rs in real]
         sim_mean = [np.mean(ss) for ss in sim]
         real_stddev = [np.std(rs) for rs in real]
