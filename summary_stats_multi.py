@@ -197,7 +197,7 @@ def main():
         #     print("reading sim file")
         #     real_stats_pop = ss_helpers.stats_all(real_all[p], real_region_all[p], 5000000)
         # else:
-        #real_stats_pop = ss_helpers.stats_all(real_all[p], real_region_all[p])
+        real_stats_pop = ss_helpers.stats_all(real_all[p], real_region_all[p])
         print("sim stats for pop", p)
         sim_stats_pop = ss_helpers.stats_all(sim_all[p], sim_region_all[p])
         print("sim baseline stats for pop", p)
