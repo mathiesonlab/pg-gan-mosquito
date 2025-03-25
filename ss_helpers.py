@@ -22,7 +22,7 @@ import global_vars
 # GLOBALS
 NUM_SFS = 10
 NUM_LD  = 15
-MAX_DIST = 100 # 500 for mosquito, 20k for human
+MAX_DIST = 500 # 500 for mosquito, 20k for human
 
 ################################################################################
 # PARSE PG-GAN OUTPUT
