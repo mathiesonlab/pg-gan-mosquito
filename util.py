@@ -60,9 +60,12 @@ def process_gt_dist(gt_matrix, dist_vec, region_len=False, real=False,
     n = gt_matrix.shape[1]
 
     # check no non-seg sites
+    non_seg = False
     for s in range(num_SNPs):
         col = gt_matrix[s]
-        print("num_SNPs", len(col), "num_ones", sum(col))
+        if sum(col) == 0:
+            non_seg = True
+    print("num_SNPs", num_SNPs, "non_seg", non_seg)
     input('enter')
 
     # double check
