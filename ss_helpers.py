@@ -232,7 +232,6 @@ def compute_sfs(vm):
     """Show the beginning of the SFS"""
     ac = vm.count_alleles()
     sfs = [variant_counts(ac,i) for i in range(0,NUM_SFS)]
-    print(sfs, sum(sfs))
     return sfs
 
 def variant_counts(ac,c):
@@ -404,6 +403,8 @@ def plot_generic_with_baseline(ax, name, real, sim, baseline, real_color, sim_co
     if name == "minor allele count (SFS)":
         # average over regions
         num_sfs = len(real)
+        print(num_sfs)
+        print([rs for rs in real])
         real_sfs = [sum(rs)/num_sfs for rs in real]
         sim_sfs = [sum(ss)/num_sfs for ss in sim]
         baseline_sfs = [sum(bs)/num_sfs for bs in baseline]
