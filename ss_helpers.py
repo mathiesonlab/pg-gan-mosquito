@@ -405,6 +405,8 @@ def plot_generic_with_baseline(ax, name, real, sim, baseline, real_color, sim_co
         num_sfs = len(real)
         print(num_sfs)
         print([rs for rs in real])
+        print([ss for ss in sim])
+        print([bs for bs in baseline])
         real_sfs = [sum(rs)/num_sfs for rs in real]
         sim_sfs = [sum(ss)/num_sfs for ss in sim]
         baseline_sfs = [sum(bs)/num_sfs for bs in baseline]
