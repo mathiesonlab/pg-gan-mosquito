@@ -291,10 +291,10 @@ def compute_stats(vm, vm_region):
     ac_region = vm_region.count_alleles()
 
     # Tajima's D (use region here - not fixed num SNPs)
-    stats.append(libsequence.tajd(ac_region))
+    #stats.append(libsequence.tajd(ac_region))
 
     # pi
-    #stats.append(libsequence.thetapi(ac))
+    stats.append(libsequence.thetapi(ac))
 
     # wattersons
     stats.append(libsequence.thetaw(ac))
