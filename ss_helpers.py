@@ -231,7 +231,11 @@ def find_most_confused_state(eval_metrics):
 def compute_sfs(vm):
     """Show the beginning of the SFS"""
     ac = vm.count_alleles()
-    return [variant_counts(ac,i) for i in range(0,NUM_SFS)]
+    print(ac)
+    sfs = [variant_counts(ac,i) for i in range(0,NUM_SFS)]
+    print(sfs, sum(sfs))
+    input('enter')
+    return sfs
 
 def variant_counts(ac,c):
     """Helper for SFS"""
