@@ -18,7 +18,7 @@ import ss_helpers
 import util
 
 # globals
-NUM_TRIAL = 200
+NUM_TRIAL = 10 #200
 # statistic names
 NAMES = [
     "minor allele count (SFS)",
