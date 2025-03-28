@@ -224,9 +224,9 @@ def main():
             axis=1)
 
         # compute Fst
-        real_fst = ss_helpers.fst_all(real_ab)
-        sim_fst = ss_helpers.fst_all(sim_ab)
-        sim_baseline_fst = ss_helpers.fst_all(sim_baseline_ab)
+        real_fst = ss_helpers.fst_all(real_ab, sample_sizes)
+        sim_fst = ss_helpers.fst_all(sim_ab, sample_sizes)
+        sim_baseline_fst = ss_helpers.fst_all(sim_baseline_ab, sample_sizes)
         real_fst_lst.append(real_fst)
         sim_fst_lst.append(sim_fst)
         sim_baseline_fst_lst.append(sim_baseline_fst)

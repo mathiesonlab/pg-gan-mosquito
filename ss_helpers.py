@@ -304,18 +304,21 @@ def compute_stats(vm, vm_region):
 
     return stats
 
-def compute_fst(raw):
+def compute_fst(raw, sample_sizes):
     """
     FST (for two populations)
     https://scikit-allel.readthedocs.io/en/stable/stats/fst.html
     """
+    assert len(sample_sizes) == 2
+
     # raw has been transposed
     nvar = raw.shape[0]
     nsam = raw.shape[1]
     raw = np.expand_dims(raw, axis=2).astype('i')
 
     g = allel.GenotypeArray(raw)
-    subpops = [range(nsam//2), range(nsam//2, nsam)]
+    total = sum(sample_sizes)
+    subpops = [range(sample_sizes[0]), range(sample_sizes[0], total)]
 
     # for each pop
     ac1 = g.count_alleles(subpop=subpops[0])
@@ -541,7 +544,7 @@ def stats_all(matrices, matrices_region, L = global_vars.L):
         #input('enter')
     return [pop_sfs, pop_dist, pop_ld] + pop_stats
 
-def fst_all(matrices):
+def fst_all(matrices, sample_sizes):
     """Fst for all regions"""
     real_fst = []
     for i in range(len(matrices)):
@@ -550,7 +553,7 @@ def fst_all(matrices):
         raw = matrix[:,:,0].transpose()
         intersnp = matrix[:,:,1][0] # all the same
 
-        fst = compute_fst(raw)
+        fst = compute_fst(raw, sample_sizes)
         real_fst.append(fst)
 
     return real_fst
