@@ -402,11 +402,11 @@ def plot_generic_with_baseline(ax, name, real, sim, baseline, real_color, sim_co
     # SFS
     if name == "minor allele count (SFS)":
         # average over regions
-        num_sfs = len(real)
-        print(num_sfs)
-        print([rs for rs in real])
-        print([ss for ss in sim])
-        print([bs for bs in baseline])
+        num_sfs = len(real[0]) # len(real) is NUM_SFS, len(real[0]) is NUM_TRIAL
+        #print(num_sfs)
+        #print([rs for rs in real])
+        #print([ss for ss in sim])
+        #print([bs for bs in baseline])
         real_sfs = [sum(rs)/num_sfs for rs in real]
         sim_sfs = [sum(ss)/num_sfs for ss in sim]
         baseline_sfs = [sum(bs)/num_sfs for bs in baseline]
