@@ -402,14 +402,10 @@ def plot_generic_with_baseline(ax, name, real, sim, baseline, real_color, sim_co
     # SFS
     if name == "minor allele count (SFS)":
         # average over regions
-        num_sfs = len(real[0]) # len(real) is NUM_SFS, len(real[0]) is NUM_TRIAL
-        #print(num_sfs)
-        #print([rs for rs in real])
-        #print([ss for ss in sim])
-        #print([bs for bs in baseline])
-        real_sfs = [sum(rs)/num_sfs for rs in real]
-        sim_sfs = [sum(ss)/num_sfs for ss in sim]
-        baseline_sfs = [sum(bs)/num_sfs for bs in baseline]
+        num_trial = len(real[0]) # len(real) is NUM_SFS, len(real[0]) is NUM_TRIAL
+        real_sfs = [sum(rs)/num_trial for rs in real]
+        sim_sfs = [sum(ss)/num_trial for ss in sim]
+        baseline_sfs = [sum(bs)/num_trial for bs in baseline]
         
         sim_diff = calc_distribution_dist(real_sfs, sim_sfs)
         baseline_diff = calc_distribution_dist(real_sfs, baseline_sfs)
@@ -417,11 +413,11 @@ def plot_generic_with_baseline(ax, name, real, sim, baseline, real_color, sim_co
 
         
         
-        ax.bar([x -0.3 for x in range(num_sfs)], real_sfs, label=pop, width=0.3,
+        ax.bar([x -0.3 for x in range(NUM_SFS)], real_sfs, label=pop, width=0.3,
             color=real_color)
-        ax.bar(range(num_sfs), sim_sfs, label=sim_label, width=0.3,
+        ax.bar(range(NUM_SFS), sim_sfs, label=sim_label, width=0.3,
             color=sim_color)
-        ax.bar([x +0.3 for x in range(num_sfs)], baseline_sfs, label=baseline_label, width=0.3,
+        ax.bar([x +0.3 for x in range(NUM_SFS)], baseline_sfs, label=baseline_label, width=0.3,
             color=baseline_color)
         ax.set_xlim(-1,len(real_sfs))
         ax.set_ylabel("frequency per region")
