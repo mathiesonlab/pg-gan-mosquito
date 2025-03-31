@@ -73,15 +73,15 @@ def filter(in_filename, out_filename):
 
         # check if non-seg (all 0's or all 1's?)
         unique, counts = np.unique(row, return_counts=True)
-        print(unique, counts)
-        if len(unique) == 1:
-            print("non-seg!")
-        else: # if segregating, add to list for CHROM, GT, POS
+        if len(unique) > 2: # multi-allelic
+            print("multi-allelic!", unique, counts)
+        elif len(unique) == 2: # if segregating, add to list for CHROM, GT, POS
             new_chroms.append(chrom_all[s])
             new_haps.append(row)
             new_pos.append(pos_all[s])
         
-        input('enter')
+        #input('enter')
+    print("frac kept", len(new_pos)/len(pos_all))
 
     # save h5
 
