@@ -85,7 +85,7 @@ def filter(in_filename, out_filename):
 
     # save h5
 
-    with h5py.File('temp.h5', 'w') as new_file:
+    with h5py.File(out_filename, 'w') as new_file:
 
         group1 = new_file.create_group('calldata')
         group2 = new_file.create_group('variants')
@@ -124,6 +124,26 @@ def filter(in_filename, out_filename):
                 print ('\ttemp=',f[each_grp][each_ds].attrs['temp'])'''
 
     new_file.close()
+
+    # check new file, how to put back into haps?
+
+    callset = h5py.File(out_filename, mode='r')
+    print(list(callset.keys()))
+    # output: ['GT'] ['CHROM', 'POS']
+    print(list(callset['calldata'].keys()),list(callset['variants'].keys()))
+
+    raw = callset['calldata/GT']
+    print("raw", raw.shape)
+    #newshape = (raw.shape[0], -1)
+    #haps_all = np.reshape(raw, newshape)
+    pos_all = callset['variants/POS']
+    print(pos_all)
+    # same length as pos_all, noting chrom for each variant (sorted)
+    chrom_all = callset['variants/CHROM']
+    print(chrom_all)
+    #print("after haps", haps_all.shape)
+    #num_snps, num_samples = haps_all.shape
+    #print("num snps", num_snps, "num samples", num_samples)
 
 if __name__ == "__main__":
     main()
