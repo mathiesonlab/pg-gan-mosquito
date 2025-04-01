@@ -66,7 +66,7 @@ def filter(in_filename, out_filename):
     new_chroms = []
     new_haps = []
     new_pos = []
-    for s in range(num_snps):
+    for s in range(20): # num_snps): TODO put back, just for testing
         # get row, assert len is num_haps
         row = haps_all[s]
         assert len(row) == num_samples
@@ -85,40 +85,45 @@ def filter(in_filename, out_filename):
 
     # save h5
 
-    with h5py.File('temp.h5', 'w') as f:
-        group1 = f.create_group('calldata')
-        group2 = f.create_group('variants')
-        dset11 = group1.create_dataset('my_dataset11', data=dat, compression=9)
-        dset12 = group1.create_dataset('my_dataset12', data=dat, compression=9)
-        dset13 = group1.create_dataset('my_dataset13', data=dat, compression=9)
-    
+    with h5py.File('temp.h5', 'w') as new_file:
 
-    groups=list(f.keys())
+        group1 = new_file.create_group('calldata')
+        group2 = new_file.create_group('variants')
 
-    grp=f[groups[0]]
-    dataset=list(grp.keys())
+        new_file['calldata/GT'] = new_haps
+        new_file['variants/POS'] = new_pos
+        new_file['variants/CHROM'] = new_chroms
+        
+        #dset11 = group1.create_dataset('my_dataset11', data=dat, compression=9)
+        #dset12 = group1.create_dataset('my_dataset12', data=dat, compression=9)
+        #dset13 = group1.create_dataset('my_dataset13', data=dat, compression=9)
 
-    for each in dataset:
-        grp[each].attrs['env']='cloudy'
-        grp[each].attrs['temp']=25
-#        grp[each]._f_setattr('cloudy', 'True')
+        '''groups=list(f.keys())
 
-    grp=f[groups[1]]
-    dataset=list(grp.keys())
+        grp=f[groups[0]]
+        dataset=list(grp.keys())
 
-    for each in dataset:
-        grp[each].attrs['env']='rainy'
-        grp[each].attrs['temp']=20
-#        grp[each]._f_setattr('rainy', 'True')
+        for each in dataset:
+            grp[each].attrs['env']='cloudy'
+            grp[each].attrs['temp']=25
+            #grp[each]._f_setattr('cloudy', 'True')
 
-    for each_grp in groups:
-        dataset=list(f[each_grp].keys())
-        for each_ds in dataset:
-            print ('For ', each_grp, '.', each_ds,':')
-            print ('\tenv =', f[each_grp][each_ds].attrs['env'])
-            print ('\ttemp=',f[each_grp][each_ds].attrs['temp'])
+        grp=f[groups[1]]
+        dataset=list(grp.keys())
 
-f.close()
+        for each in dataset:
+            grp[each].attrs['env']='rainy'
+            grp[each].attrs['temp']=20
+            #grp[each]._f_setattr('rainy', 'True')
+
+        for each_grp in groups:
+            dataset=list(f[each_grp].keys())
+            for each_ds in dataset:
+                print ('For ', each_grp, '.', each_ds,':')
+                print ('\tenv =', f[each_grp][each_ds].attrs['env'])
+                print ('\ttemp=',f[each_grp][each_ds].attrs['temp'])'''
+
+    new_file.close()
 
 if __name__ == "__main__":
     main()
