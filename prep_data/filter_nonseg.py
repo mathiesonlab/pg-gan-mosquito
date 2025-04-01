@@ -1,5 +1,6 @@
 """
-Script to filter non-segregating sites from an h5. Produces another h5 file.
+Script to filter non-segregating sites from an h5. Produces another h5 file
+with haplotypes already separated.
 Author: Sara Mathieson
 Date: 3/31/25
 """
@@ -57,16 +58,12 @@ def filter(in_filename, out_filename):
     num_snps, num_samples = haps_all.shape
     print("num snps", num_snps, "num samples", num_samples)
 
-    '''print(self.pos_all.shape)
-    print(self.pos_all.chunks)
-    print(self.chrom_all.shape)
-    print(self.chrom_all.chunks)'''
     assert num_snps == len(pos_all) # total for all chroms
 
     new_chroms = []
     new_haps = []
     new_pos = []
-    for s in range(20): # num_snps): TODO put back, just for testing
+    for s in range(num_snps):
         # get row, assert len is num_haps
         row = haps_all[s]
         assert len(row) == num_samples
@@ -83,8 +80,7 @@ def filter(in_filename, out_filename):
     callset.close()
     print("frac kept", len(new_pos)/len(pos_all))
 
-    # save h5
-
+    # save new h5
     with h5py.File(out_filename, 'w') as new_file:
 
         group1 = new_file.create_group('calldata')
@@ -93,57 +89,22 @@ def filter(in_filename, out_filename):
         new_file['calldata/GT'] = new_haps
         new_file['variants/POS'] = new_pos
         new_file['variants/CHROM'] = new_chroms
-        
-        #dset11 = group1.create_dataset('my_dataset11', data=dat, compression=9)
-        #dset12 = group1.create_dataset('my_dataset12', data=dat, compression=9)
-        #dset13 = group1.create_dataset('my_dataset13', data=dat, compression=9)
-
-        '''groups=list(f.keys())
-
-        grp=f[groups[0]]
-        dataset=list(grp.keys())
-
-        for each in dataset:
-            grp[each].attrs['env']='cloudy'
-            grp[each].attrs['temp']=25
-            #grp[each]._f_setattr('cloudy', 'True')
-
-        grp=f[groups[1]]
-        dataset=list(grp.keys())
-
-        for each in dataset:
-            grp[each].attrs['env']='rainy'
-            grp[each].attrs['temp']=20
-            #grp[each]._f_setattr('rainy', 'True')
-
-        for each_grp in groups:
-            dataset=list(f[each_grp].keys())
-            for each_ds in dataset:
-                print ('For ', each_grp, '.', each_ds,':')
-                print ('\tenv =', f[each_grp][each_ds].attrs['env'])
-                print ('\ttemp=',f[each_grp][each_ds].attrs['temp'])'''
 
     new_file.close()
 
-    # check new file, how to put back into haps?
-
-    callset = h5py.File(out_filename, mode='r')
+    # check new file if desired
+    '''callset = h5py.File(out_filename, mode='r')
     print(list(callset.keys()))
     # output: ['GT'] ['CHROM', 'POS']
     print(list(callset['calldata'].keys()),list(callset['variants'].keys()))
 
     raw = callset['calldata/GT']
     print("raw", raw.shape)
-    #newshape = (raw.shape[0], -1)
-    #haps_all = np.reshape(raw, newshape)
     pos_all = callset['variants/POS']
     print(list(pos_all))
     # same length as pos_all, noting chrom for each variant (sorted)
     chrom_all = callset['variants/CHROM']
-    print(list(chrom_all))
-    #print("after haps", haps_all.shape)
-    #num_snps, num_samples = haps_all.shape
-    #print("num snps", num_snps, "num samples", num_samples)
+    print(list(chrom_all))'''
 
 if __name__ == "__main__":
     main()

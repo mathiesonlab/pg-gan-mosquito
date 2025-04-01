@@ -124,8 +124,14 @@ class RealDataRandomIterator:
 
         raw = callset['calldata/GT']
         print("raw", raw.shape)
-        newshape = (raw.shape[0], -1)
-        self.haps_all = np.reshape(raw, newshape)
+        if len(raw.shape) == 3: # indvs not haps
+            newshape = (raw.shape[0], -1)
+            self.haps_all = np.reshape(raw, newshape)
+        elif len(raw.shape) == 2: # already in haps form
+            self.haps_all = raw
+        else:
+            print("invalid GT shape", raw.shape)
+            
         self.pos_all = callset['variants/POS']
         # same length as pos_all, noting chrom for each variant (sorted)
         self.chrom_all = callset['variants/CHROM']
