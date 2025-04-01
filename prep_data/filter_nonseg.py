@@ -137,10 +137,10 @@ def filter(in_filename, out_filename):
     #newshape = (raw.shape[0], -1)
     #haps_all = np.reshape(raw, newshape)
     pos_all = callset['variants/POS']
-    print(pos_all)
+    print(list(pos_all))
     # same length as pos_all, noting chrom for each variant (sorted)
     chrom_all = callset['variants/CHROM']
-    print(chrom_all)
+    print(list(chrom_all))
     #print("after haps", haps_all.shape)
     #num_snps, num_samples = haps_all.shape
     #print("num snps", num_snps, "num samples", num_samples)
