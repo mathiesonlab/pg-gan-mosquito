@@ -22,7 +22,7 @@ DEMO=$1 # i.e. dadi_joint or dadi_joint_mig
 #INPUT=./sim_out/${POP1}-${POP2}_${SPECIES}_${DATA}/${DEMO}/sa/${LR}/${DROPOUT}/output.out
 #OUTPUT=./sim_out/${POP1}-${POP2}_${SPECIES}_${DATA}/${DEMO}/sa/${LR}/${DROPOUT}/${POP1}-${POP2}_${SPECIES}_${DATA}_results_multi.png
 
-for SEED in 0 1 2 3 4
+for SEED in 0 1 2 3
 do
     # summary stats
     echo "python3 /homes/smathieson/GIT/pg-gan-mosquito/summary_stats_multi.py output${SEED}.txt output${SEED}.pdf ${DEMO}"
