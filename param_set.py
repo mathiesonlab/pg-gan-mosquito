@@ -197,9 +197,9 @@ class ParamSet:
             }
 
             self.NI = Parameter(params['NI'], params['NI'] * lower_range, params['NI'] * upper_range, "NI")
-            self.TG = Parameter(params['TG'], 70000, 140000, "TG")
+            self.TG = Parameter(params['TG'], 50000, 140000, "TG") # SM: 70k -> 50k
             self.NF = Parameter(params['NF'], params['NF'] * lower_range, params['NF'] * upper_range, "NF")
-            self.TS = Parameter(params['TS'], 10000, 50000, "TS")
+            self.TS = Parameter(params['TS'], 5000, 40000, "TS") # SM: 10k -> 5k, 50k -> 40k
             # strong evidence of recent population expansion, thus NI upper range < NF lower range
             # https://academic.oup.com/mbe/article/18/7/1353/992401
             # agrarian revolution in sub-Saharan Africa approximately 10,000–4,000 years ago could be linked to population expansion of A.Gambiae
@@ -208,7 +208,7 @@ class ParamSet:
             self.NF1 = Parameter(params['NF1'], params['NF1'] * lower_range, params['NF1'] * upper_range, "NF1")
             self.NF2 = Parameter(params['NF2'], params['NF2'] * lower_range, params['NF2'] * upper_range, "NF2")
             # 20 as the upper bound of the dadi model
-            self.MG = Parameter(params['2NIm'], 0, 60, "MG")
+            self.MG = Parameter(params['2NIm'], 0, 100, "MG") # SM: 60 -> 100
 
             # stdpopsim
             self.reco = Parameter(1.45e-8, 1e-9, 1e-8, "reco") 
