@@ -147,9 +147,9 @@ class ParamSet:
 
 
             self.NI = Parameter(params['NI'], 5000, 2000000, "NI")
-            self.TG = Parameter(params['TG'], 60000, 140000, "TG")
+            self.TG = Parameter(params['TG'], 50000, 140000, "TG") # SM: 60k -> 50k
             self.NF = Parameter(params['NF'], params['NF'] * lower_range, params['NF'] * upper_range, "NF")
-            self.TS = Parameter(params['TS'], 10000, 50000, "TS")
+            self.TS = Parameter(params['TS'], 5000, 40000, "TS") # SM: 10k -> 5k, 50k -> 40k
             # strong evidence of recent population expansion in sub-Saharan Africa, thus NI upper range < NF lower range
             # https://academic.oup.com/mbe/article/18/7/1353/992401
             self.NI1 = Parameter(params['NF1'], params['NF1'] * lower_range, params['NF1'] * upper_range, "NI1")
