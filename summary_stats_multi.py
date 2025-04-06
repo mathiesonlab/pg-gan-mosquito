@@ -43,9 +43,10 @@ DADI = True
 
 # baseline parameters for GNB-BFA_gamb_nsg or GN-BF_gam_biallelic_2017
 print("GN-BF")
+# see 2017 paper, supplementary table 2, line 142
 DADI_PARAMS = [420646, 89506, 9440437, 2245, 18328570, 42062652, 42064645, 42064198]
-# SM: changed migration param from 60 to 20 to reflect 2017 paper
-DADI_MIG_PARAMS = [415254, 93341, 8292759, 11637, 2635696, 2748423, 11101754, 11439976, 20]
+# see 2017 paper, supplementary table 2, line 152
+DADI_MIG_PARAMS = [415254, 93341, 8292759, 11637, 2635696, 2748423, 11101754, 11439976, 19.9999886]
 
 # baseline parameters for CM-UG_gam_nsg
 #print("CM-UG")

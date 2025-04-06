@@ -130,6 +130,7 @@ class ParamSet:
             #     'mut': 3.5e-9
             # }
 
+            # see 2017 paper, supplementary table 2, line 62
             params = BFA_vs_GNB_dadi_joint = {
                 'AIC': 33307,
                 'NI': 420722,
@@ -183,6 +184,7 @@ class ParamSet:
             #                                 "NF": 31710315
             #                             }
             
+            # see 2017 paper, supplementary table 2, line 72
             params = BFA_vs_GNB_dadi_joint_mig = {
                 'AIC': 32780,
                 'NI': 416431,
