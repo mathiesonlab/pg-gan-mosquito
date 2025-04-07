@@ -150,11 +150,11 @@ class ParamSet:
             self.NI = Parameter(params['NI'], 5000, 2000000, "NI")
             self.TG = Parameter(params['TG'], 50000, 140000, "TG") # SM: 60k -> 50k
             self.NF = Parameter(params['NF'], params['NF'] * lower_range, params['NF'] * upper_range, "NF")
-            self.TS = Parameter(params['TS'], 5000, 40000, "TS") # SM: 10k -> 5k, 50k -> 40k
+            self.TS = Parameter(params['TS'], 1000, 40000, "TS") # SM: 10k -> 5k -> 1k, 50k -> 40k
             # strong evidence of recent population expansion in sub-Saharan Africa, thus NI upper range < NF lower range
             # https://academic.oup.com/mbe/article/18/7/1353/992401
-            self.NI1 = Parameter(params['NF1'], params['NF1'] * lower_range, params['NF1'] * upper_range, "NI1")
-            self.NI2 = Parameter(params['NF2'], params['NF2'] * lower_range, params['NF2'] * upper_range, "NI2")
+            self.NI1 = Parameter(params['NI1'], params['NI1'] * lower_range, params['NI1'] * upper_range, "NI1")
+            self.NI2 = Parameter(params['NI2'], params['NI2'] * lower_range, params['NI2'] * upper_range, "NI2")
             self.NF1 = Parameter(params['NF1'], params['NF1'] * lower_range, params['NF1'] * upper_range, "NF1")
             self.NF2 = Parameter(params['NF2'], params['NF2'] * lower_range, params['NF2'] * upper_range, "NF2")
 
@@ -201,12 +201,12 @@ class ParamSet:
             self.NI = Parameter(params['NI'], params['NI'] * lower_range, params['NI'] * upper_range, "NI")
             self.TG = Parameter(params['TG'], 50000, 140000, "TG") # SM: 70k -> 50k
             self.NF = Parameter(params['NF'], params['NF'] * lower_range, params['NF'] * upper_range, "NF")
-            self.TS = Parameter(params['TS'], 5000, 40000, "TS") # SM: 10k -> 5k, 50k -> 40k
+            self.TS = Parameter(params['TS'], 1000, 40000, "TS") # SM: 10k -> 5k -> 1k, 50k -> 40k
             # strong evidence of recent population expansion, thus NI upper range < NF lower range
             # https://academic.oup.com/mbe/article/18/7/1353/992401
             # agrarian revolution in sub-Saharan Africa approximately 10,000–4,000 years ago could be linked to population expansion of A.Gambiae
-            self.NI1 = Parameter(params['NF1'], params['NF1'] * lower_range, params['NF1'] * upper_range, "NI1")
-            self.NI2 = Parameter(params['NF2'], params['NF2'] * lower_range, params['NF2'] * upper_range, "NI2")
+            self.NI1 = Parameter(params['NI1'], params['NI1'] * lower_range, params['NI1'] * upper_range, "NI1")
+            self.NI2 = Parameter(params['NI2'], params['NI2'] * lower_range, params['NI2'] * upper_range, "NI2")
             self.NF1 = Parameter(params['NF1'], params['NF1'] * lower_range, params['NF1'] * upper_range, "NF1")
             self.NF2 = Parameter(params['NF2'], params['NF2'] * lower_range, params['NF2'] * upper_range, "NF2")
             # 20 as the upper bound of the dadi model
