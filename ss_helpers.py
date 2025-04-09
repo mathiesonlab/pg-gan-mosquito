@@ -530,6 +530,9 @@ def stats_all(matrices, matrices_region, L = global_vars.L):
             pop_sfs[s].append(sfs[s])
 
         # inter-snp (first is 0 for real data so clip)
+        to_save = [round(x*L) for x in intersnp]
+        print(",".join([str(p) for p in to_save]))
+        input('enter')
         pop_dist.extend([round(x*L) for x in intersnp[1:]])
 
         # LD
