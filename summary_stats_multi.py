@@ -346,10 +346,10 @@ def plot_population(axes, i, j, real_color, real_label, real_tuple, sim_color,
                 sim_tuple[idx], sim_baseline_tuple[idx], real_color, sim_color, sim_baseline_color, pop=real_label,
                 sim_label=sim_label, baseline_label=sim_baseline_label,single=single)
 
-            if NAMES[idx] == "inter-SNP distances":
-                print("real intersnp", real_tuple[idx])
-                print("sim intersnp", sim_tuple[idx])
-                input('enter')
+            #if NAMES[idx] == "inter-SNP distances":
+            #    print("real intersnp", real_tuple[idx])
+            #    print("sim intersnp", sim_tuple[idx])
+            #    input('enter')
 
 # only called once per summary_stats call
 def get_title_from_trial_data(opts, param_values, sample_sizes):
