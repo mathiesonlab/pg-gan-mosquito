@@ -68,7 +68,7 @@ def update_ss_labels(pop_names, num_pops=1):
 
     if "gamb" or "baboon" in pop_names:
         SS_LABELS.append("simulation")
-        SS_COLORS.append("gray")
+        SS_COLORS.append("blue")
         return
     
         
