@@ -277,6 +277,8 @@ def plot_stats_all(nrows, ncols, size, real_stats_lst, sim_stats_lst, sim_baseli
     sim_baseline_label = "dadi"
     colors = global_vars.SS_COLORS[:num_pop]
     sim_color = global_vars.SS_COLORS[-1]
+    print(sim_color)
+    input('enter')
     #TEMP
     sim_baseline_color = "orangered"
 

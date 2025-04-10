@@ -465,7 +465,7 @@ def plot_generic_with_baseline(ax, name, real, sim, baseline, real_color, sim_co
 
     # inter-SNP distances
     if name == "inter-SNP distances":
-        ax.set_xlim(-50,100)
+        ax.set_xlim(-5,50)
     ax.set(xlabel=name)
 
     # legend
