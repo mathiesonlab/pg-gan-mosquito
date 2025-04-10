@@ -24,11 +24,12 @@ NAMES = [
     "minor allele count (SFS)",
     "inter-SNP distances",
     "distance between SNPs",
-    #"Tajima's D",
-    r'pairwise heterozygosity ($\pi$)', "Watterson",
     "number of haplotypes",
+    #"Tajima's D",
+    r'pairwise heterozygosity ($\pi$)',
+    "Watterson",
     "Hudson's Fst"]
-FST_COLOR = "purple"
+FST_COLOR = "black"
 
 # for ooa2 (YRI/CEU) (no longer supported)
 #FSC_PARAMS = [21017, 0.0341901, 3105.5, 21954, 33077.5, 2844, 1042]
@@ -277,7 +278,7 @@ def plot_stats_all(nrows, ncols, size, real_stats_lst, sim_stats_lst, sim_baseli
     colors = global_vars.SS_COLORS[:num_pop]
     sim_color = global_vars.SS_COLORS[-1]
     #TEMP
-    sim_baseline_color = "green"
+    sim_baseline_color = "orangered"
 
     # plot each population
     rows = [0, 0, 3]
@@ -345,11 +346,6 @@ def plot_population(axes, i, j, real_color, real_label, real_tuple, sim_color,
             ss_helpers.plot_generic_with_baseline(axes[i+r][j+c], NAMES[idx], real_tuple[idx],
                 sim_tuple[idx], sim_baseline_tuple[idx], real_color, sim_color, sim_baseline_color, pop=real_label,
                 sim_label=sim_label, baseline_label=sim_baseline_label,single=single)
-
-            #if NAMES[idx] == "inter-SNP distances":
-            #    print("real intersnp", real_tuple[idx])
-            #    print("sim intersnp", sim_tuple[idx])
-            #    input('enter')
 
 # only called once per summary_stats call
 def get_title_from_trial_data(opts, param_values, sample_sizes):

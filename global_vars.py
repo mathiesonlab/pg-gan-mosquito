@@ -22,11 +22,11 @@ TRIAL_DATA = { 'model': 'const', 'params': 'Ne', 'data_h5': None,
 
 # section C: summary stats customization----------------------------------------
 COLOR_DICT = {"YRI": "darkorange","CEU": "blue","CHB": "green", "MXL": "red",
-              "simulation": "gray", "msprime": "purple"}
+              "simulation": "blue", "msprime": "purple"}
 
 # mosquito colors from 2017 paper
-BF = tuple([x/255 for x in [130, 170, 204]]) # removed A from name
-GN = tuple([x/255 for x in [194, 210, 231]]) # removed B from name
+BF = "black" #tuple([x/255 for x in [130, 170, 204]]) # removed A from name
+GN = "black" #tuple([x/255 for x in [194, 210, 231]]) # removed B from name
 UG  = tuple([x/255 for x in [181, 211, 170]])
 CM = tuple([x/255 for x in [241, 241, 241]])
 GA = tuple([x/255 for x in [163, 163, 163]])

@@ -294,14 +294,14 @@ def compute_stats(vm, vm_region):
     # Tajima's D (use region here - not fixed num SNPs)
     #stats.append(libsequence.tajd(ac_region))
 
+    # num haps
+    stats.append(libsequence.number_of_haplotypes(vm))
+
     # pi
     stats.append(libsequence.thetapi(ac))
 
     # wattersons
     stats.append(libsequence.thetaw(ac))
-
-    # num haps
-    stats.append(libsequence.number_of_haplotypes(vm))
 
     return stats
 
@@ -378,7 +378,7 @@ def plot_generic(ax, name, real, sim, real_color, sim_color, pop="",
 
     # inter-SNP distances
     if name == "inter-SNP distances":
-        ax.set_xlim(-25,100)
+        ax.set_xlim(-5,50)
     ax.set(xlabel=name)
 
     # legend
@@ -397,7 +397,7 @@ def plot_generic_with_baseline(ax, name, real, sim, baseline, real_color, sim_co
     sim_label="", baseline_label="", single=False):
     """Plot a generic statistic."""
     
-    round_val = 6
+    round_val = 4
 
     # SFS
     if name == "minor allele count (SFS)":
@@ -530,9 +530,6 @@ def stats_all(matrices, matrices_region, L = global_vars.L):
             pop_sfs[s].append(sfs[s])
 
         # inter-snp (first is 0 for real data so clip)
-        #to_save = [round(x*L) for x in intersnp]
-        #print(to_save)
-        #input('enter')
         pop_dist.extend([round(x*L) for x in intersnp[1:]])
 
         # LD
