@@ -72,10 +72,6 @@ def main():
     else:
         param_values, in_file_data = ss_helpers.parse_output(input_file, return_acc=False)
 
-    print(global_vars.SS_LABELS)
-    print(global_vars.SS_COLORS)
-    input('enter')
-
     opts, param_values = util.parse_args(in_file_data = in_file_data,
         param_values=param_values)
     generator, iterator, parameters, sample_sizes = util.process_opts(opts,
@@ -98,6 +94,10 @@ def main():
 
     print("VALUES", param_values)
     print("made it through params")
+
+    print(global_vars.SS_LABELS)
+    print(global_vars.SS_COLORS)
+    input('enter')
 
     # use the parameters we inferred!
     # fsc=False
