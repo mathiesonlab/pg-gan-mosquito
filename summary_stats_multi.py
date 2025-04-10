@@ -72,7 +72,9 @@ def main():
     else:
         param_values, in_file_data = ss_helpers.parse_output(input_file, return_acc=False)
 
-    
+    print(global_vars.SS_LABELS)
+    print(global_vars.SS_COLORS)
+    input('enter')
 
     opts, param_values = util.parse_args(in_file_data = in_file_data,
         param_values=param_values)
@@ -277,8 +279,6 @@ def plot_stats_all(nrows, ncols, size, real_stats_lst, sim_stats_lst, sim_baseli
     sim_baseline_label = "dadi"
     colors = global_vars.SS_COLORS[:num_pop]
     sim_color = global_vars.SS_COLORS[-1]
-    print(sim_color)
-    input('enter')
     #TEMP
     sim_baseline_color = "orangered"
 
