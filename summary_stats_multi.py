@@ -95,10 +95,6 @@ def main():
     print("VALUES", param_values)
     print("made it through params")
 
-    print(global_vars.SS_LABELS)
-    print(global_vars.SS_COLORS)
-    input('enter')
-
     # use the parameters we inferred!
     # fsc=False
     # if opts.model == 'fsc':
