@@ -348,7 +348,7 @@ def plot_population(axes, i, j, real_color, real_label, real_tuple, sim_color,
             if NAMES[idx] == "inter-SNP distances":
                 np.save("real" + str(idx) + ".npy", real_tuple[idx])
                 np.save("sim" + str(idx) + ".npy", sim_tuple[idx])
-                np.save("dadi" + + str(idx) + ".npy", sim_baseline_tuple[idx])
+                np.save("dadi" + str(idx) + ".npy", sim_baseline_tuple[idx])
 
 # only called once per summary_stats call
 def get_title_from_trial_data(opts, param_values, sample_sizes):
