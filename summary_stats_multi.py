@@ -18,7 +18,7 @@ import ss_helpers
 import util
 
 # globals
-NUM_TRIAL = 1000
+NUM_TRIAL = 10 # TODO change to 1000
 # statistic names
 NAMES = [
     "minor allele count (SFS)",
@@ -344,6 +344,11 @@ def plot_population(axes, i, j, real_color, real_label, real_tuple, sim_color,
             ss_helpers.plot_generic_with_baseline(axes[i+r][j+c], NAMES[idx], real_tuple[idx],
                 sim_tuple[idx], sim_baseline_tuple[idx], real_color, sim_color, sim_baseline_color, pop=real_label,
                 sim_label=sim_label, baseline_label=sim_baseline_label,single=single)
+
+            if NAMES[idx] == "inter-SNP distances":
+                np.save("real" + str(idx) + ".npy", real_tuple[idx])
+                np.save("sim" + str(idx) + ".npy", sim_tuple[idx])
+                np.save("dadi" + + str(idx) + ".npy", sim_baseline_tuple[idx])
 
 # only called once per summary_stats call
 def get_title_from_trial_data(opts, param_values, sample_sizes):
