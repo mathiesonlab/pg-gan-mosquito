@@ -18,7 +18,7 @@ import ss_helpers
 import util
 
 # globals
-NUM_TRIAL = 1000 # TODO change to 1000
+NUM_TRIAL = 10 # TODO change to 1000
 # statistic names
 NAMES = [
     "minor allele count (SFS)",
@@ -276,7 +276,7 @@ def plot_stats_all(nrows, ncols, size, real_stats_lst, sim_stats_lst, sim_baseli
     colors = global_vars.SS_COLORS[:num_pop]
     sim_color = global_vars.SS_COLORS[-1]
     #TEMP
-    sim_baseline_color = "orangered"
+    sim_baseline_color = "tab:orange"
 
     # plot each population
     rows = [0, 0, 3]

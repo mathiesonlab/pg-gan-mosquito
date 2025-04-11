@@ -25,8 +25,8 @@ COLOR_DICT = {"YRI": "darkorange","CEU": "blue","CHB": "green", "MXL": "red",
               "simulation": "blue", "msprime": "purple"}
 
 # mosquito colors from 2017 paper
-BF = "black" #tuple([x/255 for x in [130, 170, 204]]) # removed A from name
-GN = "black" #tuple([x/255 for x in [194, 210, 231]]) # removed B from name
+BF = "tab:blue" #tuple([x/255 for x in [130, 170, 204]]) # removed A from name
+GN = "tab:blue" #tuple([x/255 for x in [194, 210, 231]]) # removed B from name
 UG  = tuple([x/255 for x in [181, 211, 170]])
 CM = tuple([x/255 for x in [241, 241, 241]])
 GA = tuple([x/255 for x in [163, 163, 163]])
@@ -68,7 +68,7 @@ def update_ss_labels(pop_names, num_pops=1):
 
     if "gamb" or "baboon" in pop_names:
         SS_LABELS.append("simulation")
-        SS_COLORS.append("blue")
+        SS_COLORS.append("tab:green")
         return
     
         

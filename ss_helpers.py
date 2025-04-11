@@ -400,7 +400,7 @@ def plot_generic_with_baseline(ax, name, real, sim, baseline, real_color, sim_co
     round_val = 4
 
     # SFS
-    if name == "minor allele count (SFS)":
+    if name == "minor allele count (SFS)" or name == "inter-SNP distances":
         # average over regions
         num_trial = len(real[0]) # len(real) is NUM_SFS, len(real[0]) is NUM_TRIAL
         real_sfs = [sum(rs)/num_trial for rs in real]
@@ -464,8 +464,8 @@ def plot_generic_with_baseline(ax, name, real, sim, baseline, real_color, sim_co
 
 
     # inter-SNP distances
-    if name == "inter-SNP distances":
-        ax.set_xlim(-5,50)
+    #if name == "inter-SNP distances":
+    #    ax.set_xlim(-5,50)
     ax.set(xlabel=name)
 
     # legend

@@ -6,7 +6,7 @@ Sara Mathieson
 
 import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
+#import seaborn as sns
 
 PATH = "/Users/smathieson/Desktop/reduce_mean_filter_param3/"
 
@@ -85,10 +85,22 @@ sim baseline stats for pop 1
 #plt.hist([real_np, sim_np])
 
 real_np = np.load(PATH + "real1.npy")
-sim_np = np.load(PATH + )
-print(len(real_np), len(sim_np))
-sns.kdeplot(real_np, common_norm=False)
-sns.kdeplot(sim_np, common_norm=False)
+sim_np = np.load(PATH + "sim1.npy")
+dadi_np = np.load(PATH + "dadi1.npy")
 
-plt.xlim(-50,100)
+print(len(real_np), len(sim_np), len(dadi_np))
+values, counts = np.unique(real_np, return_counts=True)
+print(values, counts)
+values, counts = np.unique(sim_np, return_counts=True)
+print(values, counts)
+values, counts = np.unique(dadi_np, return_counts=True)
+print(values, counts)
+#sns.kdeplot(real_np, common_norm=False, label="real")
+#sns.kdeplot(sim_np, common_norm=False, label="sim")
+#sns.kdeplot(dadi_np, common_norm=False, label="dadi")
+
+plt.hist([real_np, sim_np, dadi_np], bins=np.linspace(-5,50,10))
+
+plt.legend(["real","sim","dadi"])
+plt.xlim(-5,50)
 plt.show()
