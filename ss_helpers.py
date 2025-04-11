@@ -430,7 +430,7 @@ def plot_generic_with_baseline(ax, name, real, sim, baseline, real_color, sim_co
         text = "sim_wass_dist:" + str(round(sim_diff, round_val)) + "\n" + "baseline_wass_dist:" + str(round(baseline_diff, round_val))
         
         ax.hist([real, sim, baseline], bins=np.linspace(-5,50,10),
-            color=[real_color, sim_color, baseline_color], label=[pop, sim_label, baselin_label])
+            color=[real_color, sim_color, baseline_color], label=[pop, sim_label, baseline_label])
 
         '''ax.bar([x -0.3 for x in range(NUM_SFS)], real_sfs, label=pop, width=0.3,
             color=real_color)
