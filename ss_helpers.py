@@ -429,18 +429,10 @@ def plot_generic_with_baseline(ax, name, real, sim, baseline, real_color, sim_co
         baseline_diff = calc_distribution_dist(real, baseline)
         text = "sim_wass_dist:" + str(round(sim_diff, round_val)) + "\n" + "baseline_wass_dist:" + str(round(baseline_diff, round_val))
         
-        ax.hist([real, sim, baseline], bins=np.linspace(-5,50,10),
+        ax.hist([real, sim, baseline], bins=np.linspace(-1,50,10),
             color=[real_color, sim_color, baseline_color], label=[pop, sim_label, baseline_label])
 
-        '''ax.bar([x -0.3 for x in range(NUM_SFS)], real_sfs, label=pop, width=0.3,
-            color=real_color)
-        ax.bar(range(NUM_SFS), sim_sfs, label=sim_label, width=0.3,
-            color=sim_color)
-        ax.bar([x +0.3 for x in range(NUM_SFS)], baseline_sfs, label=baseline_label, width=0.3,
-            color=baseline_color)
-        ax.set_xlim(-1,len(real_sfs))
-        ax.set_ylabel("frequency per region")'''
-
+        ax.set_ylabel("frequency")
         ax.text(.01, .99, text, fontsize=8, ha='left', va='top', transform=ax.transAxes)
 
     # LD

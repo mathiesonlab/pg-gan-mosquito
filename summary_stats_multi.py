@@ -18,7 +18,7 @@ import ss_helpers
 import util
 
 # globals
-NUM_TRIAL = 10 # TODO change to 1000
+NUM_TRIAL = 1000
 # statistic names
 NAMES = [
     "minor allele count (SFS)",
@@ -29,7 +29,7 @@ NAMES = [
     r'pairwise heterozygosity ($\pi$)',
     "Watterson",
     "Hudson's Fst"]
-FST_COLOR = "black"
+FST_COLOR = "tab:blue"
 
 # for ooa2 (YRI/CEU) (no longer supported)
 #FSC_PARAMS = [21017, 0.0341901, 3105.5, 21954, 33077.5, 2844, 1042]
