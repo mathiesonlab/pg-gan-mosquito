@@ -279,8 +279,13 @@ def get_dataset_partitions_tf(ds, ds_size, train_split=0.8, val_split=0.2,  shuf
 ###############################################################################################
 #TEMP due to seperated environment
 def parse_mini_lst(mini_lst):
-    return [float(x.replace("[",'').replace("]",'').replace(",",'')) for x in
+    return [float(remove_numpy(x.replace("[",'').replace("]",'').replace(",",''))) for x in
         mini_lst]
+
+def remove_numpy(string):
+    if "(" in string:
+        return string[string.index("(")+1:string.index(")")]
+    return string
 
 def add_to_lst(total_lst, mini_lst):
     assert len(total_lst) == len(mini_lst), (mini_lst)
