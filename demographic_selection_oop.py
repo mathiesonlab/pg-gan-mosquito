@@ -194,6 +194,8 @@ class MODEL_SELECTION:
         self.train_acc_metric = tf.keras.metrics.SparseCategoricalAccuracy()
         self.val_acc_metric = tf.keras.metrics.SparseCategoricalAccuracy()
 
+        print("got through MODEL_SELECTION")
+
     def build_generators_disc(self):
         for opt, posteriors in zip(self.opts, self.posteriors):
             #TODO: only get generator
