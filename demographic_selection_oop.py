@@ -78,7 +78,8 @@ def demographic_model_selection(opts, posteriors, work_dir, data_h5 = None, load
     
     num_batch = 500
     mini_batch = 50
-        
+    
+    print('entering MODEL_SELECTION')
     model_selection = MODEL_SELECTION(opts, posteriors)
     model_selection.build_generators_disc()
     
@@ -180,6 +181,7 @@ def demographic_model_selection(opts, posteriors, work_dir, data_h5 = None, load
 
 class MODEL_SELECTION:
     def __init__(self, opts, posteriors):
+        print("starting MODEL_SELECTION constructor")
         self.opts = opts
         self.posteriors = posteriors
         self.disc = None
@@ -191,7 +193,7 @@ class MODEL_SELECTION:
         self.train_acc_metric = tf.keras.metrics.SparseCategoricalAccuracy()
         self.val_acc_metric = tf.keras.metrics.SparseCategoricalAccuracy()
 
-        print("got through MODEL_SELECTION")
+        print("ending MODEL_SELECTION constructor")
 
     def build_generators_disc(self):
         for opt, posteriors in zip(self.opts, self.posteriors):
