@@ -37,8 +37,6 @@ def main():
     
     print("model_posteriors")
     print(model_posteriors)
-    print('got through posteriors!')
-    input('enter')
     
     #parse model_posteriors_file into respective opts and posterior values
     posterior_opts, posteriors= [], []
@@ -54,7 +52,6 @@ def main():
         posteriors.append(posterior_param_values)
         print("opts")
         print(opts)
-        input('got through a file')
         
        
     demographic_model_selection(posterior_opts, posteriors, work_dir = opts_dict["working_dir"], 
