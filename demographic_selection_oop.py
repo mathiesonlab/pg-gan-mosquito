@@ -183,15 +183,24 @@ class MODEL_SELECTION:
     def __init__(self, opts, posteriors):
         print("starting MODEL_SELECTION constructor")
         self.opts = opts
+        print("after opts")
         self.posteriors = posteriors
+        print("after post")
         self.disc = None
+        print("after disc")
         self.generators = []
+        print("after gen")
         #real data generator
         self.iterator = None
+        print("after iterator")
         self.loss_fn= tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+        print("after loss")
         self.optimizer=tf.keras.optimizers.Adam(learning_rate=1e-4)
+        print("after optimizer")
         self.train_acc_metric = tf.keras.metrics.SparseCategoricalAccuracy()
+        print("after train metric")
         self.val_acc_metric = tf.keras.metrics.SparseCategoricalAccuracy()
+        print("after val metric")
 
         print("ending MODEL_SELECTION constructor")
 
