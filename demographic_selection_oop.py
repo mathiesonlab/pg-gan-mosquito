@@ -196,7 +196,7 @@ class MODEL_SELECTION:
         print("after iterator")
         self.loss_fn= tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
         print("after loss")
-        self.optimizer=Adam(learning_rate=1e-4)
+        self.optimizer=AdamW(learning_rate=1e-4)
         print("after optimizer")
         self.train_acc_metric = tf.keras.metrics.SparseCategoricalAccuracy()
         print("after train metric")
