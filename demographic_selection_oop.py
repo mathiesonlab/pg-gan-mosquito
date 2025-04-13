@@ -4,7 +4,7 @@ import time
 import numpy as np
 import sys
 import tensorflow as tf
-from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.optimizers import AdamW
 import scipy.stats
 import os
 from sklearn.metrics import confusion_matrix
