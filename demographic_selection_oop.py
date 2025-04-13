@@ -131,7 +131,7 @@ def demographic_model_selection(opts, posteriors, work_dir, data_h5 = None, load
             train_acc = model_selection.train_acc_metric.result()
             print("Training acc over iter: %.4f" % (float(train_acc),))
 
-            model_selection.train_acc_metric.reset_states()
+            model_selection.train_acc_metric.reset_state()
 
             for step, (x_batch_val, y_batch_val) in enumerate(val_dataset):
                 loss_value = model_selection.test_step(x_batch_val, y_batch_val)
@@ -143,7 +143,7 @@ def demographic_model_selection(opts, posteriors, work_dir, data_h5 = None, load
                     print("Seen so far: %s samples" % ((step + 1) * mini_batch))
 
             val_acc = model_selection.val_acc_metric.result()
-            model_selection.val_acc_metric.reset_states()
+            model_selection.val_acc_metric.reset_state()
             print("Validation acc: %.4f" % (float(val_acc),))
             print("Time taken: %.2fs" % (time.time() - start_time))
             sys.stdout.flush()
