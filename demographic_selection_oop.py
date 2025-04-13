@@ -4,6 +4,7 @@ import time
 import numpy as np
 import sys
 import tensorflow as tf
+from tensorflow.keras.optimizers import Adam
 import scipy.stats
 import os
 from sklearn.metrics import confusion_matrix
@@ -195,7 +196,7 @@ class MODEL_SELECTION:
         print("after iterator")
         self.loss_fn= tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
         print("after loss")
-        self.optimizer=tf.keras.optimizers.Adam(learning_rate=1e-4)
+        self.optimizer=Adam(learning_rate=1e-4)
         print("after optimizer")
         self.train_acc_metric = tf.keras.metrics.SparseCategoricalAccuracy()
         print("after train metric")
