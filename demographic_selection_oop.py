@@ -15,6 +15,9 @@ import pg_gan
 import global_vars
 import util
 
+import os
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+
 def main():
     parser = argparse.ArgumentParser(description='demographic_selection entry point')
     parser.add_argument('-b', '--working_dir', type=str, help='directory storing inputs and outputs')
