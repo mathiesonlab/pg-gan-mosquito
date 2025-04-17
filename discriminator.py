@@ -13,6 +13,7 @@ from tensorflow.keras import Model, Layer
 from scipy.special import rel_entr
 
 class ReduceMean(Layer):
+    # SM: I think I do not need build since there are no weights
 
     def call(self, x):
         return tf.math.reduce_mean(x, axis=1)

@@ -284,6 +284,8 @@ def get_dataset_partitions_tf(ds, ds_size, train_split=0.8, val_split=0.2,  shuf
     
     train_size = int(train_split * ds_size)
     val_size = int(val_split * ds_size)
+
+    print("train size, val size", train_size, val_size)
     
     train_ds = ds.take(train_size)    
     val_ds = ds.skip(train_size).take(val_size)
