@@ -157,8 +157,9 @@ def demographic_model_selection(opts, posteriors, work_dir, data_h5 = None, load
             model_selection.disc.save(disc_path)
         
     #final evaluation and confusion metric
-    x = model_selection.simulate_haplotype_alignments(5000)
-    y = model_selection.generate_labels(5000)
+    num_test = 500 # reduced from 5000 due to memory issues
+    x = model_selection.simulate_haplotype_alignments(num_test)
+    y = model_selection.generate_labels(num_test)
     y_pred_logits = model_selection.predict(x)
     y_pred_softmax = tf.nn.softmax(y_pred_logits).numpy()
     y_pred_labels = np.argmax (y_pred_softmax, axis = 1)
@@ -170,14 +171,15 @@ def demographic_model_selection(opts, posteriors, work_dir, data_h5 = None, load
     # np.savetxt(os.path.join(work_dir, 'testSet_labels.txt') , y_pred_labels)
     
     if data_h5:
-        data_h5_haplotype_alignments = model_selection.iterator.real_batch(neg1 = False, batch_size=1000)
+        num_real = 1000
+        data_h5_haplotype_alignments = model_selection.iterator.real_batch(neg1 = False, batch_size=num_real)
         y_pred_logits = model_selection.predict(data_h5_haplotype_alignments)
         y_pred_softmax = tf.nn.softmax(y_pred_logits).numpy()
         y_pred_softmax_arg_max = np.argmax(y_pred_softmax, axis = 1)
         print("percentage of images classified as class 0")
-        print(int(np.count_nonzero(y_pred_softmax_arg_max == 0)) / 1000)
+        print(int(np.count_nonzero(y_pred_softmax_arg_max == 0)) / num_real)
         print("percentage of images classified as class 1")
-        print(int(np.count_nonzero(y_pred_softmax_arg_max == 1)) / 1000)
+        print(int(np.count_nonzero(y_pred_softmax_arg_max == 1)) / num_real)
         #output real data's cnn probabilities for downstream ABC analysis
         np.savetxt(os.path.join(work_dir, 'Emp_Predictions.txt'), y_pred_softmax)
         
