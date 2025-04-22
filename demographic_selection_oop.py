@@ -100,7 +100,7 @@ def demographic_model_selection(opts, posteriors, work_dir, data_h5 = None, load
     print("learning rate", model_selection.optimizer.learning_rate)
     sys.stdout.flush()
     
-    disc_path = os.path.join(work_dir, 'trained_disc.keras')
+    disc_path = os.path.join(work_dir, 'trained_disc')
     
     if load_disc:
         try:            
@@ -156,7 +156,7 @@ def demographic_model_selection(opts, posteriors, work_dir, data_h5 = None, load
         if save_disc:
             if not os.path.exists(disc_path):
                 os.makedirs(disc_path)
-            model_selection.disc.save(disc_path)
+            model_selection.disc.save(disc_path + "/mymodel.keras") # maybe add .keras here?
         
     #final evaluation and confusion metric
     num_test = 500 # reduced from 5000 due to memory issues
