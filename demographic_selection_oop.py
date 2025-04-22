@@ -15,7 +15,7 @@ import pg_gan
 import global_vars
 import util
 
-NUM_ITERS = 2 # TODO increase, say 100
+NUM_ITERS = 200
 
 #import os
 #os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
