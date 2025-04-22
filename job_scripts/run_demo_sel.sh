@@ -13,7 +13,7 @@ OUTPUT=${OUTPUT_PREFIX}/model_comparison.out
 #source ./tfenv_2.13/bin/activate
 echo "dadi_joint vs dadi_joint_mig" # posterior, 2 pool layer, fc1 2 = 160 128, testing"
 #qstat | tail -n 1 | awk '{print $1}' >> ${OUTPUT_PREFIX}/README
-echo "python3 demographic_selection_oop.py -d ${INPUT} -b ${OUTPUT_PREFIX} -s -t #> ${OUTPUT}"
-#python3 demographic_selection_oop.py -d ${INPUT} -b ${OUTPUT_PREFIX} -s -t #> ${OUTPUT}
+echo "python3 demographic_selection_oop.py -d ${INPUT} -b ${OUTPUT_PREFIX} -s > ${OUTPUT}"
+python3 demographic_selection_oop.py -d ${INPUT} -b ${OUTPUT_PREFIX} -s > ${OUTPUT}
 #echo "job completed" >> ${OUTPUT_PREFIX}/README
 
