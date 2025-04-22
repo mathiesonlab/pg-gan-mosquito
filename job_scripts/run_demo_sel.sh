@@ -6,7 +6,7 @@
 #$ -j y
 
 INPUT=/bigdata/smathieson/pg-gan/mosquito/GN-BF_gam_biallelic_2017_filter.h5
-OUTPUT_PREFIX=./sim_out/GN-BF_gam_biallelic_2017/model_compare/ # dadi_joint/reduce_mean_filter_param3
+OUTPUT_PREFIX=./sim_out/GN-BF_gam_biallelic_2017/model_compare # dadi_joint/reduce_mean_filter_param3
 OUTPUT=${OUTPUT_PREFIX}/model_comparison.out
 #CPROF=${OUTPUT_PREFIX}/cprof.txt
 

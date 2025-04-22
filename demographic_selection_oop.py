@@ -15,6 +15,8 @@ import pg_gan
 import global_vars
 import util
 
+NUM_ITERS = 2 # TODO increase, say 100
+
 #import os
 #os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
@@ -78,7 +80,7 @@ def demographic_model_selection(opts, posteriors, work_dir, data_h5 = None, load
         load_disc, save_disc = False, False
         
     else:  
-        iters = 100
+        iters = NUM_ITERS
     
     num_batch = 500
     mini_batch = 50
@@ -98,7 +100,7 @@ def demographic_model_selection(opts, posteriors, work_dir, data_h5 = None, load
     print("learning rate", model_selection.optimizer.learning_rate)
     sys.stdout.flush()
     
-    disc_path = os.path.join(work_dir, 'trained_disc')
+    disc_path = os.path.join(work_dir, 'trained_disc.keras')
     
     if load_disc:
         try:            
