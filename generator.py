@@ -100,7 +100,7 @@ class Generator:
             self.rng)
 
     def __str__(self):
-        return str(self.simulator) + " " + str(curr_params)
+        return str(self.simulator) + " " + str(self.curr_params)
 
 def draw_background_rate_from_prior(prior_rates, prob, rng):
     return rng.choice(prior_rates, p=prob)
