@@ -174,7 +174,8 @@ def demographic_model_selection(opts, posteriors, work_dir, data_h5 = None, load
     
     if data_h5:
         num_real = 1000
-        data_h5_haplotype_alignments = model_selection.iterator.real_batch(neg1 = False, batch_size=num_real)
+        # SM: changed neg1 to True to match sims
+        data_h5_haplotype_alignments = model_selection.iterator.real_batch(neg1 = True, batch_size=num_real)
         y_pred_logits = model_selection.predict(data_h5_haplotype_alignments)
         y_pred_softmax = tf.nn.softmax(y_pred_logits).numpy()
         y_pred_softmax_arg_max = np.argmax(y_pred_softmax, axis = 1)
