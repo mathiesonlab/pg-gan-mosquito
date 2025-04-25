@@ -409,7 +409,6 @@ def plot_generic_with_baseline(ax, name, real, sim, baseline, real_color, sim_co
         
         sim_diff = calc_distribution_dist(real_sfs, sim_sfs)
         baseline_diff = calc_distribution_dist(real_sfs, baseline_sfs)
-        text = "sim_wass_dist:" + str(round(sim_diff, round_val)) + "\n" + "baseline_wass_dist:" + str(round(baseline_diff, round_val))
         
         ax.bar([x -0.3 for x in range(NUM_SFS)], real_sfs, label=pop, width=0.3,
             color=real_color)
@@ -420,20 +419,26 @@ def plot_generic_with_baseline(ax, name, real, sim, baseline, real_color, sim_co
         ax.set_xlim(-1,len(real_sfs))
         ax.set_ylabel("frequency per region")
 
-        ax.text(.01, .99, text, fontsize=8, ha='left', va='top', transform=ax.transAxes)
+        text = "sim_wass_dist:" + str(round(sim_diff, round_val)) + "\n" + "baseline_wass_dist:" + str(round(baseline_diff, round_val))
+        #ax.text(.01, .99, text, fontsize=8, ha='left', va='top', transform=ax.transAxes)
+        print(text)
 
     # inter-SNP
     elif name == "inter-SNP distances":
         
         sim_diff = calc_distribution_dist(real, sim)
         baseline_diff = calc_distribution_dist(real, baseline)
-        text = "sim_wass_dist:" + str(round(sim_diff, round_val)) + "\n" + "baseline_wass_dist:" + str(round(baseline_diff, round_val))
         
-        ax.hist([real, sim, baseline], bins=np.linspace(-1,50,10),
+        # weight so sum to num_snps (per region)
+        weights=np.ones_like(real) / len(real) * global_vals.NUM_SNPS
+        ax.hist([real, sim, baseline], bins=np.linspace(-1,40,10), weights=weights
             color=[real_color, sim_color, baseline_color], label=[pop, sim_label, baseline_label])
 
         ax.set_ylabel("frequency")
-        ax.text(.01, .99, text, fontsize=8, ha='left', va='top', transform=ax.transAxes)
+
+        text = "sim_wass_dist:" + str(round(sim_diff, round_val)) + "\n" + "baseline_wass_dist:" + str(round(baseline_diff, round_val))
+        #ax.text(.01, .99, text, fontsize=8, ha='left', va='top', transform=ax.transAxes)
+        print(text)
 
     # LD
     elif name == "distance between SNPs":
@@ -448,8 +453,6 @@ def plot_generic_with_baseline(ax, name, real, sim, baseline, real_color, sim_co
 
         sim_diff = calc_distribution_dist(real_mean, sim_mean)
         baseline_diff = calc_distribution_dist(real_mean, baseline_mean)
-        text = "sim_wass_dist:" + str(round(sim_diff, round_val)) + "\n" + "baseline_wass_dist:" + str(round(baseline_diff, round_val))
-      
         
         # plotting
         ax.errorbar(dist_bins, real_mean, yerr=real_stddev, color=real_color,
@@ -459,7 +462,10 @@ def plot_generic_with_baseline(ax, name, real, sim, baseline, real_color, sim_co
         ax.errorbar([x for x in dist_bins], baseline_mean, yerr=baseline_stddev,
             color=baseline_color, label=baseline_label)
         ax.set_ylabel(r'LD ($r^2$)')
-        ax.text(.01, .99, text, fontsize=8, ha='left', va='top', transform=ax.transAxes)
+
+        text = "sim_wass_dist:" + str(round(sim_diff, round_val)) + "\n" + "baseline_wass_dist:" + str(round(baseline_diff, round_val))
+        #ax.text(.01, .99, text, fontsize=8, ha='left', va='top', transform=ax.transAxes)
+        print(text)
 
     # all other stats
     else:
@@ -471,8 +477,10 @@ def plot_generic_with_baseline(ax, name, real, sim, baseline, real_color, sim_co
             common_norm=False)
         sim_diff = calc_distribution_dist(real, sim)
         baseline_diff = calc_distribution_dist(real, baseline)
+
         text = "sim_wass_dist:" + str(round(sim_diff, round_val)) + "\n" + "baseline_wass_dist:" + str(round(baseline_diff, round_val))
-        ax.text(.01, .99, text, fontsize=8, ha='left', va='top', transform=ax.transAxes)
+        #ax.text(.01, .99, text, fontsize=8, ha='left', va='top', transform=ax.transAxes)
+        print(text)
 
 
     # inter-SNP distances

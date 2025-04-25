@@ -270,9 +270,9 @@ def plot_stats_all(nrows, ncols, size, real_stats_lst, sim_stats_lst, sim_baseli
     
     # labels and colors
     labels = global_vars.SS_LABELS[:num_pop]
-    sim_label = global_vars.SS_LABELS[-1]
+    sim_label = "pg-gan" #global_vars.SS_LABELS[-1]
     #TEMP
-    sim_baseline_label = "dadi"
+    sim_baseline_label = "baseline" #"dadi"
     colors = global_vars.SS_COLORS[:num_pop]
     sim_color = global_vars.SS_COLORS[-1]
     #TEMP
@@ -299,7 +299,7 @@ def plot_stats_all(nrows, ncols, size, real_stats_lst, sim_stats_lst, sim_baseli
     if num_pop == 2:
         cidx = 1
     for pi in range(len(real_fst_lst)): # pi -> pair index
-        pair_label = labels[first_pop[pi]] + "/" + labels[second_pop[pi]]
+        pair_label = "real data" #labels[first_pop[pi]] + "/" + labels[second_pop[pi]]
         #load custom code that intake three sets of summary statistics for plotting
         ss_helpers.plot_generic_with_baseline(axes[3+pi][cidx], NAMES[6], real_fst_lst[pi],
             sim_fst_lst[pi], sim_baseline_fst_lst[pi], FST_COLOR, sim_color, sim_baseline_color, pop=pair_label,
@@ -308,12 +308,9 @@ def plot_stats_all(nrows, ncols, size, real_stats_lst, sim_stats_lst, sim_baseli
     # overall legend
     if num_pop >= 2:
         for p in range(num_pop):
-            p_real = mpatches.Patch(color=colors[p], label=labels[p] + \
-                ' real data')
-            p_sim = mpatches.Patch(color=sim_color, label=labels[p] + \
-                ' sim data')
-            p_sim_baseline = mpatches.Patch(color=sim_baseline_color, label=sim_baseline_label + \
-                ' baseline')
+            p_real = mpatches.Patch(color=colors[p], label=labels[p] + ' real data')
+            p_sim = mpatches.Patch(color=sim_color, label=labels[p] + ' pg-gan')
+            p_sim_baseline = mpatches.Patch(color=sim_baseline_color, label=label=labels[p] + ' baseline') #label=sim_baseline_label + ' baseline')
             if num_pop == 2:
                 axes[3][0+3*p].axis('off')
                 axes[3][0+3*p].legend(handles=[p_real, p_sim, p_sim_baseline], loc=10,
