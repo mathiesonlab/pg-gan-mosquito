@@ -430,7 +430,7 @@ def plot_generic_with_baseline(ax, name, real, sim, baseline, real_color, sim_co
         baseline_diff = calc_distribution_dist(real, baseline)
         
         # weight so sum to num_snps (per region)
-        weights=np.ones_like(real) / len(real) * global_vals.NUM_SNPS
+        weights=np.ones_like(real) / len(real) * global_vars.NUM_SNPS
         ax.hist([real, sim, baseline], bins=np.linspace(-1,40,10), weights=weights,
             color=[real_color, sim_color, baseline_color], label=[pop, sim_label, baseline_label])
 
