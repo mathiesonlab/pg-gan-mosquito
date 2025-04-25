@@ -99,6 +99,9 @@ class Generator:
         return draw_background_rate_from_prior(self.prior, self.weights,
             self.rng)
 
+    def __str__(self):
+        return str(self.simulator) + " " + str(curr_params)
+
 def draw_background_rate_from_prior(prior_rates, prob, rng):
     return rng.choice(prior_rates, p=prob)
 

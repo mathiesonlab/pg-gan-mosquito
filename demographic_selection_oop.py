@@ -220,8 +220,11 @@ class MODEL_SELECTION:
             generator, iterator, parameters, sample_sizes = util.process_opts(opt)
             generator.update_params(posteriors)
             self.generators.append(generator)
+            print(generator)
+            input('enter')
             
-        self.disc = pg_gan.get_discriminator(sample_sizes)
+        print('sample sizes', sample_sizes)
+        self.disc = pg_gan.get_discriminator(sample_sizes) # TODO why FC part?
         self.disc.fc1 = tf.keras.layers.Dense(256, activation='relu')
         self.disc.fc2 = tf.keras.layers.Dense(256, activation='relu')
         self.disc.dense3 = tf.keras.layers.Dense(len(self.opts))
@@ -239,6 +242,8 @@ class MODEL_SELECTION:
             params=posterior, batch_size = num_batch) for \
                 generator, posterior in zip(self.generators, self.posteriors)]
         
+        print(haplotype_alignments)
+        input('enter')
         haplotype_alignments = np.concatenate(haplotype_alignments, axis=0)
         return haplotype_alignments
     
