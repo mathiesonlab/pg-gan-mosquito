@@ -15,7 +15,7 @@ import pg_gan
 import global_vars
 import util
 
-NUM_ITERS = 200
+NUM_ITERS = 500
 
 #import os
 #os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
