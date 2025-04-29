@@ -152,6 +152,8 @@ def demographic_model_selection(opts, posteriors, work_dir, data_h5 = None, load
             print("Validation acc: %.4f" % (float(val_acc),))
             print("Time taken: %.2fs" % (time.time() - start_time))
             sys.stdout.flush()
+
+            input('enter')
             
         if save_disc:
             if not os.path.exists(disc_path):
@@ -225,11 +227,12 @@ class MODEL_SELECTION:
             
         print('sample sizes', sample_sizes)
         self.disc = pg_gan.get_discriminator(sample_sizes) # TODO why FC part?
-        self.disc.fc1 = tf.keras.layers.Dense(256, activation='relu')
-        self.disc.fc2 = tf.keras.layers.Dense(256, activation='relu')
-        self.disc.dense3 = tf.keras.layers.Dense(len(self.opts))
+        # SM: removing all this for now...
+        #self.disc.fc1 = tf.keras.layers.Dense(256, activation='relu')
+        #self.disc.fc2 = tf.keras.layers.Dense(256, activation='relu')
+        #self.disc.dense3 = tf.keras.layers.Dense(len(self.opts))
         #TEMP
-        self.disc.dropout.rate = 0
+        #self.disc.dropout.rate = 0
         return
     
     def build_iterator(self, data_h5, bed):
@@ -275,6 +278,8 @@ class MODEL_SELECTION:
     def test_step(self, x, y):
         val_logits = self.disc(x, training=False)
         loss_value = self.loss_fn(y, val_logits)
+        print("val y", y)
+        print("val logits", val_logits)
         self.val_acc_metric.update_state(y, val_logits)
         return loss_value
 
