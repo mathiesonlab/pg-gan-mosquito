@@ -204,7 +204,8 @@ class MODEL_SELECTION:
         #real data generator
         self.iterator = None
         print("after iterator")
-        self.loss_fn= tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+        #self.loss_fn= tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+        self.loss_fn= tf.keras.losses.BinaryCrossentropy(from_logits=True)
         print("after loss")
         self.optimizer=AdamW(learning_rate=1e-4)
         print("after optimizer")
