@@ -277,10 +277,13 @@ class MODEL_SELECTION:
     def test_step(self, x, y):
         val_logits = self.disc(x, training=False)
         loss_value = self.loss_fn(y, val_logits)
-        print(len(y), len(val_logits[0]))
+        print("testing", len(y), len(val_logits))
         for i in range(len(y)):
-            tf.print(y[i][0])
-            tf.print(val_logits[i][0])
+            if y[i][0] == 1 and val_logits[i][0] > 0:
+                print("correct! 1 pos")
+            elif y[i][0] == 0 and val_logits[i][0] < 0:
+                print("correct! 0 neg")
+            #tf.print(val_logits[i][0])
         #tf.print(y[0])
         #tf.print(val_logits[0])
         #print(y.numpy())
