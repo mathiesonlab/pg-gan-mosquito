@@ -302,12 +302,12 @@ class MODEL_SELECTION:
         return logits
 
 # SM: 10000 -> 500 due to OOM error on GPU, must be at least as large as dataset size
-def get_dataset_partitions_tf(ds, ds_size, train_split=0.8, val_split=0.2,  shuffle=True, shuffle_size=500):
+def get_dataset_partitions_tf(ds, ds_size, train_split=0.8, val_split=0.2,  shuffle=True, shuffle_size=1000):
     assert (train_split + val_split) == 1
     
     if shuffle:
         # Specify seed to always have the same split distribution between runs
-        print("seed", np.random.randint(1,10000))
+        #print("seed", np.random.randint(1,10000))
         ds = ds.shuffle(shuffle_size, seed=np.random.randint(1,10000))
     
     train_size = int(train_split * ds_size)
