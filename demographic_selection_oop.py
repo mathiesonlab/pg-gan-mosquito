@@ -202,14 +202,14 @@ class MODEL_SELECTION:
         #real data generator
         self.iterator = None
         print("after iterator")
-        #self.loss_fn= tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+        # SM: changing all 3 below from SparseCategorical to Binary
         self.loss_fn= tf.keras.losses.BinaryCrossentropy(from_logits=True)
         print("after loss")
         self.optimizer=AdamW(learning_rate=1e-4)
         print("after optimizer")
-        self.train_acc_metric = tf.keras.metrics.SparseCategoricalAccuracy()
+        self.train_acc_metric = tf.keras.metrics.BinaryAccuracy()
         print("after train metric")
-        self.val_acc_metric = tf.keras.metrics.SparseCategoricalAccuracy()
+        self.val_acc_metric = tf.keras.metrics.BinaryAccuracy()
         print("after val metric")
 
         print("ending MODEL_SELECTION constructor")
@@ -280,15 +280,15 @@ class MODEL_SELECTION:
         print("testing", len(y), len(val_logits))
         for i in range(len(y)):
             if y[i][0] == 1 and val_logits[i][0] > 0:
-                print("correct! 1 pos")
+                print("correct!", y[i][0], val_logits[i][0])
             elif y[i][0] == 0 and val_logits[i][0] < 0:
-                print("correct! 0 neg")
+                print("correct!", y[i][0], val_logits[i][0])
             #tf.print(val_logits[i][0])
-        #tf.print(y[0])
-        #tf.print(val_logits[0])
+        tf.print(y)
+        tf.print(tf.nn.sigmoid(val_logits))
         #print(y.numpy())
         #print(val_logits.numpy())
-        self.val_acc_metric.update_state(y, val_logits)
+        self.val_acc_metric.update_state(y, tf.nn.sigmoid(val_logits))
         return loss_value
 
 
