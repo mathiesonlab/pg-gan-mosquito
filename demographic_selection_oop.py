@@ -124,6 +124,7 @@ def demographic_model_selection(opts, posteriors, work_dir, data_h5 = None, load
             train_dataset, val_dataset = model_selection.prepare_dataset(y, x, mini_batch)
             # Iterate over the batches of the created batch.
             for step, (x_batch_train, y_batch_train) in enumerate(train_dataset):
+                print("train step", step)
                 loss_value = model_selection.train_step(x_batch_train, y_batch_train)
             # Log every 50 batches.
                 if step != 0 and step % 50 == 0:
@@ -287,7 +288,7 @@ class MODEL_SELECTION:
                 print("correct!", y[i][0], val_logits[i][0])
             #tf.print(val_logits[i][0])'''
         #print("num 1s")
-        #tf.print(tf.reduce_sum(y))
+        tf.print(tf.reduce_sum(y))
         #tf.print(tf.nn.sigmoid(val_logits))
         #print(y.numpy())
         #print(val_logits.numpy())
