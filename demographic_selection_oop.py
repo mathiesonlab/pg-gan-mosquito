@@ -271,6 +271,7 @@ class MODEL_SELECTION:
             loss_value = self.loss_fn(y, logits)
         grads = tape.gradient(loss_value, self.disc.trainable_weights)
         self.optimizer.apply_gradients(zip(grads, self.disc.trainable_weights))
+        tf.print(tf.reduce_sum(y))
         self.train_acc_metric.update_state(y, logits)
         return loss_value
 
@@ -278,15 +279,15 @@ class MODEL_SELECTION:
     def test_step(self, x, y):
         val_logits = self.disc(x, training=False)
         loss_value = self.loss_fn(y, val_logits)
-        print("testing", len(y), len(val_logits))
+        #print("testing", len(y), len(val_logits))
         '''for i in range(len(y)):
             if y[i][0] == 1 and val_logits[i][0] > 0:
                 print("correct!", y[i][0], val_logits[i][0])
             elif y[i][0] == 0 and val_logits[i][0] < 0:
                 print("correct!", y[i][0], val_logits[i][0])
             #tf.print(val_logits[i][0])'''
-        print("num 1s")
-        tf.print(tf.reduce_sum(y))
+        #print("num 1s")
+        #tf.print(tf.reduce_sum(y))
         #tf.print(tf.nn.sigmoid(val_logits))
         #print(y.numpy())
         #print(val_logits.numpy())
