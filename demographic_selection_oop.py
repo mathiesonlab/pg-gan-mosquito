@@ -279,8 +279,8 @@ class MODEL_SELECTION:
         loss_value = self.loss_fn(y, val_logits)
         #tf.print(y)
         #tf.print(val_logits)
-        print(y.squeeze().tolist())
-        print(val_logits.squeeze().tolist())
+        print(y.eval())
+        print(val_logits.eval())
         self.val_acc_metric.update_state(y, val_logits)
         return loss_value
 
