@@ -277,10 +277,10 @@ class MODEL_SELECTION:
     def test_step(self, x, y):
         val_logits = self.disc(x, training=False)
         loss_value = self.loss_fn(y, val_logits)
-        #tf.print(y)
-        #tf.print(val_logits)
-        print(y.numpy())
-        print(val_logits.numpy())
+        tf.print(y[0])
+        tf.print(val_logits[0])
+        #print(y.numpy())
+        #print(val_logits.numpy())
         self.val_acc_metric.update_state(y, val_logits)
         return loss_value
 
