@@ -286,7 +286,7 @@ class MODEL_SELECTION:
                 print("correct!", y[i][0], val_logits[i][0])
             #tf.print(val_logits[i][0])'''
         print("num 1s")
-        tf.print(np.sum(y))
+        tf.print(tf.reduce_sum(y))
         #tf.print(tf.nn.sigmoid(val_logits))
         #print(y.numpy())
         #print(val_logits.numpy())
