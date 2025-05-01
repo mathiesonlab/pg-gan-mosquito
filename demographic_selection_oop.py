@@ -300,8 +300,8 @@ class MODEL_SELECTION:
         logits = self.disc(haplotype_alignments, training=False)
         return logits
 
-
-def get_dataset_partitions_tf(ds, ds_size, train_split=0.8, val_split=0.2,  shuffle=True, shuffle_size=num_batch): # SM: 10000 -> 500 due to OOM error on GPU
+# SM: 10000 -> 500 due to OOM error on GPU, must be at least as large as dataset size
+def get_dataset_partitions_tf(ds, ds_size, train_split=0.8, val_split=0.2,  shuffle=True, shuffle_size=500):
     assert (train_split + val_split) == 1
     
     if shuffle:
