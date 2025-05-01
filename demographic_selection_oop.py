@@ -139,6 +139,7 @@ def demographic_model_selection(opts, posteriors, work_dir, data_h5 = None, load
             model_selection.train_acc_metric.reset_state()
 
             for step, (x_batch_val, y_batch_val) in enumerate(val_dataset):
+                print("val step", step)
                 loss_value = model_selection.test_step(x_batch_val, y_batch_val)
                 if step != 0 and step % 10 == 0:
                     print(
@@ -278,14 +279,15 @@ class MODEL_SELECTION:
         val_logits = self.disc(x, training=False)
         loss_value = self.loss_fn(y, val_logits)
         print("testing", len(y), len(val_logits))
-        for i in range(len(y)):
+        '''for i in range(len(y)):
             if y[i][0] == 1 and val_logits[i][0] > 0:
                 print("correct!", y[i][0], val_logits[i][0])
             elif y[i][0] == 0 and val_logits[i][0] < 0:
                 print("correct!", y[i][0], val_logits[i][0])
-            #tf.print(val_logits[i][0])
-        tf.print(y)
-        tf.print(tf.nn.sigmoid(val_logits))
+            #tf.print(val_logits[i][0])'''
+        print("num 1s")
+        tf.print(np.sum(y))
+        #tf.print(tf.nn.sigmoid(val_logits))
         #print(y.numpy())
         #print(val_logits.numpy())
         self.val_acc_metric.update_state(y, tf.nn.sigmoid(val_logits))
