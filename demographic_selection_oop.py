@@ -307,7 +307,8 @@ def get_dataset_partitions_tf(ds, ds_size, train_split=0.8, val_split=0.2,  shuf
     
     if shuffle:
         # Specify seed to always have the same split distribution between runs
-        ds = ds.shuffle(shuffle_size, seed=np.random.randint(0))
+        print(np.random.randint(1))
+        ds = ds.shuffle(shuffle_size, seed=np.random.randint(1))
     
     train_size = int(train_split * ds_size)
     val_size = int(val_split * ds_size)
