@@ -167,7 +167,8 @@ def demographic_model_selection(opts, posteriors, work_dir, data_h5 = None, load
     y_pred_logits = model_selection.predict(x)
     y_pred_sigmoid = tf.nn.sigmoid(y_pred_logits).numpy() # SM: sigmoid
     print("y_pred_sigmoid", y_pred_sigmoid)
-    y_pred_labels = np.argmax (y_pred_sigmoid, axis = 1) # TODO this is not right! not one-hot
+    #y_pred_labels = np.argmax (y_pred_sigmoid, axis = 1) # SM: this is not right! not one-hot
+    y_pred_labels = np.where(np.array([x[0] for x in y_pred_sigmoid]) >= 0.5, 1, 0) # 0.5 threshold
     eval_confusion_matrix = confusion_matrix(y, y_pred_labels, normalize='pred')
     print("confusion matrix")
     print(eval_confusion_matrix)
@@ -182,13 +183,14 @@ def demographic_model_selection(opts, posteriors, work_dir, data_h5 = None, load
         y_pred_logits = model_selection.predict(data_h5_haplotype_alignments)
         y_pred_sigmoid = tf.nn.sigmoid(y_pred_logits).numpy() # SM: sigmoid
         print("y_pred_sigmoid", y_pred_sigmoid)
-        y_pred_softmax_arg_max = np.argmax(y_pred_sigmoid, axis = 1)
+        #y_pred_softmax_arg_max = np.argmax(y_pred_sigmoid, axis = 1)
+        y_pred_labels = np.where(np.array([x[0] for x in y_pred_sigmoid]) >= 0.5, 1, 0) # 0.5 threshold
         print("percentage of images classified as class 0")
         print(int(np.count_nonzero(y_pred_softmax_arg_max == 0)) / num_real)
         print("percentage of images classified as class 1")
         print(int(np.count_nonzero(y_pred_softmax_arg_max == 1)) / num_real)
         #output real data's cnn probabilities for downstream ABC analysis
-        np.savetxt(os.path.join(work_dir, 'Emp_Predictions.txt'), y_pred_softmax)
+        np.savetxt(os.path.join(work_dir, 'Emp_Predictions.txt'), y_pred_sigmoid)
         
     return
 
