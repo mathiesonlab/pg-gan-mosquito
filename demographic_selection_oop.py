@@ -15,7 +15,7 @@ import pg_gan
 import global_vars
 import util
 
-NUM_ITERS = 200
+NUM_ITERS = 2 # change to 200
 
 #import os
 #os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
@@ -161,13 +161,14 @@ def demographic_model_selection(opts, posteriors, work_dir, data_h5 = None, load
             model_selection.disc.save(disc_path + "/mymodel.keras") # maybe add .keras here?
         
     #final evaluation and confusion metric
-    num_test = 500 # reduced from 5000 due to memory issues
+    num_test = 1000 # reduced from 5000 due to memory issues
     x = model_selection.simulate_haplotype_alignments(num_test)
     y = model_selection.generate_labels(num_test)
     y_pred_logits = model_selection.predict(x)
-    y_pred_softmax = tf.nn.softmax(y_pred_logits).numpy()
-    y_pred_labels = np.argmax (y_pred_softmax, axis = 1)
-    eval_confusion_matrix = confusion_matrix(y, y_pred_labels , normalize='pred')
+    y_pred_sigmoid = tf.nn.sigmoid(y_pred_logits).numpy() # SM: sigmoid
+    print("y_pred_sigmoid", y_pred_sigmoid)
+    y_pred_labels = np.argmax (y_pred_sigmoid, axis = 1) # TODO this is not right! not one-hot
+    eval_confusion_matrix = confusion_matrix(y, y_pred_labels, normalize='pred')
     print("confusion matrix")
     print(eval_confusion_matrix)
     #output posterior's cnn probabilities for downstream ABC analysis
@@ -179,8 +180,9 @@ def demographic_model_selection(opts, posteriors, work_dir, data_h5 = None, load
         # SM: changed neg1 to True to match sims
         data_h5_haplotype_alignments = model_selection.iterator.real_batch(neg1 = True, batch_size=num_real)
         y_pred_logits = model_selection.predict(data_h5_haplotype_alignments)
-        y_pred_softmax = tf.nn.softmax(y_pred_logits).numpy()
-        y_pred_softmax_arg_max = np.argmax(y_pred_softmax, axis = 1)
+        y_pred_sigmoid = tf.nn.sigmoid(y_pred_logits).numpy() # SM: sigmoid
+        print("y_pred_sigmoid", y_pred_sigmoid)
+        y_pred_softmax_arg_max = np.argmax(y_pred_sigmoid, axis = 1)
         print("percentage of images classified as class 0")
         print(int(np.count_nonzero(y_pred_softmax_arg_max == 0)) / num_real)
         print("percentage of images classified as class 1")
@@ -273,7 +275,7 @@ class MODEL_SELECTION:
         grads = tape.gradient(loss_value, self.disc.trainable_weights)
         self.optimizer.apply_gradients(zip(grads, self.disc.trainable_weights))
         #tf.print(tf.reduce_sum(y))
-        self.train_acc_metric.update_state(y, logits)
+        self.train_acc_metric.update_state(y, tf.nn.sigmoid(logits)) # SM: sigmoid
         return loss_value
 
     @tf.function
@@ -292,7 +294,7 @@ class MODEL_SELECTION:
         #tf.print(tf.nn.sigmoid(val_logits))
         #print(y.numpy())
         #print(val_logits.numpy())
-        self.val_acc_metric.update_state(y, tf.nn.sigmoid(val_logits))
+        self.val_acc_metric.update_state(y, tf.nn.sigmoid(val_logits)) # SM: sigmoid
         return loss_value
 
 
