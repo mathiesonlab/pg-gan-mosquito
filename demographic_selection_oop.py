@@ -233,12 +233,12 @@ class MODEL_SELECTION:
             
         print('sample sizes', sample_sizes)
         self.disc = pg_gan.get_discriminator(sample_sizes) # TODO why FC part?
-        # SM: removing all this for now...
-        #self.disc.fc1 = tf.keras.layers.Dense(256, activation='relu')
-        #self.disc.fc2 = tf.keras.layers.Dense(256, activation='relu')
+        # SM: removing all this for now... now putting back in to test
+        self.disc.fc1 = tf.keras.layers.Dense(256, activation='relu')
+        self.disc.fc2 = tf.keras.layers.Dense(256, activation='relu')
         #self.disc.dense3 = tf.keras.layers.Dense(len(self.opts))
         #TEMP
-        #self.disc.dropout.rate = 0
+        self.disc.dropout.rate = 0
         return
     
     def build_iterator(self, data_h5, bed):
