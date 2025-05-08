@@ -13,6 +13,8 @@ from matplotlib.pyplot import figure
 
 from decimal import Decimal
 
+FONTSIZE = 16
+
 def parse_args():
     """Parse command line arguments."""
     parser = optparse.OptionParser(description='plot PG-GAN result')
@@ -234,22 +236,24 @@ def main():
     #subplot = int(str(4) + '11')
     plt.subplot(subplot)
     plt.xticks([])
-    plt.ylabel("loss",fontsize=14)
+    plt.xlabel("training iteration",fontsize=FONTSIZE)
+    plt.ylabel("loss",fontsize=FONTSIZE)
 
     # multiply gen loss by 2 since half as many examples
     plt.plot(range(num_iter), [x*2 for x in gen_loss_lst], 'g')
     plt.plot(range(num_iter), disc_loss_lst, 'm')
     ax = plt.gca()
     ax.set_facecolor('whitesmoke')
-    plt.legend(["generator loss", "discriminator loss"], loc=10)
+    plt.legend(["generator loss", "discriminator loss"], loc=10, fontsize=FONTSIZE)
 
     # plot accuracies
     subplot = int(str(num_param+2) + '12')
     #subplot = int(str(4) + '12')
     plt.subplot(subplot)
-    plt.ylabel("accuracy",fontsize=14)
-    plt.xticks([])
+    plt.ylabel("accuracy",fontsize=FONTSIZE)
+    #plt.xticks([])
     #plt.xlabel("training iteration")
+    plt.xlabel("training iteration",fontsize=FONTSIZE)
 
     plt.plot(range(num_iter), fake_acc_lst)
     plt.plot(range(num_iter), real_acc_lst)
@@ -258,7 +262,7 @@ def main():
     ax.set_facecolor('whitesmoke')
     #plt.plot([stop, stop], [0, 1], 'k--', lw=0.5)
     #plt.legend(["generated accuracy", "training accuracy"], loc=10)
-    plt.legend(["fake accuracy", "real accuracy"], loc=10)
+    plt.legend(["fake accuracy", "real accuracy"], loc=10, , fontsize=FONTSIZE)
 
     #final = (fake_acc_lst[-1] + real_acc_lst[-1])/2
     #print("final avg acc", final, fake_acc_lst[-1], real_acc_lst[-1])
