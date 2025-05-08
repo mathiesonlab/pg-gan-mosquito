@@ -244,7 +244,7 @@ def main():
     plt.plot(range(num_iter), disc_loss_lst, 'm')
     ax = plt.gca()
     ax.set_facecolor('whitesmoke')
-    plt.ylim(0,8.5)
+    plt.ylim(0,9)
     plt.legend(["generator loss", "discriminator loss"], loc='best', fontsize=FONTSIZE)
 
     # plot accuracies
@@ -263,7 +263,7 @@ def main():
     ax.set_facecolor('whitesmoke')
     #plt.plot([stop, stop], [0, 1], 'k--', lw=0.5)
     #plt.legend(["generated accuracy", "training accuracy"], loc=10)
-    plt.ylim(0,1.1)
+    plt.ylim(0,1.03)
     plt.legend(["fake accuracy", "real accuracy"], loc='best', fontsize=FONTSIZE)
 
     #final = (fake_acc_lst[-1] + real_acc_lst[-1])/2
