@@ -262,7 +262,7 @@ def main():
     ax.set_facecolor('whitesmoke')
     #plt.plot([stop, stop], [0, 1], 'k--', lw=0.5)
     #plt.legend(["generated accuracy", "training accuracy"], loc=10)
-    plt.legend(["fake accuracy", "real accuracy"], loc=10, , fontsize=FONTSIZE)
+    plt.legend(["fake accuracy", "real accuracy"], loc=10, fontsize=FONTSIZE)
 
     #final = (fake_acc_lst[-1] + real_acc_lst[-1])/2
     #print("final avg acc", final, fake_acc_lst[-1], real_acc_lst[-1])
