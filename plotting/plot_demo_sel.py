@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 import optparse
 import sys
 
+FONTSIZE = 16
+
 # TODO update library
 def parse_args():
     """Parse command line arguments."""
@@ -30,7 +32,7 @@ def parse_args():
 
     return opts
 
-def parse_output(filename):
+def parse_output(filename, fig_filename=None):
     f = open(filename,'r')
 
     train_acc_lst = []
@@ -53,14 +55,17 @@ def parse_output(filename):
     plt.plot(range(num_iter), train_acc_lst)
     plt.plot(range(num_iter), val_acc_lst)
     plt.plot(range(num_iter), [0.5]*num_iter, 'k--', lw=0.5)
-    plt.legend(["train accuracy", "val accuracy"])
-    plt.xlabel("training iteration")
-    plt.ylabel("accuracy")
-    plt.title("model selection training: dadi_joint vs. dadi_joint_mig")
-    plt.show()
+    plt.legend(["train accuracy", "validation accuracy"], fontsize=FONTSIZE)
+    plt.xlabel("training iteration", fontsize=FONTSIZE)
+    plt.ylabel("accuracy", fontsize=FONTSIZE)
+    #plt.title("model selection training: dadi_joint vs. dadi_joint_mig")
+    if fig_filename != None:
+        plt.savefig(fig_filename)
+    else:
+        plt.show()
 
 def main():
     opts = parse_args()
-    parse_output(opts.input)
+    parse_output(opts.input, opts.output)
 
 main()
