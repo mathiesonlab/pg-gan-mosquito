@@ -5,15 +5,8 @@ Date: 06/09/2023
 """
 
 # python imports
-import collections
 import math
 import msprime
-import numpy as np
-
-# from stdpopsim
-import sps.engines
-import sps.species
-import sps.HomSap
 
 # our imports
 import global_vars
@@ -438,40 +431,6 @@ def dadi_3pop(params, sample_sizes, seed, reco): # TODO use seed!
     mts = msprime.sim_mutations(ts, rate=params.mut.value, model="binary")
 
     return mts
-
-def ooa3(params, sample_sizes, seed, reco):
-    """From OOA3 as implemented in stdpopsim"""
-    assert len(sample_sizes) == 3
-
-    sp = sps.species.get_species("HomSap")
-
-    mult = global_vars.L/141213431 # chr9
-    contig = sp.get_contig("chr9",length_multiplier=mult) # TODO vary the chrom
-
-    # 14 params
-    N_A = params.N_A.value
-    N_B = params.N_B.value
-    N_AF = params.N_AF.value
-    N_EU0 = params.N_EU0.value
-    N_AS0 = params.N_AS0.value
-    r_EU = params.r_EU.value
-    r_AS = params.r_AS.value
-    T_AF = params.T_AF.value
-    T_B = params.T_B.value
-    T_EU_AS = params.T_EU_AS.value
-    m_AF_B = params.m_AF_B .value
-    m_AF_EU = params.m_AF_EU.value
-    m_AF_AS = params.m_AF_AS.value
-    m_EU_AS = params.m_EU_AS.value
-
-    model = sps.HomSap.ooa_3(N_A, N_B, N_AF, N_EU0, N_AS0, r_EU, r_AS, T_AF,
-        T_B, T_EU_AS, m_AF_B, m_AF_EU, m_AF_AS, m_EU_AS)
-    samples = model.get_samples(sample_sizes[0], sample_sizes[1],
-        sample_sizes[2]) #['YRI', 'CEU', 'CHB']
-    engine = sps.engines.get_engine('msprime')
-    ts = engine.simulate(model, contig, samples, seed=seed)
-
-    return ts
 
 
 

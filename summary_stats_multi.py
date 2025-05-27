@@ -138,23 +138,6 @@ def main():
     sim_baseline_matrices_region = generator.simulate_batch(batch_size=NUM_TRIAL,
         neg1=False, region_len=True)
     print("finish sim baseline region_len")
-    
-    
-
-    '''# go through each region
-    for i in range(len(sim_matrices)):
-
-        # fixed SNPs
-        matrix = sim_matrices[i]
-        raw = matrix[:,:,0].transpose()
-
-        # check neg1
-        unique, counts = np.unique(raw, return_counts=True)
-        if len(unique) > 2:
-            print("hap_data", dict(zip(unique, counts)))
-            input('enter')
-
-    input('pause')'''
 
     num_pop = len(sample_sizes)
 

@@ -1,11 +1,6 @@
-#!/bin/bash
-#$ -pe smp 1
-#$ -l h_vmem=30G
-#$ -l h_rt=240:0:0
-#$ -cwd
-#$ -j y
 
-INPUT=/bigdata/smathieson/pg-gan/mosquito/GN-BF_gam_biallelic_2017_filter.h5
+
+INPUT=$1/GN-BF_gam_biallelic_2017_filter.h5
 OUTPUT_PREFIX=./sim_out/GN-BF_gam_biallelic_2017/model_compare # dadi_joint/reduce_mean_filter_param3
 OUTPUT=${OUTPUT_PREFIX}/model_comparison.out
 #CPROF=${OUTPUT_PREFIX}/cprof.txt

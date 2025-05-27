@@ -1,7 +1,7 @@
 """
 Adaptation of PG-GAN for GAN training on mosquito haplotypic data.
 Author: Sara Mathieson, Zhanpeng Wang, Jiaping Wang, Rebecca Riley, Jacky Siu Pui Chung
-Date 06/09/23
+Date 5/27/25
 """
 
 # python imports

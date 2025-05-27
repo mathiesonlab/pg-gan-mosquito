@@ -1,3 +1,9 @@
+"""
+Model selection step through training a discriminator architecture.
+Author: Jacky Siu Pui Chung, Sara Mathieson
+Date: 5/27/25
+"""
+
 # python imports
 import datetime
 import time
@@ -172,7 +178,6 @@ def demographic_model_selection(opts, posteriors, work_dir, data_h5 = None, load
     eval_confusion_matrix = confusion_matrix(y, y_pred_labels, normalize='pred')
     print("confusion matrix")
     print(eval_confusion_matrix)
-    #output posterior's cnn probabilities for downstream ABC analysis
     # np.savetxt(os.path.join(work_dir, 'testSet_Predictions.txt'), y_pred_softmax)
     # np.savetxt(os.path.join(work_dir, 'testSet_labels.txt') , y_pred_labels)
     
@@ -182,15 +187,11 @@ def demographic_model_selection(opts, posteriors, work_dir, data_h5 = None, load
         data_h5_haplotype_alignments = model_selection.iterator.real_batch(neg1 = True, batch_size=num_real)
         y_pred_logits = model_selection.predict(data_h5_haplotype_alignments)
         y_pred_sigmoid = tf.nn.sigmoid(y_pred_logits).numpy() # SM: sigmoid
-        #print("y_pred_sigmoid", y_pred_sigmoid)
-        #y_pred_softmax_arg_max = np.argmax(y_pred_sigmoid, axis = 1)
         y_pred_labels = np.where(np.array([x[0] for x in y_pred_sigmoid]) >= 0.5, 1, 0) # 0.5 threshold
-        #print("y_pred_labels", y_pred_labels)
         print("percentage of images classified as class 0")
         print(int(np.count_nonzero(y_pred_labels == 0)) / num_real)
         print("percentage of images classified as class 1")
         print(int(np.count_nonzero(y_pred_labels == 1)) / num_real)
-        #output real data's cnn probabilities for downstream ABC analysis
         np.savetxt(os.path.join(work_dir, 'Emp_Predictions.txt'), y_pred_sigmoid)
         
     return
@@ -228,8 +229,6 @@ class MODEL_SELECTION:
             generator, iterator, parameters, sample_sizes = util.process_opts(opt)
             generator.update_params(posteriors)
             self.generators.append(generator)
-            #print(generator)
-            #input('enter')
             
         print('sample sizes', sample_sizes)
         self.disc = pg_gan.get_discriminator(sample_sizes) # TODO why FC part?
@@ -251,8 +250,6 @@ class MODEL_SELECTION:
             params=posterior, batch_size = num_batch) for \
                 generator, posterior in zip(self.generators, self.posteriors)]
         
-        #print(haplotype_alignments)
-        #input('enter')
         haplotype_alignments = np.concatenate(haplotype_alignments, axis=0)
         return haplotype_alignments
     

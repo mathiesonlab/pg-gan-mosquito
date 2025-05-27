@@ -1,7 +1,7 @@
 """
 Plot model selection training process.
 Author: Sara Mathieson
-Date: 4/25/25
+Date: 5/27/25
 """
 
 # python imports
@@ -58,7 +58,6 @@ def parse_output(filename, fig_filename=None):
     plt.legend(["train accuracy", "validation accuracy"], fontsize=FONTSIZE)
     plt.xlabel("training iteration", fontsize=FONTSIZE)
     plt.ylabel("accuracy", fontsize=FONTSIZE)
-    #plt.title("model selection training: dadi_joint vs. dadi_joint_mig")
     if fig_filename != None:
         plt.savefig(fig_filename)
     else:

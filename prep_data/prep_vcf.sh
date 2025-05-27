@@ -1,9 +1,6 @@
 #!/bin/bash
 
-# example VCF:
-# /bigdata/smathieson/pg-gan/mosquito/ag3_gamb_colu_3R_phased.vcf.gz
-
-PREFIX=/bigdata/smathieson/pg-gan/mosquito/ag3_gamb_colu
+PREFIX=$1
 SUFFIX=phased.vcf.gz
 
 #POP=BFA-GNB-UG_gamb

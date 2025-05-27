@@ -1,13 +1,11 @@
 """
 Template code to draw demographic history plots
 Author: Sara Mathieson, Jacky Siu Pui Chung
-Date: 09/08/23
+Date: 5/27/25
 """
 
 import demes
 import demesdraw
-import simulation
-import param_set
 import math
 import msprime
 import matplotlib.pyplot as plt

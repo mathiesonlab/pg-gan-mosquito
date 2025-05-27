@@ -1,7 +1,7 @@
 """
 Utility functions and classes (including default parameters).
-Author: Sara Mathieson, Rebecca Riley
-Date: 9/27/22
+Author: Sara Mathieson, Rebecca Riley, Jacky Siu Pui Chung
+Date: 5/27/25
 """
 
 # python imports

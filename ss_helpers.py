@@ -562,7 +562,6 @@ def stats_all(matrices, matrices_region, L = global_vars.L):
         for s in range(len(stats)):
             pop_stats[s].append(stats[s])
 
-        #input('enter')
     return [pop_sfs, pop_dist, pop_ld] + pop_stats
 
 def fst_all(matrices, sample_sizes):

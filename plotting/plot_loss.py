@@ -1,7 +1,7 @@
 """
 Plot GAN training progress.
 Author: Sara Mathieson
-Date: 6/24/20
+Date: 5/27/25
 """
 
 # python imports
@@ -120,25 +120,6 @@ def parse_output(filename):
             disc_loss = float(tokens[3][:-1])
             real_acc = float(tokens[6][:-1])/100
             fake_acc = float(tokens[9])/100
-
-        '''if line.startswith("{"):
-            tokens = line.split()
-            param_str = tokens[5][1:-2]
-
-        if "params, test_acc" in line:
-            tokens = line.split()
-
-            # set up total param lists
-            num_param = len(tokens)-3
-            for i in range(num_param):
-                param_lst_all.append([])
-
-            # parse current params and add to each list
-            mini_lst = parse_mini_lst(tokens[2:2+num_param])
-            add_to_lst(param_lst_all, mini_lst)
-
-            # record test accuracy
-            test_acc_lst.append(float(tokens[-1]))'''
 
         #if "i, T" in line: # TODO toggle
         if "T, p_accept" in line:
@@ -264,7 +245,7 @@ def main():
     #plt.plot([stop, stop], [0, 1], 'k--', lw=0.5)
     #plt.legend(["generated accuracy", "training accuracy"], loc=10)
     plt.ylim(0,1.03)
-    plt.legend(["fake accuracy", "real accuracy"], loc='best', fontsize=FONTSIZE)
+    plt.legend(["simulated data accuracy", "real data accuracy"], loc='best', fontsize=FONTSIZE)
 
     #final = (fake_acc_lst[-1] + real_acc_lst[-1])/2
     #print("final avg acc", final, fake_acc_lst[-1], real_acc_lst[-1])
