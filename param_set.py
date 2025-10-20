@@ -96,7 +96,8 @@ class ParamSet:
             #self.reco = Parameter(1.25e-8, 1e-9, 1e-7, "reco")
             #self.mut = Parameter(1.25e-8, 1e-9, 1e-7, "mut")
 
-            self.reco = Parameter(8.4e-09, 1e-9, 1e-8, "reco") # stdpopsim
+            # stdpopsim
+            self.reco = Parameter(1.45e-8, 1e-9, 1e-8, "reco") 
             # 3.5e-9 based on 2017 paper (from drosophila)
             self.mut = Parameter(3.5e-9, 1e-9, 1e-8, "mut")
 
