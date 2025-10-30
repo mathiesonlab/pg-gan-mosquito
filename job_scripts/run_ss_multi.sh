@@ -7,10 +7,10 @@ PREFIX=$3 # i.e. CI_MZ_dadi_joint
 for SEED in 0 1
 do
     # summary stats
-    #echo "python3 $2/summary_stats_multi.py output${SEED}.txt output${SEED}.pdf ${DEMO}"
-    #python3 $2/summary_stats_multi.py output${SEED}.txt output${SEED}.pdf ${DEMO}
+    echo "python3 $2/summary_stats_multi.py ${PREFIX}${SEED}.txt ${PREFIX}${SEED}.pdf ${DEMO}"
+    python3 $2/summary_stats_multi.py ${PREFIX}${SEED}.txt ${PREFIX}${SEED}.pdf ${DEMO}
 
     # loss plot
-    echo "python3 $2/plotting/plot_loss.py -i ${PREFIX}${SEED}.txt -o ${PREFIX}${SEED}_loss.pdf"
-    python3 $2/plotting/plot_loss.py -i ${PREFIX}${SEED}.txt -o ${PREFIX}${SEED}_loss.pdf
+    #echo "python3 $2/plotting/plot_loss.py -i ${PREFIX}${SEED}.txt -o ${PREFIX}${SEED}_loss.pdf"
+    #python3 $2/plotting/plot_loss.py -i ${PREFIX}${SEED}.txt -o ${PREFIX}${SEED}_loss.pdf
 done
