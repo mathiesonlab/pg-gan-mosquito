@@ -27,6 +27,7 @@ COLOR_DICT = {"YRI": "darkorange","CEU": "blue","CHB": "green", "MXL": "red",
 # mosquito colors from 2017 paper
 BF = "tab:blue" #tuple([x/255 for x in [130, 170, 204]]) # removed A from name
 GN = "tab:blue" #tuple([x/255 for x in [194, 210, 231]]) # removed B from name
+CI = MZ = "tab:blue"
 UG  = tuple([x/255 for x in [181, 211, 170]])
 CM = tuple([x/255 for x in [241, 241, 241]])
 GA = tuple([x/255 for x in [163, 163, 163]])
@@ -56,6 +57,10 @@ def update_ss_labels(pop_names, num_pops=1):
     elif ("CM" in pop_names) and ("UG" in pop_names):
         SS_LABELS.extend(["CM", "UG"])
         SS_COLORS.extend([CM, UG])
+
+    elif ("CI" in pop_names) and ("MZ" in pop_names):
+        SS_LABELS.extend(["CI", "MZ"])
+        SS_COLORS.extend([CI, MZ])
 
     # 1 pop mosquito
     elif "gamb" in pop_names:

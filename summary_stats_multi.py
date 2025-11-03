@@ -34,7 +34,7 @@ FST_COLOR = "tab:blue"
 # for ooa2 (YRI/CEU) (no longer supported)
 #FSC_PARAMS = [21017, 0.0341901, 3105.5, 21954, 33077.5, 2844, 1042]
 
-DADI = True
+DADI = False
 
 # for dadi (mosquito, BFS population)
 #DADI_NAMES = ["Na", "N1", "N2", "T1", "T2"]
