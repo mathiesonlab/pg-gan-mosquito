@@ -127,17 +127,18 @@ def main():
     
     #TODO: code to be replaced to load different demographic parameters baseline from the input outfile, 
     # and create new generator to compare different demographic model
-    if demo == "dadi_joint":  
-        generator.update_params(DADI_PARAMS)
-    elif demo == "dadi_joint_mig":
-        generator.update_params(DADI_MIG_PARAMS)
-    else:
-        print("unknown demographic model baseline")
-    sim_baseline_matrices = generator.simulate_batch(batch_size=NUM_TRIAL, neg1=False)
-    print("finish sim baseline")
-    sim_baseline_matrices_region = generator.simulate_batch(batch_size=NUM_TRIAL,
-        neg1=False, region_len=True)
-    print("finish sim baseline region_len")
+    if DADI:
+        if demo == "dadi_joint":  
+            generator.update_params(DADI_PARAMS)
+        elif demo == "dadi_joint_mig":
+            generator.update_params(DADI_MIG_PARAMS)
+        else:
+            print("unknown demographic model baseline")
+        sim_baseline_matrices = generator.simulate_batch(batch_size=NUM_TRIAL, neg1=False)
+        print("finish sim baseline")
+        sim_baseline_matrices_region = generator.simulate_batch(batch_size=NUM_TRIAL,
+            neg1=False, region_len=True)
+        print("finish sim baseline region_len")
 
     num_pop = len(sample_sizes)
 
@@ -166,13 +167,15 @@ def main():
     
     real_all, real_region_all = split_matrices(real_matrices, real_matrices_region, sample_sizes)
     sim_all, sim_region_all = split_matrices(sim_matrices, sim_matrices_region, sample_sizes)
-    sim_baseline_all, sim_baseline_region_all = split_matrices(sim_baseline_matrices, sim_baseline_matrices_region, sample_sizes)
+    if DADI:
+        sim_baseline_all, sim_baseline_region_all = split_matrices(sim_baseline_matrices, sim_baseline_matrices_region, sample_sizes)
 
 
     # stats for all populations
     real_stats_lst = []
     sim_stats_lst = []
-    sim_baseline_stats_lst = []
+    if DADI:
+        sim_baseline_stats_lst = []
     for p in range(num_pop):
         print("real stats for pop", p)
         #temp solution for fixing difference in coalescent tree length
@@ -183,19 +186,21 @@ def main():
         real_stats_pop = ss_helpers.stats_all(real_all[p], real_region_all[p])
         print("sim stats for pop", p)
         sim_stats_pop = ss_helpers.stats_all(sim_all[p], sim_region_all[p])
-        print("sim baseline stats for pop", p)
-        sim_baseline_stats_pop = ss_helpers.stats_all(sim_baseline_all[p], sim_baseline_region_all[p])
-
         real_stats_lst.append(real_stats_pop)
         sim_stats_lst.append(sim_stats_pop)
-        sim_baseline_stats_lst.append(sim_baseline_stats_pop)
+
+        if DADI:
+            print("sim baseline stats for pop", p)
+            sim_baseline_stats_pop = ss_helpers.stats_all(sim_baseline_all[p], sim_baseline_region_all[p])
+            sim_baseline_stats_lst.append(sim_baseline_stats_pop)
 
     print("got through main stats")
 
     # Fst over all pairs
     real_fst_lst = []
     sim_fst_lst = []
-    sim_baseline_fst_lst = []
+    if DADI:
+        sim_baseline_fst_lst = []
     for pi in range(len(first_pop)):
         a = first_pop[pi]
         b = second_pop[pi]
@@ -203,16 +208,19 @@ def main():
             axis=1)
         sim_ab = np.concatenate((np.array(sim_all[a]), np.array(sim_all[b])),
             axis=1)
-        sim_baseline_ab = np.concatenate((np.array(sim_baseline_all[a]), np.array(sim_baseline_all[b])),
-            axis=1)
+        if DADI:
+            sim_baseline_ab = np.concatenate((np.array(sim_baseline_all[a]), np.array(sim_baseline_all[b])),
+                axis=1)
 
         # compute Fst
         real_fst = ss_helpers.fst_all(real_ab, sample_sizes)
         sim_fst = ss_helpers.fst_all(sim_ab, sample_sizes)
-        sim_baseline_fst = ss_helpers.fst_all(sim_baseline_ab, sample_sizes)
+        if DADI:
+            sim_baseline_fst = ss_helpers.fst_all(sim_baseline_ab, sample_sizes)
         real_fst_lst.append(real_fst)
         sim_fst_lst.append(sim_fst)
-        sim_baseline_fst_lst.append(sim_baseline_fst)
+        if DADI:
+            sim_baseline_fst_lst.append(sim_baseline_fst)
 
     print("got through fst")
     
