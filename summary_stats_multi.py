@@ -276,7 +276,9 @@ def plot_stats_all(nrows, ncols, size, real_stats_lst, sim_stats_lst, sim_baseli
         real_label = labels[p]
         real_pop = real_stats_lst[p]
         sim_pop = sim_stats_lst[p]
-        sim_baseline_pop = sim_baseline_stats_lst[p]
+        sim_baseline_pop = None
+        if DADI:
+            sim_baseline_pop = sim_baseline_stats_lst[p]
         plot_population(axes, rows[p], cols[p], real_color, real_label,
             real_pop, sim_color, sim_label, sim_pop, 
             sim_baseline_color, sim_baseline_label, sim_baseline_pop, single=single)
