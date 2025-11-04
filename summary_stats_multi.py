@@ -174,8 +174,7 @@ def main():
     # stats for all populations
     real_stats_lst = []
     sim_stats_lst = []
-    if DADI:
-        sim_baseline_stats_lst = []
+    sim_baseline_stats_lst = []
     for p in range(num_pop):
         print("real stats for pop", p)
         #temp solution for fixing difference in coalescent tree length
@@ -199,8 +198,7 @@ def main():
     # Fst over all pairs
     real_fst_lst = []
     sim_fst_lst = []
-    if DADI:
-        sim_baseline_fst_lst = []
+    sim_baseline_fst_lst = []
     for pi in range(len(first_pop)):
         a = first_pop[pi]
         b = second_pop[pi]
@@ -292,9 +290,13 @@ def plot_stats_all(nrows, ncols, size, real_stats_lst, sim_stats_lst, sim_baseli
     for pi in range(len(real_fst_lst)): # pi -> pair index
         pair_label = "real data" #labels[first_pop[pi]] + "/" + labels[second_pop[pi]]
         #load custom code that intake three sets of summary statistics for plotting
-        ss_helpers.plot_generic_with_baseline(axes[3+pi][cidx], NAMES[6], real_fst_lst[pi],
-            sim_fst_lst[pi], sim_baseline_fst_lst[pi], FST_COLOR, sim_color, sim_baseline_color, pop=pair_label,
-            sim_label=sim_label, baseline_label=sim_baseline_label)
+        if DADI:
+            ss_helpers.plot_generic_with_baseline(axes[3+pi][cidx], NAMES[6], real_fst_lst[pi],
+                sim_fst_lst[pi], sim_baseline_fst_lst[pi], FST_COLOR, sim_color, sim_baseline_color, pop=pair_label,
+                sim_label=sim_label, baseline_label=sim_baseline_label)
+        else:
+            ss_helpers.plot_generic(axes[3+pi][cidx], NAMES[6], real_fst_lst[pi],
+                sim_fst_lst[pi], FST_COLOR, sim_color, pop=pair_label, sim_label=sim_label)
 
     # overall legend
     if num_pop >= 2:
@@ -329,14 +331,21 @@ def plot_population(axes, i, j, real_color, real_label, real_tuple, sim_color,
     for r in range(3):
         for c in range(2):
             idx = 2*r+c
-            ss_helpers.plot_generic_with_baseline(axes[i+r][j+c], NAMES[idx], real_tuple[idx],
-                sim_tuple[idx], sim_baseline_tuple[idx], real_color, sim_color, sim_baseline_color, pop=real_label,
-                sim_label=sim_label, baseline_label=sim_baseline_label,single=single)
+            if DADI:
+                ss_helpers.plot_generic_with_baseline(axes[i+r][j+c], NAMES[idx], real_tuple[idx],
+                    sim_tuple[idx], sim_baseline_tuple[idx], real_color, sim_color, sim_baseline_color, pop=real_label,
+                    sim_label=sim_label, baseline_label=sim_baseline_label,single=single)
+            else:
+                ss_helpers.plot_generic(axes[i+r][j+c], NAMES[idx], real_tuple[idx],
+                    sim_tuple[idx], real_color, sim_color, pop=real_label,
+                    sim_label=sim_label,single=single)
 
+            '''
             if NAMES[idx] == "inter-SNP distances":
                 np.save("real" + str(idx) + ".npy", real_tuple[idx])
                 np.save("sim" + str(idx) + ".npy", sim_tuple[idx])
                 np.save("dadi" + str(idx) + ".npy", sim_baseline_tuple[idx])
+            '''
 
 # only called once per summary_stats call
 def get_title_from_trial_data(opts, param_values, sample_sizes):
