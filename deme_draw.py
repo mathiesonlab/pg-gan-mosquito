@@ -34,11 +34,12 @@ def main():
     args = parser.parse_args()
 
     try:
-        gen_per_year = 11
+        #gen_per_year = 11
 
         # Adjust time parameters based on generations per year
-        TG = args.TG * gen_per_year
-        TS = args.TS * gen_per_year
+        # SM: keep in generations for consistency (should divide if want years)
+        TG = args.TG #* gen_per_year
+        TS = args.TS #* gen_per_year
 
         # Compute growth rates from the start/end sizes and times
         g1 = -(1/TS) * math.log(args.NI1/args.NF1)
