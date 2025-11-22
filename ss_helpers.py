@@ -7,7 +7,7 @@ Date: 1/27/23
 
 # python imports
 import allel
-import libsequence
+import pylibseq as libsequence
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
