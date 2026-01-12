@@ -44,10 +44,13 @@ DADI = False
 
 # baseline parameters for GNB-BFA_gamb_nsg or GN-BF_gam_biallelic_2017
 print("GN-BF")
-# see 2017 paper, supplementary table 2, line 142
-DADI_PARAMS = [420646, 89506, 9440437, 2245, 18328570, 42062652, 42064645, 42064198]
-# see 2017 paper, supplementary table 2, line 152
-DADI_MIG_PARAMS = [415254, 93341, 8292759, 11637, 2635696, 2748423, 11101754, 11439976, 19.9999886]
+# see 2017 paper, supplementary table 2, line 142 (TODO switch to median later)
+#DADI_PARAMS = [420646, 89506, 9440437, 2245, 18328570, 42062652, 42064645, 42064198]
+# see 2017 paper, supplementary table 2, line 152 (TODO switch to median later)
+#DADI_MIG_PARAMS = [415254, 93341, 8292759, 11637, 2635696, 2748423, 11101754, 11439976, 19.9999886]
+
+DADI_MIG = [579516, 75249, 2784452, 3519, 117287221, 62771288, 59092640, 189066655]
+DADI_MIG_PARAMS = [560796, 57254, 7772061, 2265, 16137900, 20976274, 134237900, 218082996, 27]	
 
 # baseline parameters for CM-UG_gam_nsg
 #print("CM-UG")
