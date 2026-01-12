@@ -209,11 +209,11 @@ def main():
     num_param = len(true_lst)
 
     plt.figure(num=None, figsize=(14, 10)) #figsize=(14, 4))
-    num_param = 0 #len(param_lst_all) # or 0 for just loss/acc
+    num_param = len(param_lst_all) # or 0 for just loss/acc
 
 
     # plot losses
-    subplot = int(str(num_param+2) + '11')
+    subplot = int(str(num_param) + '11')
     #subplot = int(str(4) + '11')
     plt.subplot(subplot)
     plt.xticks([])
@@ -229,7 +229,7 @@ def main():
     plt.legend(["generator loss", "discriminator loss"], loc='best', fontsize=FONTSIZE)
 
     # plot accuracies
-    subplot = int(str(num_param+2) + '12')
+    subplot = int(str(num_param) + '12')
     #subplot = int(str(4) + '12')
     plt.subplot(subplot)
     plt.ylabel("accuracy",fontsize=FONTSIZE)
@@ -251,8 +251,8 @@ def main():
     #print("final avg acc", final, fake_acc_lst[-1], real_acc_lst[-1])
 
 
-    for i in range(num_param):
-        subplot = int(str(num_param+2) + '1' + str(i+3))
+    for i in range(num_param-2):
+        subplot = int(str(num_param) + '1' + str(i+3))
         plt.subplot(subplot)
         name = name_lst[i]
         plt.ylabel(name,fontsize=14)
