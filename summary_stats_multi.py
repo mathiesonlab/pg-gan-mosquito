@@ -306,9 +306,10 @@ def plot_stats_all(nrows, ncols, size, real_stats_lst, sim_stats_lst, sim_baseli
     # overall legend
     if num_pop >= 2:
         for p in range(num_pop):
-            p_real = mpatches.Patch(color=colors[p], label=labels[p] + ' real data')
-            p_sim = mpatches.Patch(color=sim_color, label=labels[p] + ' pg-gan')
-            p_sim_baseline = mpatches.Patch(color=sim_baseline_color, label=labels[p] + ' baseline') #label=sim_baseline_label + ' baseline')
+            simreal_label = "real"
+            p_real = mpatches.Patch(color='gray', label=simreal_label + ' real data')
+            p_sim = mpatches.Patch(color=sim_color, label=simreal_label + ' pg-gan')
+            p_sim_baseline = mpatches.Patch(color=sim_baseline_color, label=simreal_label + ' baseline') #label=sim_baseline_label + ' baseline')
             if num_pop == 2:
                 axes[3][0+3*p].axis('off')
                 axes[3][0+3*p].legend(handles=[p_real, p_sim, p_sim_baseline], loc=10,
