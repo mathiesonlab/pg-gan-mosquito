@@ -276,7 +276,7 @@ def plot_stats_all(nrows, ncols, size, real_stats_lst, sim_stats_lst, sim_baseli
     single = True if num_pop == 1 else False
     for p in range(num_pop): # one/two pop won't use last indices
         real_color = 'gray' #colors[p]
-        real_label = labels[p]
+        real_label = 'real' #labels[p]
         real_pop = real_stats_lst[p]
         sim_pop = sim_stats_lst[p]
         sim_baseline_pop = None
