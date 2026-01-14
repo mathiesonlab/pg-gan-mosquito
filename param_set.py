@@ -223,9 +223,9 @@ class ParamSet:
 
         # im
         elif simulator == simulation.im:
-            self.N1 = Parameter(9000, 1000, 30000, "N1")
-            self.N2 = Parameter(5000, 1000, 30000, "N2")
-            self.N_anc = Parameter(15000, 1000, 25000, "N_anc")
+            self.N1 = Parameter(90000, 10000, 300000, "N1")
+            self.N2 = Parameter(50000, 10000, 300000, "N2")
+            self.N_anc = Parameter(150000, 10000, 250000, "N_anc")
             self.T_split = Parameter(2000, 500, 20000, "T_split")
             self.mig = Parameter(0.05, -0.2, 0.2, "mig")
             #self.reco = Parameter(1.25e-8, 1e-9, 1e-7, "reco")
