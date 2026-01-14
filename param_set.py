@@ -226,8 +226,13 @@ class ParamSet:
             self.N_anc = Parameter(15000, 1000, 25000, "N_anc")
             self.T_split = Parameter(2000, 500, 20000, "T_split")
             self.mig = Parameter(0.05, -0.2, 0.2, "mig")
-            self.reco = Parameter(1.25e-8, 1e-9, 1e-7, "reco")
-            self.mut = Parameter(1.25e-8, 1e-9, 1e-7, "mut")
+            #self.reco = Parameter(1.25e-8, 1e-9, 1e-7, "reco")
+            #self.mut = Parameter(1.25e-8, 1e-9, 1e-7, "mut")
+
+            # stdpopsim
+            self.reco = Parameter(1.45e-8, 1e-9, 1e-8, "reco") 
+            # 3.5e-9 based on 2017 paper (from drosophila)
+            self.mut = Parameter(3.5e-9, 1e-9, 1e-8, "mut")
 
         # ooa2
         elif simulator == simulation.ooa2:
