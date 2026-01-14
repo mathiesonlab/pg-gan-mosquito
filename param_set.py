@@ -132,17 +132,18 @@ class ParamSet:
             # }
 
             # see 2017 paper, supplementary table 2, line 62
+            # switching to our results for synthetic "real" data
             params = BFA_vs_GNB_dadi_joint = {
-                'AIC': 33307,
-                'NI': 420722,
-                'TS': 2247,
-                'NI1': 18221645,
-                'NI2': 11907698,
-                'NF1': 42072233,
-                'NF2': 42072201,
+                #'AIC': 33307,
+                'NI': 579516, #420722,
+                'TS': 3519, #2247,
+                'NI1': 117287221, #18221645,
+                'NI2': 62771288, #11907698,
+                'NF1': 59092640, #42072233,
+                'NF2': 189066655, #42072201,
                 '2NIm': None,  # 'NA' interpreted as None
-                'TG': 89511,
-                'NF': 9438040
+                'TG': 75249, #89511,
+                'NF': 2784452 #9438040
             }
             
 
@@ -186,17 +187,18 @@ class ParamSet:
             #                             }
             
             # see 2017 paper, supplementary table 2, line 72
+            # switching to our results for synthetic "real" data
             params = BFA_vs_GNB_dadi_joint_mig = {
-                'AIC': 32780,
-                'NI': 416431,
-                'TS': 4459,
-                'NI1': 6022347,
-                'NI2': 3480335,
-                'NF1': 19519009,
-                'NF2': 41639292,
-                '2NIm': 19.99418964,  # This value is given directly
-                'TG': 91175,
-                'NF': 9086281
+                #'AIC': 32780,
+                'NI': 560796, #416431,
+                'TS': 2265, #4459,
+                'NI1': 16137900, #6022347,
+                'NI2': 20976274, #3480335,
+                'NF1': 134237900, #19519009,
+                'NF2': 218082996, #41639292,
+                '2NIm': 27, #19.99418964,  # This value is given directly
+                'TG': 57254, #91175,
+                'NF': 7772061, #9086281
             }
 
             self.NI = Parameter(params['NI'], params['NI'] * lower_range, params['NI'] * upper_range, "NI")
