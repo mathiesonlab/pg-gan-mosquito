@@ -149,6 +149,7 @@ def parse_output(filename):
     return name_lst, gen_loss_lst, disc_loss_lst, real_acc_lst, fake_acc_lst, true_lst, min_lst, max_lst, param_lst_all # param_str, param_lst_all, test_acc_lst
 
 def plot_param(subplot, param_lst, test_acc_lst, name, true):
+    print(subplot)
     plt.subplot(subplot)
     cm = plt.get_cmap('rainbow')
     num_iter = len(param_lst)-1
@@ -213,9 +214,10 @@ def main():
 
 
     # plot losses
-    subplot = int(str(num_param) + '11')
+    #subplot = (num_param+2, 1, 1)
     #subplot = int(str(4) + '11')
-    plt.subplot(subplot)
+    #print(subplot)
+    plt.subplot(num_param+2, 1, 1)
     plt.xticks([])
     #plt.xlabel("training iteration",fontsize=FONTSIZE)
     plt.ylabel("loss",fontsize=FONTSIZE)
@@ -229,9 +231,10 @@ def main():
     plt.legend(["generator loss", "discriminator loss"], loc='best', fontsize=FONTSIZE)
 
     # plot accuracies
-    subplot = int(str(num_param) + '12')
+    #subplot = ()
     #subplot = int(str(4) + '12')
-    plt.subplot(subplot)
+    #print(subplot)
+    plt.subplot(num_param+2, 1, 2)
     plt.ylabel("accuracy",fontsize=FONTSIZE)
     #plt.xticks([])
     #plt.xlabel("training iteration")
@@ -251,9 +254,10 @@ def main():
     #print("final avg acc", final, fake_acc_lst[-1], real_acc_lst[-1])
 
 
-    for i in range(num_param-2):
-        subplot = int(str(num_param) + '1' + str(i+3))
-        plt.subplot(subplot)
+    for i in range(num_param):
+        #subplot = ()
+        #print(subplot)
+        plt.subplot(num_param+2, 1, i+3)
         name = name_lst[i]
         plt.ylabel(name,fontsize=14)
         param_values = param_lst_all[i]
