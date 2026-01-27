@@ -115,7 +115,7 @@ def parse_output(filename):
             param_lst_all.append([])
             read_param = False
 
-        elif "Epoch 50" in line:
+        elif "Epoch 50" in line or "Epoch 100" in line:
             tokens = line.split()
             disc_loss = float(tokens[3][:-1])
             real_acc = float(tokens[6][:-1])/100
