@@ -2,7 +2,7 @@
 #SBATCH --job-name=dadi_joint # Name of the job
 #SBATCH --output=logs/%x_%j.out # Stdout goes to logs/jobname_jobid.out
 #SBATCH --error=logs/%x_%j.err # Stderr goes to logs/jobname_jobid.err
-#SBATCH --partition=dgx-b200
+#SBATCH --partition=dgx
 #SBATCH --gpus=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
