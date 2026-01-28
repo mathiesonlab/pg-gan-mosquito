@@ -7,7 +7,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=16G
-#SBATCH --time=35:00:00
+#SBATCH --time=11:00:00
 
 for SEED in 0 1 2 3 4 5 6 7 8 9
 do
