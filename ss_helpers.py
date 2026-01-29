@@ -337,13 +337,17 @@ def compute_fst(raw, sample_sizes):
 def plot_generic(ax, name, real, sim, real_color, sim_color, pop="",
     sim_label="", single=False):
     """Plot a generic statistic."""
+
+    round_val = 4
+
     # SFS
     if name == "minor allele count (SFS)":
         # average over regions
         num_sfs = len(real)
         real_sfs = [sum(rs)/num_sfs for rs in real]
         sim_sfs = [sum(ss)/num_sfs for ss in sim]
-                
+        
+        sim_diff = calc_distribution_dist(real_sfs, sim_sfs)
         
         ax.bar([x -0.3 for x in range(num_sfs)], real_sfs, label=pop, width=0.4,
             color=real_color)
@@ -352,6 +356,10 @@ def plot_generic(ax, name, real, sim, real_color, sim_color, pop="",
         ax.set_xlim(-1,len(real_sfs))
         ax.set_ylabel("frequency per region")
         #ax.text(0, 0, diff)
+
+        text = "sim_wass_dist:" + str(round(sim_diff, round_val))
+        #ax.text(.01, .99, text, fontsize=8, ha='left', va='top', transform=ax.transAxes)
+        print(text)
 
     # LD
     elif name == "distance between SNPs":
@@ -362,6 +370,8 @@ def plot_generic(ax, name, real, sim, real_color, sim_color, pop="",
         real_stddev = [np.std(rs) for rs in real]
         sim_stddev = [np.std(ss) for ss in sim]
 
+        sim_diff = calc_distribution_dist(real_mean, sim_mean)
+
         # plotting
         ax.errorbar(dist_bins, real_mean, yerr=real_stddev, color=real_color,
             label=pop)
@@ -369,12 +379,23 @@ def plot_generic(ax, name, real, sim, real_color, sim_color, pop="",
             color=sim_color, label=sim_label)
         ax.set_ylabel(r'LD ($r^2$)')
 
+        text = "sim_wass_dist:" + str(round(sim_diff, round_val))
+        #ax.text(.01, .99, text, fontsize=8, ha='left', va='top', transform=ax.transAxes)
+        print(text)
+
     # all other stats
     else:
         sns.histplot(real, ax=ax, color=real_color, label=pop, kde=True,
             stat="density", edgecolor=None)
         sns.histplot(sim, ax=ax, color=sim_color, label=sim_label, kde=True,
             stat="density", edgecolor=None)
+
+        sim_diff = calc_distribution_dist(real, sim)
+
+        text = "sim_wass_dist:" + str(round(sim_diff, round_val))
+        #ax.text(.01, .99, text, fontsize=8, ha='left', va='top', transform=ax.transAxes)
+        print(text)
+
 
     # inter-SNP distances
     if name == "inter-SNP distances":

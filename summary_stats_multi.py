@@ -18,7 +18,7 @@ import ss_helpers
 import util
 
 # globals
-NUM_TRIAL = 1000
+NUM_TRIAL = 5000
 # statistic names
 NAMES = [
     "minor allele count (SFS)",
@@ -49,6 +49,7 @@ print("GN-BF")
 # see 2017 paper, supplementary table 2, line 152 (TODO switch to median later)
 #DADI_MIG_PARAMS = [415254, 93341, 8292759, 11637, 2635696, 2748423, 11101754, 11439976, 19.9999886]
 
+# these are our inferences for "simreal" analyses
 DADI_MIG = [579516, 75249, 2784452, 3519, 117287221, 62771288, 59092640, 189066655]
 DADI_MIG_PARAMS = [560796, 57254, 7772061, 2265, 16137900, 20976274, 134237900, 218082996, 27]	
 

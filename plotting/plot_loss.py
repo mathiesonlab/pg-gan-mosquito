@@ -107,7 +107,7 @@ def parse_output(filename):
         elif read_param:
             param = line.split()
             name = param[0]
-            print(name)
+            #print(name)
             name_lst.append(name)
             true_lst.append(float(param[1]) if param[1] != "None" else "None")
             min_lst.append(float(param[2]))
@@ -186,6 +186,8 @@ def plot_param(subplot, param_lst, test_acc_lst, name, true):
     else:
         infer_str = str(round(infer))
         true_str = str(round(true))
+
+    print(infer_str, true_str)
     plt.plot([infer, infer], [min(test_acc_lst), max(test_acc_lst)], \
         label="inferred: " + infer_str)
     plt.plot([true, true], [min(test_acc_lst), max(test_acc_lst)], \
@@ -210,7 +212,7 @@ def main():
     num_param = len(true_lst)
 
     plt.figure(num=None, figsize=(14, 10)) #figsize=(14, 4))
-    num_param = len(param_lst_all) # or 0 for just loss/acc
+    num_param = 0 #len(param_lst_all) # or 0 for just loss/acc
 
 
     # plot losses
@@ -277,6 +279,7 @@ def main():
             plt.plot(range(num_iter), [true_lst[i]]*num_iter, label="true: " + str(true))
         plt.plot(range(num_iter), [max_lst[i]]*num_iter, 'k--', lw=0.5)
 
+        print(name, "frac error", abs(infer-true)/true)
         if i != num_param-1:
             plt.xticks([])
         else:
