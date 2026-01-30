@@ -136,9 +136,9 @@ def parse_output(filename):
     f.close()
 
     if gen_loss_lst[0] is None:
-        print("None!")
+        #print("None!")
         gen_loss_lst[0] = gen_loss_lst[1]
-    print(len(gen_loss_lst), len(param_lst_all[0]))
+    #print(len(gen_loss_lst), len(param_lst_all[0]))
     if len(gen_loss_lst) == len(param_lst_all[0]) + 1:
         gen_loss_lst = gen_loss_lst[1:]
         disc_loss_lst = disc_loss_lst[1:]
@@ -206,9 +206,9 @@ def main():
 
     # set up main variables
     num_iter = len(gen_loss_lst)
-    print("num iter", num_iter)
+    #print("num iter", num_iter)
     stop = analyze_acc_lsts(real_acc_lst, fake_acc_lst)
-    print("stop idx", stop)
+    #print("stop idx", stop)
     num_param = len(true_lst)
 
     plt.figure(num=None, figsize=(14, 10)) #figsize=(14, 4))
@@ -226,7 +226,9 @@ def main():
 
     # multiply gen loss by 2 since half as many examples
     plt.plot(range(num_iter), [x*2 for x in gen_loss_lst], 'g')
+    print("gen_loss", [x*2 for x in gen_loss_lst][-1])
     plt.plot(range(num_iter), disc_loss_lst, 'm')
+    print("disc_loss", disc_loss_lst[-1])
     ax = plt.gca()
     ax.set_facecolor('whitesmoke')
     plt.ylim(0,9)
@@ -243,7 +245,9 @@ def main():
     plt.xlabel("training iteration",fontsize=FONTSIZE)
 
     plt.plot(range(num_iter), fake_acc_lst)
+    print("fake_acc", fake_acc_lst[-1])
     plt.plot(range(num_iter), real_acc_lst)
+    print("real_acc", real_acc_lst[-1])
     plt.plot(range(num_iter), [0.5]*num_iter, 'k--', lw=0.5)
     ax = plt.gca()
     ax.set_facecolor('whitesmoke')
@@ -279,7 +283,7 @@ def main():
             plt.plot(range(num_iter), [true_lst[i]]*num_iter, label="true: " + str(true))
         plt.plot(range(num_iter), [max_lst[i]]*num_iter, 'k--', lw=0.5)
 
-        print(name, "frac error", abs(infer-true)/true)
+        print(name + "_frac_error", abs(infer-true)/true)
         if i != num_param-1:
             plt.xticks([])
         else:
@@ -300,7 +304,7 @@ def main():
     gs1.update(wspace=0.025, hspace=0.05) # set the spacing between axes.
     if opts.output != None:
         plt.savefig(opts.output, format="pdf", dpi=600)
-    else:
-        plt.show()
+    #else:
+    #    plt.show()
 
 main()

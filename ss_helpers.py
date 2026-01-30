@@ -343,15 +343,15 @@ def plot_generic(ax, name, real, sim, real_color, sim_color, pop="",
     # SFS
     if name == "minor allele count (SFS)":
         # average over regions
-        num_sfs = len(real)
-        real_sfs = [sum(rs)/num_sfs for rs in real]
-        sim_sfs = [sum(ss)/num_sfs for ss in sim]
+        num_trial = len(real[0]) # len(real) is NUM_SFS, len(real[0]) is NUM_TRIAL
+        real_sfs = [sum(rs)/num_trial for rs in real]
+        sim_sfs = [sum(ss)/num_trial for ss in sim]
         
         sim_diff = calc_distribution_dist(real_sfs, sim_sfs)
         
-        ax.bar([x -0.3 for x in range(num_sfs)], real_sfs, label=pop, width=0.4,
+        ax.bar([x -0.3 for x in range(NUM_SFS)], real_sfs, label=pop, width=0.4,
             color=real_color)
-        ax.bar(range(num_sfs), sim_sfs, label=sim_label, width=0.4,
+        ax.bar(range(NUM_SFS), sim_sfs, label=sim_label, width=0.4,
             color=sim_color)
         ax.set_xlim(-1,len(real_sfs))
         ax.set_ylabel("frequency per region")
