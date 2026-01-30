@@ -419,7 +419,7 @@ def plot_generic_with_baseline(ax, name, real, sim, baseline, real_color, sim_co
         ax.set_xlim(-1,len(real_sfs))
         ax.set_ylabel("frequency per region")
 
-        text = "sim_wass_dist:" + str(round(sim_diff, round_val)) + "\n" + "baseline_wass_dist:" + str(round(baseline_diff, round_val))
+        text = "sim_wass_dist:" + str(round(sim_diff, round_val)) #+ "\n" + "baseline_wass_dist:" + str(round(baseline_diff, round_val))
         #ax.text(.01, .99, text, fontsize=8, ha='left', va='top', transform=ax.transAxes)
         print(text)
 
@@ -436,7 +436,7 @@ def plot_generic_with_baseline(ax, name, real, sim, baseline, real_color, sim_co
 
         ax.set_ylabel("frequency")
 
-        text = "sim_wass_dist:" + str(round(sim_diff, round_val)) + "\n" + "baseline_wass_dist:" + str(round(baseline_diff, round_val))
+        text = "sim_wass_dist:" + str(round(sim_diff, round_val)) #+ "\n" + "baseline_wass_dist:" + str(round(baseline_diff, round_val))
         #ax.text(.01, .99, text, fontsize=8, ha='left', va='top', transform=ax.transAxes)
         print(text)
 
@@ -463,7 +463,7 @@ def plot_generic_with_baseline(ax, name, real, sim, baseline, real_color, sim_co
             color=baseline_color, label=baseline_label)
         ax.set_ylabel(r'LD ($r^2$)')
 
-        text = "sim_wass_dist:" + str(round(sim_diff, round_val)) + "\n" + "baseline_wass_dist:" + str(round(baseline_diff, round_val))
+        text = "sim_wass_dist:" + str(round(sim_diff, round_val)) #+ "\n" + "baseline_wass_dist:" + str(round(baseline_diff, round_val))
         #ax.text(.01, .99, text, fontsize=8, ha='left', va='top', transform=ax.transAxes)
         print(text)
 
@@ -478,7 +478,7 @@ def plot_generic_with_baseline(ax, name, real, sim, baseline, real_color, sim_co
         sim_diff = calc_distribution_dist(real, sim)
         baseline_diff = calc_distribution_dist(real, baseline)
 
-        text = "sim_wass_dist:" + str(round(sim_diff, round_val)) + "\n" + "baseline_wass_dist:" + str(round(baseline_diff, round_val))
+        text = "sim_wass_dist:" + str(round(sim_diff, round_val)) #+ "\n" + "baseline_wass_dist:" + str(round(baseline_diff, round_val))
         #ax.text(.01, .99, text, fontsize=8, ha='left', va='top', transform=ax.transAxes)
         print(text)
 
