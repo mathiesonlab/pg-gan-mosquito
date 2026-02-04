@@ -29,7 +29,7 @@ NAMES = [
     r'pairwise heterozygosity ($\pi$)',
     "Watterson",
     "Hudson's Fst"]
-FST_COLOR = "tab:blue"
+FST_COLOR = "gray"
 
 # for ooa2 (YRI/CEU) (no longer supported)
 #FSC_PARAMS = [21017, 0.0341901, 3105.5, 21954, 33077.5, 2844, 1042]
@@ -277,7 +277,7 @@ def plot_stats_all(nrows, ncols, size, real_stats_lst, sim_stats_lst, sim_baseli
     single = True if num_pop == 1 else False
     for p in range(num_pop): # one/two pop won't use last indices
         real_color = 'gray' #colors[p]
-        real_label = 'real' #labels[p]
+        real_label = 'pop' + str(p+1) #labels[p]
         real_pop = real_stats_lst[p]
         sim_pop = sim_stats_lst[p]
         sim_baseline_pop = None
@@ -294,7 +294,7 @@ def plot_stats_all(nrows, ncols, size, real_stats_lst, sim_stats_lst, sim_baseli
     if num_pop == 2:
         cidx = 1
     for pi in range(len(real_fst_lst)): # pi -> pair index
-        pair_label = "real data" #labels[first_pop[pi]] + "/" + labels[second_pop[pi]]
+        pair_label = "pop1/pop2" #labels[first_pop[pi]] + "/" + labels[second_pop[pi]]
         #load custom code that intake three sets of summary statistics for plotting
         if DADI:
             ss_helpers.plot_generic_with_baseline(axes[3+pi][cidx], NAMES[6], real_fst_lst[pi],
@@ -307,13 +307,13 @@ def plot_stats_all(nrows, ncols, size, real_stats_lst, sim_stats_lst, sim_baseli
     # overall legend
     if num_pop >= 2:
         for p in range(num_pop):
-            simreal_label = "real"
-            p_real = mpatches.Patch(color='gray', label=simreal_label + ' real data')
+            simreal_label = "pop" + str(p+1)
+            p_real = mpatches.Patch(color='gray', label=simreal_label + ' training data')
             p_sim = mpatches.Patch(color=sim_color, label=simreal_label + ' pg-gan')
-            p_sim_baseline = mpatches.Patch(color=sim_baseline_color, label=simreal_label + ' baseline') #label=sim_baseline_label + ' baseline')
+            #p_sim_baseline = mpatches.Patch(color=sim_baseline_color, label=simreal_label + ' baseline') #label=sim_baseline_label + ' baseline')
             if num_pop == 2:
                 axes[3][0+3*p].axis('off')
-                axes[3][0+3*p].legend(handles=[p_real, p_sim, p_sim_baseline], loc=10,
+                axes[3][0+3*p].legend(handles=[p_real, p_sim], loc=10,
                     prop={'size': 18})
             if num_pop == 3:
                 axes[3+p][1].axis('off')

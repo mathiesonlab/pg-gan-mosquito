@@ -349,13 +349,27 @@ def plot_generic(ax, name, real, sim, real_color, sim_color, pop="",
         
         sim_diff = calc_distribution_dist(real_sfs, sim_sfs)
         
-        ax.bar([x -0.3 for x in range(NUM_SFS)], real_sfs, label=pop, width=0.4,
-            color=real_color)
-        ax.bar(range(NUM_SFS), sim_sfs, label=sim_label, width=0.4,
-            color=sim_color)
+        ax.bar([x -0.3 for x in range(NUM_SFS)], real_sfs, label=pop, width=0.4, color=real_color)
+        ax.bar(range(NUM_SFS), sim_sfs, label=sim_label, width=0.4, color=sim_color)
         ax.set_xlim(-1,len(real_sfs))
         ax.set_ylabel("frequency per region")
         #ax.text(0, 0, diff)
+
+        text = "sim_wass_dist:" + str(round(sim_diff, round_val))
+        #ax.text(.01, .99, text, fontsize=8, ha='left', va='top', transform=ax.transAxes)
+        print(text)
+
+    # inter-SNP
+    elif name == "inter-SNP distances":
+        
+        sim_diff = calc_distribution_dist(real, sim)
+        
+        # weight so sum to num_snps (per region)
+        weights=np.ones_like(real) / len(real) * global_vars.NUM_SNPS
+        ax.hist([real, sim], bins=np.linspace(-1,40,10), weights=[weights, weights],
+            color=[real_color, sim_color], label=[pop, sim_label])
+
+        ax.set_ylabel("frequency")
 
         text = "sim_wass_dist:" + str(round(sim_diff, round_val))
         #ax.text(.01, .99, text, fontsize=8, ha='left', va='top', transform=ax.transAxes)
@@ -385,10 +399,8 @@ def plot_generic(ax, name, real, sim, real_color, sim_color, pop="",
 
     # all other stats
     else:
-        sns.histplot(real, ax=ax, color=real_color, label=pop, kde=True,
-            stat="density", edgecolor=None)
-        sns.histplot(sim, ax=ax, color=sim_color, label=sim_label, kde=True,
-            stat="density", edgecolor=None)
+        sns.kdeplot(real, ax=ax, color=real_color, label=pop, common_norm=False)
+        sns.kdeplot(sim, ax=ax, color=sim_color, label=sim_label, common_norm=False)
 
         sim_diff = calc_distribution_dist(real, sim)
 
@@ -396,10 +408,9 @@ def plot_generic(ax, name, real, sim, real_color, sim_color, pop="",
         #ax.text(.01, .99, text, fontsize=8, ha='left', va='top', transform=ax.transAxes)
         print(text)
 
-
     # inter-SNP distances
-    if name == "inter-SNP distances":
-        ax.set_xlim(-5,50)
+    #if name == "inter-SNP distances":
+    #    ax.set_xlim(-5,50)
     ax.set(xlabel=name)
 
     # legend
@@ -490,12 +501,9 @@ def plot_generic_with_baseline(ax, name, real, sim, baseline, real_color, sim_co
 
     # all other stats
     else:
-        sns.kdeplot(real, ax=ax, color=real_color, label=pop,
-            common_norm=False)
-        sns.kdeplot(sim, ax=ax, color=sim_color, label=sim_label, 
-            common_norm=False)
-        sns.kdeplot(baseline, ax=ax, color=baseline_color, label=baseline_label, 
-            common_norm=False)
+        sns.kdeplot(real, ax=ax, color=real_color, label=pop, common_norm=False)
+        sns.kdeplot(sim, ax=ax, color=sim_color, label=sim_label,  common_norm=False)
+        sns.kdeplot(baseline, ax=ax, color=baseline_color, label=baseline_label, common_norm=False)
         sim_diff = calc_distribution_dist(real, sim)
         baseline_diff = calc_distribution_dist(real, baseline)
 
